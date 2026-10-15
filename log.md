@@ -4,6 +4,13 @@ Registro append-only de cada tanda de trabajo. Entradas nuevas arriba.
 
 ---
 
+## 2026-10-04 — Guía de sincronización en la notebook
+
+**Hecho:**
+- Creada [[Sincronizacion_Notebook]] con los pasos para clonar el vault en la notebook (Fase C) y configurar el plugin Obsidian Git en ambas máquinas (Fase D).
+
+---
+
 ## 2026-10-04 — Vault versionado y sincronizado con GitHub
 
 **Hecho:**
