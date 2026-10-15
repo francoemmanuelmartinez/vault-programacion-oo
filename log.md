@@ -4,6 +4,16 @@ Registro append-only de cada tanda de trabajo. Entradas nuevas arriba.
 
 ---
 
+## 2026-10-04 — Vault versionado y sincronizado con GitHub
+
+**Hecho:**
+- Inicializado el vault como repositorio git (rama `main`) y publicado en el repo **privado** `francoemmanuelmartinez/vault-programacion-oo`.
+- Creado `.gitignore` del vault excluyendo lo específico de cada máquina: `.obsidian/workspace.json`, `.obsidian/workspace-mobile.json`, `.obsidian/cache/` y `.trash/`.
+- Commit inicial `4a2ab7d` (55 archivos) pusheado a `origin/main`.
+- Objetivo: copiar el vault a la notebook clonando el repo y mantenerlo sincronizado con el plugin **Obsidian Git**.
+
+---
+
 ## 2026-10-03 — Reformulación del orden de procesamiento sugerido
 
 **Hecho:**
