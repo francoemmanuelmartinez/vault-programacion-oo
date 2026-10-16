@@ -11,8 +11,8 @@ tags: [indice, meta]
 
 - PDFs en el vault: **19**
 - Notas creadas: **19**
-- Tarea: `NutritionistApp` — ventanas cableadas y navegación `Patient` ↔ `Aliment`
-  funcionando. Modelos y persistencia vacíos. Ver [[00-estado]]
+- Tarea: `NutritionistApp` — entrega 1 (**GUI** de `Patient` y `Aliment`) entregada.
+  Modelos y persistencia vacíos; ver [[estado]].
 - Rúbrica ya procesada: [[enunciado_rubrica]]. Antes era un bloqueante; ya no.
 
 ## Bloque 1 — Teoría y conceptos
@@ -41,14 +41,19 @@ tags: [indice, meta]
 
 ## Tarea
 
-- ✅ [[00-estado]] — Auditoría del código existente (NetBeans, ventanas cableadas)
-- ✅ [[03-vistas-manuales]] — Contingencia: vistas Swing a mano (compilan) y
+### Entregas (metodología incremental)
+
+- ✅ [[entrega-01-interfaces-graficas]] — GUI de dos entidades (`Patient` y `Aliment`)
+- ⬜ [[entrega-02-dao-una-entidad]] — DAO de una entidad (JDBC o JPA)
+
+### Notas de trabajo
+
+- ✅ [[estado]] — Estado general del código y de la tarea
+- ✅ [[vistas-manuales]] — Contingencia: vistas Swing a mano (compilan) y
   alternativa de `setVisible(false)` a `dispose()`
-- ✅ [[04-convenciones]] — Convenciones de código: getters para exponer los
+- ✅ [[convenciones]] — Convenciones de código: getters para exponer los
   componentes al controlador, abreviaturas, Javadoc
 - ✅ [[enunciado_rubrica]] — Enunciado y rúbrica del trabajo práctico
-- ⬜ [[01-modelo]] — Modelo de clases
-- ⬜ [[02-plan]] — Plan de implementación
 
 ## Navegación
 

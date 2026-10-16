@@ -79,8 +79,8 @@ El trabajo práctico integrador consiste en el desarrollo en equipo (tres integr
 
 ## Relacionado
 
-- [[00-estado]]
-- [[03-vistas-manuales]]
+- [[estado]]
+- [[vistas-manuales]]
 - [[JDBC_DAO_MySQL]]
 - [[Swing_MVC_Interfaces_Java]]
 

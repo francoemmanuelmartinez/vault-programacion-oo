@@ -4,6 +4,25 @@ Registro append-only de cada tanda de trabajo. Entradas nuevas arriba.
 
 ---
 
+## 2026-10-04 — Reestructuración de `tarea/`: esquema por entregas
+
+**Contexto:** el profesor entrega el proyecto de forma **incremental**; cada trabajo agrega funcionalidad hasta la entrega final (rúbrica). El eje de organización de `tarea/` pasa a ser **la entrega**.
+
+**Hecho:**
+- Creada la carpeta `tarea/entregas/` con una nota por entrega:
+  - [[entrega-01-interfaces-graficas]] (✅ entregada): GUI de `Patient` y `Aliment`.
+  - [[entrega-02-dao-una-entidad]] (⬜ pendiente): DAO de una entidad con JDBC o JPA (consigna textual del profesor incluida).
+- Renombradas las notas de trabajo (sin número, con `aliases` al nombre viejo y H1 sin prefijo numérico):
+  - `00-estado` → [[estado]]
+  - `03-vistas-manuales` → [[vistas-manuales]]
+  - `04-convenciones` → [[convenciones]]
+- Eliminado `02-plan.md` (vacío, mal ubicado en la raíz).
+- Reapuntados todos los `[[enlaces]]` a las notas renombradas (13 archivos). `log.md` se dejó intacto (append-only; los enlaces viejos resuelven por `aliases`).
+- Limpiadas las referencias muertas a `01-modelo` y `02-plan`.
+- Actualizados `index.md` (sección Tarea dividida en Entregas / Notas de trabajo), `ME.md` (tabla de Estado al día) y `MAP.md` (árbol de `tarea/` y tabla de notas inexistentes).
+
+---
+
 ## 2026-10-04 — Guía de sincronización en la notebook
 
 **Hecho:**

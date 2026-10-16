@@ -206,10 +206,10 @@ La regla de oro de la arquitectura en capas:
 
 ## Relacionado
 
-- [[04-convenciones]] — Convención de getters privados en las vistas de nuestro proyecto
-- [[03-vistas-manuales]] — Contingencia de vistas a mano y estrategia `dispose()`
+- [[convenciones]] — Convención de getters privados en las vistas de nuestro proyecto
+- [[vistas-manuales]] — Contingencia de vistas a mano y estrategia `dispose()`
 - [[enunciado_rubrica]] — Criterios de evaluación de la interfaz gráfica
-- [[00-estado]] — Estado actual de las vistas en `NutritionistApp`
+- [[estado]] — Estado actual de las vistas en `NutritionistApp`
 - [[MAP]] — Mapa general del vault
 
 ---

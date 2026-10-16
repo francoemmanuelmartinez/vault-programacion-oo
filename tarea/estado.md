@@ -1,9 +1,10 @@
 ---
 tags: [tarea, estado, auditoria]
 fuente: inspección directa del repositorio
+aliases: [00-estado]
 ---
 
-# 00 — Estado actual del código
+# Estado actual del código
 
 > Auditoría hecha el 2026-10-03 por inspección directa del proyecto.
 > **No** es contenido del profesor: es un relevamiento de lo que hay escrito.
@@ -46,7 +47,7 @@ C:\Users\games\Desktop\Proyectos\NutritionistApp\NutritionistApp\
 | `Views/viewAliment.java` | 185 | GUI armada. Todos los componentes privados; `getBtnPatient()` expone el de navegación |
 
 **Navegación entre vistas:** funcionando. `Patient` ↔ `Aliment` con `dispose()` y
-`SwingUtilities.invokeLater()`. Ver [[03-vistas-manuales]] para la contingencia de
+`SwingUtilities.invokeLater()`. Ver [[vistas-manuales]] para la contingencia de
 `setVisible(false)`.
 
 **Diagnóstico:** sigue siendo un **esqueleto con las ventanas cableadas**. La
@@ -90,9 +91,9 @@ Los dos modelos siguen vacíos y falta la capa de persistencia.
    por sí mismo.
    → El riesgo real es otro: el criterio *Documentación y Código Limpio* pide
    comentarios y código propios, y el bloque `initComponents()` no se puede
-   documentar. Por eso [[04-convenciones]] pone los getters fuera de las regiones
+   documentar. Por eso [[convenciones]] pone los getters fuera de las regiones
    generadas: son las únicas partes de la vista que son código nuestro.
-   → **Contingencia ya preparada** en [[03-vistas-manuales]] por si más adelante
+   → **Contingencia ya preparada** en [[vistas-manuales]] por si más adelante
    el profesor o el equipo decide cortar con el designer.
 
 3. **Java 25 con JDK 26 instalado.** Compila, pero si la corrección ocurre en una
@@ -116,19 +117,22 @@ Los dos modelos siguen vacíos y falta la capa de persistencia.
 - Característica extra para aspirar al 10: el enunciado pide "alguna
   característica extra (investigación)", sin especificar cuál.
 
+**Entregas (metodología incremental):**
+- ✅ [[entrega-01-interfaces-graficas]] — GUI de `Patient` y `Aliment`.
+- ⬜ [[entrega-02-dao-una-entidad]] — DAO de una entidad (JDBC o JPA).
+
 **Trabajo de diseño que sí depende de lo que ya sabemos:**
 - Modelar **tres** entidades, no dos. La regla del enunciado es que dos se
   combinan en una tercera: en este dominio la candidata es `Diet`, que relaciona
   paciente y alimentos. Ver la sugerencia en [[enunciado_rubrica]].
-- Con eso armado: [[01-modelo]] y [[02-plan]].
 
 **Riesgo a resolver antes de escribir más código:**
 - Las vistas son generadas por el NetBeans GUI Builder. La rúbrica **no** las
-  penaliza (ver riesgos 2), pero [[03-vistas-manuales]] queda como contingencia
+  penaliza (ver riesgos 2), pero [[vistas-manuales]] queda como contingencia
   si el equipo decide cortar con el designer.
 - Los componentes de las vistas ya se exponen por getters según
-  [[04-convenciones]].
+  [[convenciones]].
 
 ## Relacionado
 
-[[04-convenciones]] · [[enunciado_rubrica]] · [[03-vistas-manuales]] · [[ME]] · [[MAP]]
+[[convenciones]] · [[enunciado_rubrica]] · [[vistas-manuales]] · [[ME]] · [[MAP]]

@@ -213,7 +213,7 @@ Un `JComboBox` filtra alumnos (Todos, Aprobados, Desaprobados) y un `JTable` mue
 - [[Listas_y_ComboBox_Swing]] — El mismo patrón con listas y combos
 - [[Swing_MVC_Interfaces_Java]] — Fundamentos de Swing y arquitectura en capas
 - [[enunciado_rubrica]] — Criterios de evaluación de la interfaz gráfica
-- [[00-estado]] — Estado de las vistas en `NutritionistApp`
+- [[estado]] — Estado de las vistas en `NutritionistApp`
 - [[MAP]] — Mapa general del vault
 
 ---

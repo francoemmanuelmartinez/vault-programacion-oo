@@ -22,7 +22,7 @@ profesor**. El profesor **Esteban Santini** define el contrato.
 - El código ya está empezado en un proyecto NetBeans, en
   `C:\Users\games\Desktop\Proyectos\NutritionistApp\NutritionistApp`
   (**fuera del vault**). Hoy es un esqueleto: models y controllers vacíos.
-  Ver [[00-estado]] para el detalle.
+  Ver [[estado]] para el detalle.
 - Necesita el material en un formato navegable y consultable desde Obsidian,
   no PDFs sueltos.
 
@@ -44,16 +44,18 @@ profesor**. El profesor **Esteban Santini** define el contrato.
 
 | Bloque | Estado |
 |---|---|
-| PDFs copiados al vault | Hecho |
+| PDFs copiados al vault (19) | Hecho |
+| PDFs procesados en `temas/` (19 notas) | Hecho |
 | Estructura y navegación del vault | Hecho |
-| Auditoría del código existente | Hecho → [[00-estado]] |
-| Limpieza de código muerto | Hecho → commit `7fc3180` |
-| Navegación `Patient` ↔ `Aliment` | Hecho → commit `7fc3180` |
-| `enunciado_rubrica.pdf` analizado | Pendiente ← **bloqueante** |
-| PDFs procesados en `temas/` | Pendiente |
-| Modelo de clases de la tarea | Pendiente |
-| Tarea implementada | Parcial: solo la navegación entre ventanas |
-| Entidad `Diet` (botón `Diets`) | Pendiente |
+| `enunciado_rubrica.pdf` analizado | Hecho → [[enunciado_rubrica]] |
+| Auditoría del código existente | Hecho → [[estado]] |
+| Limpieza de código muerto + navegación `Patient` ↔ `Aliment` | Hecho → commit `7fc3180` |
+| Encapsulamiento con getters | Hecho → commit `8fc5218` |
+| Vault versionado en git + GitHub | Hecho → [[Sincronizacion_Notebook]] |
+| **Entrega 1**: GUI de dos entidades | Hecho → [[entrega-01-interfaces-graficas]] |
+| **Entrega 2**: DAO de una entidad | Pendiente → [[entrega-02-dao-una-entidad]] |
+| Modelo de clases / entidad `Diet` | Pendiente |
+| Entrega final (3 entidades + rúbrica) | Pendiente |
 | Videos procesados | Pendiente |
 
 Ver `log.md` para el detalle de cada tanda de trabajo.
@@ -63,5 +65,5 @@ Ver `log.md` para el detalle de cada tanda de trabajo.
 - [[MAP]] — índice de fuentes y mapa del vault
 - [[SKILLS]] — qué sabe hacer el asistente con este material
 - [[index]] — catálogo de temas
-- [[00-estado]] — auditoría del código que ya existe
+- [[estado]] — auditoría del código que ya existe
 - `AGENTS.md` — reglas para assistants

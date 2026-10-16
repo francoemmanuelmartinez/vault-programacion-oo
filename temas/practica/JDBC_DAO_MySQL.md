@@ -287,7 +287,7 @@ public class DaoException extends Exception {
 - [[JPA_Hibernate_DAO]] — La alternativa moderna basada en ORM y JPA
 - [[SOLID_Principios]] — Principios SOLID aplicados a la separación de capas
 - [[enunciado_rubrica]] — Requisitos del trabajo práctico integrador
-- [[00-estado]] — Estado del acceso a datos en `NutritionistApp`
+- [[estado]] — Estado del acceso a datos en `NutritionistApp`
 - [[MAP]] — Mapa general del vault
 
 ---

@@ -267,7 +267,7 @@ Varios `JCheckBox` independientes calculan dinámicamente el precio total de ext
 - [[Listas_y_ComboBox_Swing]] — Selección de opciones basadas en listas y modelos
 - [[Swing_MVC_Interfaces_Java]] — Arquitectura en capas y manejo de eventos
 - [[enunciado_rubrica]] — Criterios de evaluación de la interfaz gráfica
-- [[00-estado]] — Estado actual de las vistas en `NutritionistApp`
+- [[estado]] — Estado actual de las vistas en `NutritionistApp`
 - [[MAP]] — Mapa general del vault
 
 ---

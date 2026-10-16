@@ -10,7 +10,7 @@ Programacion Orientada a Objetos/
 ├── index.md              ← catálogo de temas procesados
 ├── log.md                ← bitácora de trabajo (append-only)
 ├── AGENTS.md             ← reglas para assistants
-├── 02-plan.md            ← ⚠️ por ubicación, debería estar en tarea/
+├── Sincronizacion_Notebook.md ← guía de sync con GitHub en la notebook
 ├── Bienvenido.md         ← nota original de Obsidian (intocable)
 │
 ├── fuentes/
@@ -22,9 +22,12 @@ Programacion Orientada a Objetos/
 │   └── tarea/            ← enunciado_rubrica.md
 │
 ├── tarea/                ← trabajo práctico del Estudiante
-│   ├── 00-estado.md           ← auditoría del código que hay hoy
-│   ├── 03-vistas-manuales.md  ← contingencia: vistas Swing a mano
-│   └── 04-convenciones.md     ← convenciones de código del proyecto
+│   ├── entregas/              ← una nota por entrega (metodología incremental)
+│   │   ├── entrega-01-interfaces-graficas.md
+│   │   └── entrega-02-dao-una-entidad.md
+│   ├── estado.md              ← estado general del código y la tarea
+│   ├── vistas-manuales.md     ← contingencia: vistas Swing a mano
+│   └── convenciones.md        ← convenciones de código del proyecto
 │
 └── plantillas/
     └── tema.md
@@ -34,8 +37,7 @@ Programacion Orientada a Objetos/
 
 | Nota | Estado | Donde se la cita |
 |---|---|---|
-| `01-modelo` | ⬜ no escrita | [[00-estado]], [[index]], [[03-vistas-manuales]] |
-| `00-enunciado` | ⚠️ reemplazada por [[enunciado_rubrica]] | [[03-vistas-manuales]], `log.md` |
+| `00-enunciado` | ⚠️ reemplazada por [[enunciado_rubrica]] | `log.md` (histórico) |
 
 [[enunciado_rubrica]] **sí** existe, pero vive en `temas/tarea/` porque es la
 síntesis de un PDF, no una nota de aplicación. Cualquier cita a `00-enunciado`

@@ -287,7 +287,7 @@ Los pasos que se repiten en cualquier operación:
 - [[JDBC_DAO_MySQL]] — La alternativa basada en JDBC puro
 - [[SOLID_Principios]] — Principios aplicados al diseño en capas
 - [[enunciado_rubrica]] — Requisitos del trabajo práctico integrador
-- [[00-estado]] — Estado de la persistencia en `NutritionistApp`
+- [[estado]] — Estado de la persistencia en `NutritionistApp`
 - [[MAP]] — Mapa general del vault
 
 ---

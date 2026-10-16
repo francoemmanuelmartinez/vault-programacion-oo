@@ -1,9 +1,10 @@
 ---
 tags: [tarea, swing, contingency, codigo]
 estado: verificado-compila
+aliases: [03-vistas-manuales]
 ---
 
-# 03 — Vistas en Swing manual (contingencia)
+# Vistas en Swing manual (contingencia)
 
 > [!warning] Esto es una **contingencia**, no el estado actual
 > Las vistas que hoy tiene el proyecto (`viewPatient.java`, `viewAliment.java`)
@@ -111,7 +112,7 @@ private void irAAliment() {
 | Ciclo de vida | Una instancia por cada visita | Una sola instancia por vista |
 | Quién guarda las referencias | Nadie, se crean y se descartan | Alguien tiene que guardarlas |
 
-El punto de partida es la segunda columna de la tabla de [[00-estado]]: el
+El punto de partida es la segunda columna de la tabla de [[estado]]: el
 proyecto tiene **cero** lógica de negocio, así que todavía no hay nada que
 preserve. `dispose()` es la opción simple y no obliga a mantener estado global
 de ventanas. Recién cuando los modelos tengan datos va a importar.
@@ -133,7 +134,7 @@ de ventanas. Recién cuando los modelos tengan datos va a importar.
 > Ojo: adoptar `ViewPatient` en PascalCase implica **renombrar también**
 > `viewPatient`, `viewAliment`, `modelPatient`, `modelAliment`,
 > `controllerPatient` y `controllerAliment`, más todos los imports. Es el mismo
-> problema del riesgo 1 de [[00-estado]], así que conviene resolver los dos juntos.
+> problema del riesgo 1 de [[estado]], así que conviene resolver los dos juntos.
 
 ---
 
@@ -502,4 +503,4 @@ vacío o tiene letras. Eso hay que envolverlo en `try/catch` y mostrar un
 
 ## Relacionado
 
-[[00-estado]] · [[01-modelo]] · [[02-plan]] · [[00-enunciado]]
+[[estado]] · [[enunciado_rubrica]]

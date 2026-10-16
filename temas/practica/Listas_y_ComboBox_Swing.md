@@ -173,7 +173,7 @@ Un `JComboBox` de categorías filtra dinámicamente los productos que muestra un
 - [[JTable_en_Swing]] — Tablas y modelos tabulares
 - [[Swing_MVC_Interfaces_Java]] — Arquitectura en capas y Event Dispatch Thread
 - [[enunciado_rubrica]] — Requisitos de la interfaz gráfica
-- [[00-estado]] — Estado actual de las vistas en `NutritionistApp`
+- [[estado]] — Estado actual de las vistas en `NutritionistApp`
 - [[MAP]] — Mapa general del vault
 
 ---

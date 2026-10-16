@@ -2,9 +2,10 @@
 fuente: convención propia del proyecto (no proviene de ningún PDF)
 tags: [tarea, convenciones, encapsulamiento, mvc, swing]
 estado: vigente
+aliases: [04-convenciones]
 ---
 
-# 04 — Convenciones del proyecto
+# Convenciones del proyecto
 
 > [!warning] Esto NO es una exigencia del profesor
 > Revisé `enunciado_rubrica.pdf` completo (pág. 1 y 2) y **no menciona getters,
@@ -123,7 +124,7 @@ getters que nadie usa.
   las regiones `//GEN-BEGIN` / `//GEN-END`, que es lo único que garantiza que
   NetBeans no lo borre al regenerar. Escribilo después de
   `//GEN-END:variables`, nunca antes.
-  Si algún día se aplica la contingencia de [[03-vistas-manuales]] (vistas a
+  Si algún día se aplica la contingencia de [[vistas-manuales]] (vistas a
   mano), esto deja de ser un problema.
 
 ## Abreviaturas: nombres vs comentarios
@@ -175,8 +176,8 @@ public javax.swing.JButton getBtnAliment() {
 
 ## Relacionado
 
-- [[00-estado]] — auditoría del código, incluye el inventario de vistas
-- [[03-vistas-manuales]] — contingencia de vistas a mano y `setVisible(false)`
+- [[estado]] — auditoría del código, incluye el inventario de vistas
+- [[vistas-manuales]] — contingencia de vistas a mano y `setVisible(false)`
 - [[enunciado_rubrica]] — el criterio *Documentación y Código Limpio*
 - [[Swing_MVC_Interfaces_Java]] — Swing, MVC e interfaces
 - [[Codigo_Limpio_Nombres_y_Estructura]] — por qué `jButton1` es un mal nombre
