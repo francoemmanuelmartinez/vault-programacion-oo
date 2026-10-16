@@ -4,6 +4,16 @@ Registro append-only de cada tanda de trabajo. Entradas nuevas arriba.
 
 ---
 
+## 2026-10-16 — Incorporación de los PDFs de Diagrama de Secuencia y Javadoc
+
+**Hecho:**
+- Añadidos a `fuentes/pdf/` los dos PDFs faltantes: `Diagrama_de_Secuencia_UML.pdf` y `Javadoc_en_Java.pdf`.
+- Creada la nota de síntesis [[Diagrama_de_Secuencia_UML]] en `temas/Teoria/` (pág. 1 a 20), cubriendo casos de uso vs. secuencia, componentes, tipos de mensajes, fragmentos combinados (`alt`, `opt`, `loop`) y el flujo en arquitectura MVC + DAO con ejemplos del sistema de biblioteca.
+- Creada la nota de síntesis [[Javadoc_en_Java]] en `temas/Teoria/` (pág. 1 a 13), cubriendo la herramienta oficial del JDK, estructura de comentarios `/** ... */`, etiquetas esenciales (`@param`, `@return`, `@throws`, `@see`), comparación con otros lenguajes y generación de documentación HTML.
+- Actualizados los contadores del vault (21 PDFs, 21 notas) en `MAP.md`, `index.md` y `ME.md`.
+
+---
+
 ## 2026-10-15 — Correcciones: getter `Diets`, `src.zip` y guía de sync
 
 **Hecho:**

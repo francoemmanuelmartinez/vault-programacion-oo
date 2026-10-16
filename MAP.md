@@ -14,9 +14,9 @@ Programacion Orientada a Objetos/
 ├── Bienvenido.md         ← nota original de Obsidian (intocable)
 │
 ├── fuentes/
-│   └── pdf/              ← PDFs originales, INTOCABLES (19 archivos)
+│   └── pdf/              ← PDFs originales, INTOCABLES (21 archivos)
 │
-├── temas/                ← una nota por PDF procesado (19 notas)
+├── temas/                ← una nota por PDF procesado (21 notas)
 │   ├── Teoria/           ← conceptos POO, SOLID, código limpio y diagramas UML
 │   ├── practica/         ← Swing, JDBC y JPA
 │   └── tarea/            ← enunciado_rubrica.md
@@ -74,6 +74,8 @@ pertenece a la capa de síntesis sin estar marcada como ampliación de la IA.
 | 2 | `Codigo_Limpio_Nombres_y_Estructura.pdf` | Código limpio, nombres y estructura | ✅ [[Codigo_Limpio_Nombres_y_Estructura]] |
 | 3 | `Diagrama_Casos_de_Uso_UML.pdf` | Diagrama de casos de uso | ✅ [[Diagrama_Casos_de_Uso_UML]] |
 | 4 | `DiagramaClases_Ej2_Biblioteca.pdf` | Diagrama de clases (ejercicio biblioteca) | ✅ [[DiagramaClases_Ej2_Biblioteca]] |
+| 19 | `Diagrama_de_Secuencia_UML.pdf` | Diagrama de secuencia UML | ✅ [[Diagrama_de_Secuencia_UML]] |
+| 20 | `Javadoc_en_Java.pdf` | Javadoc y documentación en Java | ✅ [[Javadoc_en_Java]] |
 
 ### Bloque 2 — Práctica y herramientas
 

@@ -36,7 +36,7 @@ profesor**. El profesor **Esteban Santini** define el contrato.
 
 ## Fuentes
 
-- **PDFs**: 19 archivos en `fuentes/pdf/`. Son la base actual de la wiki.
+- **PDFs**: 21 archivos en `fuentes/pdf/`. Son la base actual de la wiki.
 - **Videos**: material del instituto pendiente de incorporar (ver [[SKILLS]] para
   el procedimiento).
 
@@ -44,8 +44,8 @@ profesor**. El profesor **Esteban Santini** define el contrato.
 
 | Bloque | Estado |
 |---|---|
-| PDFs copiados al vault (19) | Hecho |
-| PDFs procesados en `temas/` (19 notas) | Hecho |
+| PDFs copiados al vault (21) | Hecho |
+| PDFs procesados en `temas/` (21 notas) | Hecho |
 | Estructura y navegación del vault | Hecho |
 | `enunciado_rubrica.pdf` analizado | Hecho → [[enunciado_rubrica]] |
 | Auditoría del código existente | Hecho → [[estado]] |

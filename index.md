@@ -9,8 +9,8 @@ tags: [indice, meta]
 
 ## Estado
 
-- PDFs en el vault: **19**
-- Notas creadas: **19**
+- PDFs en el vault: **21**
+- Notas creadas: **21**
 - Tarea: `NutritionistApp` — entrega 1 (**GUI** de `Patient` y `Aliment`) entregada.
   Modelos y persistencia vacíos; ver [[estado]].
 - Rúbrica ya procesada: [[enunciado_rubrica]]. Antes era un bloqueante; ya no.
@@ -29,6 +29,8 @@ tags: [indice, meta]
 - ✅ [[Codigo_Limpio_Nombres_y_Estructura]] — Código limpio, nombres y estructura
 - ✅ [[Diagrama_Casos_de_Uso_UML]] — Diagrama de casos de uso UML
 - ✅ [[DiagramaClases_Ej2_Biblioteca]] — Diagrama de clases — Ejercicio biblioteca
+- ✅ [[Diagrama_de_Secuencia_UML]] — Diagrama de secuencia UML
+- ✅ [[Javadoc_en_Java]] — Javadoc y documentación en Java
 
 ## Bloque 2 — Práctica y herramientas
 
