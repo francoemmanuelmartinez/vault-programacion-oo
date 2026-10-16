@@ -38,15 +38,41 @@ Obsidian → **Open folder as vault** → elegís la carpeta clonada.
 
 ## Fase D — Plugin Obsidian Git (en **ambas** máquinas)
 
-1. Ajustes → **Community plugins** → activar el modo e instalar **Git** (autor *Vinzent03*).
-2. Configuración sugerida:
+### Instalación y configuración (una vez por máquina)
+
+1. Ajustes → **Community plugins** → desactivar **Restricted mode**.
+2. **Browse** → buscar **Git** (autor *Vinzent03*) → **Install** → **Enable**.
+3. Configuración sugerida:
    - **Auto pull on startup** = ON
    - **Auto commit-and-sync** cada ~10 min
-3. Al instalarlo se crean:
-   - `.obsidian/community-plugins.json`
-   - `.obsidian/plugins/obsidian-git/`
+4. **Autenticación:** en escritorio, `obsidian-git` delega el login al git del
+   sistema (Git Credential Manager). La primera vez que sincroniza te pide las
+   credenciales de GitHub. El token **no** viaja en el repo: hay que
+   autenticar **una vez en cada máquina**.
 
-   Esos archivos hay que commitearlos para que el plugin quede instalado y activo solo en la otra máquina.
+### Qué commitear del plugin (para que la notebook ya lo tenga)
+
+Al instalarlo se crean:
+
+```text
+.obsidian/community-plugins.json          ← qué plugins están habilitados
+.obsidian/plugins/obsidian-git/
+    main.js                               ← CÓDIGO del plugin
+    manifest.json                         ← CÓDIGO del plugin
+    styles.css                            ← CÓDIGO del plugin
+    data.json                             ← config propia de cada máquina (NO commitear)
+```
+
+> [!warning] `community-plugins.json` no alcanza solo
+> Ese archivo únicamente registra cuáles plugins están *habilitados*; Obsidian
+> **no** descarga un plugin si falta su carpeta. Para que el plugin viaje hay que
+> commitear también su **código** (`main.js`, `manifest.json`, `styles.css`).
+
+> [!danger] No commitear `data.json`
+> Guarda configuración propia de cada máquina (y puede contener el token de
+> GitHub). Está excluido en el `.gitignore` del vault
+> (`.obsidian/plugins/*/data.json`). Si se commitea, el secreto queda en el
+> historial de git.
 
 ---
 

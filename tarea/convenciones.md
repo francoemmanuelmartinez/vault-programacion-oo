@@ -117,8 +117,10 @@ getters que nadie usa.
 
 - **Etiquetas, layouts y decorativos.** Un `JLabel` no lo usa el controlador.
   Getter: no.
-- **Nada especulativo.** El botón `Diets` no tiene getter porque no existe la
-  entidad `Diet`. Se agrega cuando exista, no antes.
+- **Nada especulativo.** Un getter se agrega cuando el controlador lo va a usar,
+  no antes. Hay **una excepción deliberada**: el botón `Diets` ya tiene getter
+  (`getBtnDiet()`, en ambas vistas) aunque la entidad `Diet` todavía no exista.
+  Ver «El caso del botón `Diets`» más abajo.
 - **Con GUI Builder hay costo.** El `.form` **no puede declarar métodos**, sólo
   campos. El getter se escribe a mano en el `.java` y tiene que quedar fuera de
   las regiones `//GEN-BEGIN` / `//GEN-END`, que es lo único que garantiza que
@@ -126,6 +128,23 @@ getters que nadie usa.
   `//GEN-END:variables`, nunca antes.
   Si algún día se aplica la contingencia de [[vistas-manuales]] (vistas a
   mano), esto deja de ser un problema.
+
+### El caso del botón `Diets`
+
+Es la excepción a "nada especulativo", y conviene dejarla documentada:
+
+- En las dos vistas existe el botón `dietsBt`, con texto "Diets", **sin
+  listener** (commit `8fc5218`).
+- Ambas vistas ya lo exponen con `getBtnDiet()` (nivel 1: devuelve el
+  componente). Se agregó **por adelantado** —el mensaje del commit dice "to be
+  used later"— antes de que la entidad `Diet` exista.
+- La entidad `Diet` todavía **no existe**: no hay `viewDiet`, `modelDiet` ni
+  `controllerDiet`. Se implementa recién en la entrega final (tres entidades).
+
+> [!note] Nombre: `getBtnDiet()` vs `dietsBt`
+> El campo se llama `dietsBt` y el texto es "Diets" (plural), pero el getter es
+> `getBtnDiet()` (singular). No rompe nada, pero es una inconsistencia de
+> nombre. Queda como decisión pendiente en "Dudas y vacíos".
 
 ## Abreviaturas: nombres vs comentarios
 
@@ -170,9 +189,12 @@ public javax.swing.JButton getBtnAliment() {
 - [ ] Si la rúbrica de la cátedra tiene una versión más detallada que este PDF,
       puede exigir getters explícitamente. Cuando aparezca, esta nota se
       reclasifica: la regla pasa a ser del profesor y hay que citarla.
-- [ ] Falta decidir si en `03-vistas-manuales` los botones se llaman `btnAliment`
+- [ ] Falta decidir si en `vistas-manuales` los botones se llaman `btnAliment`
       y `btnPatient`. Si se aplica esa contingencia, los getters pasan a devolver
       esos componentes pero **los nombres de los getters no cambian**.
+- [ ] Decidir el nombre del getter del botón `Diets`: hoy es `getBtnDiet()`
+      (singular) mientras el campo es `dietsBt` y el texto del botón es "Diets"
+      (plural). Hay que unificar criterio (`getBtnDiets` o renombrar el campo).
 
 ## Relacionado
 

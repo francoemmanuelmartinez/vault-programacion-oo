@@ -2,3 +2,6 @@
 .obsidian/workspace-mobile.json
 .obsidian/cache/
 .trash/
+
+# Secretos/estado por máquina de los plugins (ej: token de obsidian-git)
+.obsidian/plugins/*/data.json

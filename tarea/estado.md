@@ -66,6 +66,12 @@ Los dos modelos siguen vacíos y falta la capa de persistencia.
 | Wiring de Swing | ⚠️ Ver nota | `JTable_en_Swing.pdf`, `Listas_y_ComboBox_Swing.pdf`, `Checkbox_y_RadioButton_Swing.pdf` |
 | Diagramas | ❌ No hay | `DiagramaClases_Ej2_Biblioteca.pdf`, `Diagrama_Casos_de_Uso_UML.pdf` |
 
+> [!info] El botón `Diets` ya tiene getter
+> Aunque la entidad `Diet` no existe (no hay `viewDiet`, `modelDiet` ni
+> `controllerDiet`), las dos vistas ya exponen el botón con `getBtnDiet()`
+> (commit `8fc5218`). Es una excepción deliberada a la convención de no agregar
+> getters especulativos. Ver [[convenciones]].
+
 ## Riesgos a verificar contra la rúbrica
 
 > [!warning] Estado de esta sección

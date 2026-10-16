@@ -4,6 +4,22 @@ Registro append-only de cada tanda de trabajo. Entradas nuevas arriba.
 
 ---
 
+## 2026-10-15 — Correcciones: getter `Diets`, `src.zip` y guía de sync
+
+**Hecho:**
+- Eliminado `src.zip` del repo `NutritionistApp` (era un zip manual de `src/`, sin trackear; el repo quedó limpio).
+- [[convenciones]]: corregida la afirmación obsoleta «el botón `Diets` no tiene getter». Ahora documenta la **excepción deliberada**: ambas vistas exponen `getBtnDiet()` (commit `8fc5218`) aunque la entidad `Diet` no exista. Nueva subsección «El caso del botón `Diets`» y duda pendiente sobre el nombre (`getBtnDiet` vs campo `dietsBt`/texto «Diets»).
+- [[estado]]: callout que aclara que el getter `getBtnDiet()` ya existe en las dos vistas.
+- [[Sincronizacion_Notebook]] (Fase D): reescrita. Se aclaró que `community-plugins.json` **no** auto-instala el plugin: hay que commitear también su código (`main.js`, `manifest.json`, `styles.css`). Se documentó excluir `data.json`.
+- `.gitignore`: agregado `.obsidian/plugins/*/data.json` (evita filtrar config/token de plugins).
+- Instalado el plugin **Obsidian Git** (Vinzent03) en esta PC; su código quedó versionado.
+
+**Fuentes verificadas (no es contenido del profesor):**
+- Foro de Obsidian: `community-plugins.json` no reinstala plugins automáticamente al clonar.
+- `obsidian-git` (Vinzent03): en escritorio la autenticación la maneja el git del sistema, no `data.json`.
+
+---
+
 ## 2026-10-04 — Reestructuración de `tarea/`: esquema por entregas
 
 **Contexto:** el profesor entrega el proyecto de forma **incremental**; cada trabajo agrega funcionalidad hasta la entrega final (rúbrica). El eje de organización de `tarea/` pasa a ser **la entrega**.
