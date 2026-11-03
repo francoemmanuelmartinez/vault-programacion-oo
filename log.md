@@ -4,6 +4,35 @@ Registro append-only de cada tanda de trabajo. Entradas nuevas arriba.
 
 ---
 
+## 2026-11-03 — Corrección de la Entrega 2 (DAO de `Patient` con JPA), limpieza de nombres y tutorial DAO
+
+**Contexto:** el profesor Esteban Santini devolvió dos correcciones sobre la Entrega 2 (carpeta `Desktop\Entrega`):
+1. *"Traten de mejorar los nombres de las clases: `modelPatient` es en realidad la clase `Patient` en el paquete `model` (algo similar con el `GenericDAO`)."*
+2. *"Implementen una excepción para el DAO."*
+
+**Hecho en el proyecto NetBeans (`NutritionistApp`):**
+- Reestructurados todos los paquetes en minúscula y singular bajo `appNutritionist`:
+  - `appNutritionist.model` (`Patient.java`, `Aliment.java`)
+  - `appNutritionist.dao` (`DAO.java`, `DaoException.java`, `PatientDAO.java`, `PatientDAOJPA.java`)
+  - `appNutritionist.view` (`PatientView.java`, `PatientView.form`, `AlimentView.java`, `AlimentView.form`)
+  - `appNutritionist.controller` (`PatientController.java`, `AlimentController.java`)
+- Eliminados los paquetes viejos (`Models`, `Views`, `Controller`) y actualizadas las referencias en `AppNutritionist.java`.
+- Implementada `DaoException` (`extends Exception`) siguiendo `JDBC_DAO_MySQL.pdf` (pág. 13) y `JPA_Hibernate_DAO.pdf` (pág. 20 a 22).
+- Implementada la interfaz genérica `DAO<T, ID>` con métodos `insert`, `findById`, `findAll`, `update`, `delete` que declaran `throws DaoException`.
+- Implementada `PatientDAO extends DAO<Patient, Integer>` agregando `findByLastName(String lastName) throws DaoException`.
+- Implementada `PatientDAOJPA` envolviendo `PersistenceException` en `DaoException` con `tx.rollback()` cuando corresponde, y corrigiendo las consultas JPQL a `"SELECT p FROM Patient p"`.
+- Descargada la librería `javax.persistence-api-2.2.jar` en `NutritionistApp/lib/` y vinculada en `nbproject/project.properties` (`javac.classpath`).
+- Verificada la compilación completa con `javac --release 25 -Xlint:all -cp "lib/javax.persistence-api-2.2.jar"` → exit code 0, 0 errores.
+
+**Hecho en la carpeta `Desktop\Entrega`:**
+- Reemplazados los archivos viejos por los 5 archivos corregidos: `Patient.java`, `DAO.java`, `DaoException.java`, `PatientDAO.java` y `PatientDAOJPA.java`.
+
+**Hecho en el vault:**
+- Creada [[tutorial-dao-desde-cero]] en `tarea/` con la explicación paso a paso del patrón DAO desde cero tanto en JPA como en JDBC para el equipo.
+- Actualizadas [[entrega-02-dao-una-entidad]], [[estado]], `ME.md`, `MAP.md` e `index.md`.
+
+---
+
 ## 2026-10-16 — Incorporación de los PDFs de Diagrama de Secuencia y Javadoc
 
 **Hecho:**

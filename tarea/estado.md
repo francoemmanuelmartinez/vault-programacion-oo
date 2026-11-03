@@ -6,139 +6,73 @@ aliases: [00-estado]
 
 # Estado actual del código
 
-> Auditoría hecha el 2026-10-03 por inspección directa del proyecto.
+> Actualizado el 2026-11-03 tras aplicar las correcciones de la Entrega 2 y reestructurar paquetes y nombres de clases.
 > **No** es contenido del profesor: es un relevamiento de lo que hay escrito.
 
 ## Ubicación
 
-El código **no** vive en este vault. Vive en un proyecto NetBeans aparte:
+El código vive en el proyecto NetBeans:
 
 ```text
 C:\Users\games\Desktop\Proyectos\NutritionistApp\NutritionistApp\
 ├── build.xml, manifest.mf, nbproject/    ← proyecto NetBeans (Ant)
-├── .gitignore                             ← solo ignora nbproject/private/
+├── lib/
+│   └── javax.persistence-api-2.2.jar     ← librería JPA configurada en javac.classpath
 └── src/appNutritionist/
     ├── AppNutritionist.java               ← main, cablea MVC de Patient
-    ├── Controller/  controllerPatient.java  controllerAliment.java
-    ├── Models/      modelPatient.java       modelAliment.java
-    └── Views/       viewPatient.java        viewAliment.java
+    ├── controller/  PatientController.java  AlimentController.java
+    ├── model/       Patient.java            Aliment.java
+    ├── dao/         DAO.java  DaoException.java  PatientDAO.java  PatientDAOJPA.java
+    └── view/        PatientView.java        AlimentView.java (+ .form)
 ```
 
 - **Java:** `javac.source=25` / `javac.target=25`. JDK instalado: **26**.
   Ojo: compilar a mano **siempre** con `--release 25`, si no los `.class`
   salen versión 70 y NetBeans (JDK 25) no los puede cargar.
 - **Entry point:** `appNutritionist.AppNutritionist`
-- **Git:** el detalle de commits y el estado del working tree cambian con cada
-  tanda de trabajo, así que **no se transcriben acá**. La fuente de verdad es
-  `log.md`, y el historial real está en el proyecto con `git log`.
+- **Git:** la fuente de verdad es `log.md`, y el historial real está en el proyecto con `git log`.
 
 ## Inventario
 
-> Actualizado el 2026-10-03, después del commit `7fc3180`.
+| Archivo | Estado |
+|---|---|
+| `AppNutritionist.java` | Funciona. Instancia `Patient` → `PatientView` → `PatientController` |
+| `model/Patient.java` | **Completa.** Entidad JPA (`@Entity`, `@Table(name="Patients")`, `@Id`, `@GeneratedValue`) con `id`, `name`, `lastName`, `weight`, `height`, `observations`, constructores, getters/setters y Javadoc |
+| `model/Aliment.java` | **Vacía.** Pendiente de completar atributos |
+| `dao/DaoException.java` | **Completa.** Excepción *checked* (`extends Exception`) con Javadoc |
+| `dao/DAO.java` | **Completa.** Interfaz genérica `DAO<T, ID>` (`insert`, `findById`, `findAll`, `update`, `delete` con `throws DaoException`) |
+| `dao/PatientDAO.java` | **Completa.** Extiende `DAO<Patient, Integer>` y declara `findByLastName` |
+| `dao/PatientDAOJPA.java` | **Completa.** Implementación JPA con `EntityManager`, transacciones, `rollback()` y traducción de `PersistenceException` a `DaoException` |
+| `controller/PatientController.java` | Cablea el modelo y la vista. Listener de navegación a `AlimentView` |
+| `controller/AlimentController.java` | Cablea el modelo y la vista. Listener de navegación a `PatientView` |
+| `view/PatientView.java` | GUI armada. Componentes privados; `getBtnAliment()` y `getBtnDiet()` con Javadoc |
+| `view/AlimentView.java` | GUI armada. Componentes privados; `getBtnPatient()` y `getBtnDiet()` con Javadoc |
 
-| Archivo | Líneas | Estado |
-|---|---|---|
-| `AppNutritionist.java` | 18 | Funciona. Instancia `modelPatient` → `viewPatient` → `controllerPatient` |
-| `Models/modelPatient.java` | 5 | **Vacía.** Cero campos |
-| `Models/modelAliment.java` | 5 | **Vacía.** Cero campos |
-| `Controller/controllerPatient.java` | 30 | Cablea el modelo y la vista. Listener de navegación a `viewAliment` |
-| `Controller/controllerAliment.java` | 29 | Cablea el modelo y la vista. Listener de navegación a `viewPatient` |
-| `Views/viewPatient.java` | 230 | GUI armada. Todos los componentes privados; `getBtnAliment()` expone el de navegación |
-| `Views/viewAliment.java` | 185 | GUI armada. Todos los componentes privados; `getBtnPatient()` expone el de navegación |
-
-**Navegación entre vistas:** funcionando. `Patient` ↔ `Aliment` con `dispose()` y
-`SwingUtilities.invokeLater()`. Ver [[vistas-manuales]] para la contingencia de
-`setVisible(false)`.
-
-**Diagnóstico:** sigue siendo un **esqueleto con las ventanas cableadas**. La
-navegación ya anda, pero no hay ni una entidad de datos ni una regla de negocio.
-Los dos modelos siguen vacíos y falta la capa de persistencia.
+**Navegación entre vistas:** funcionando (`PatientView` ↔ `AlimentView` con `dispose()` y `SwingUtilities.invokeLater()`).
 
 ## Lo que falta, según lo que implican los PDFs
 
-| Capa | Estado | PDF que la governa |
+| Capa | Estado | PDF que la gobierna |
 |---|---|---|
-| Modelos (entidades) | ❌ Vacío | `POO_Abstraccion.pdf`, `POO_Equals.pdf` |
-| Controllers | ⚠️ Cableados, sin lógica de negocio | `Swing_MVC_Interfaces_Java.pdf` |
-| Navegación entre vistas | ✅ `Patient` ↔ `Aliment` | `Swing_MVC_Interfaces_Java.pdf` |
-| Entidad `Diet` | ❌ No existe | — |
-| Persistencia (DAO/JDBC) | ❌ No existe | `JDBC_DAO_MySQL.pdf` |
-| Wiring de Swing | ⚠️ Ver nota | `JTable_en_Swing.pdf`, `Listas_y_ComboBox_Swing.pdf`, `Checkbox_y_RadioButton_Swing.pdf` |
-| Diagramas | ❌ No hay | `DiagramaClases_Ej2_Biblioteca.pdf`, `Diagrama_Casos_de_Uso_UML.pdf` |
+| Modelo `Patient` + DAO | ✅ Completo con JPA | `JPA_Hibernate_DAO.pdf`, `Errores_y_Excepciones_Java.pdf` |
+| Modelo `Aliment` + DAO | ❌ Modelo vacío, sin DAO | `POO_Abstraccion.pdf`, `JPA_Hibernate_DAO.pdf` / `JDBC_DAO_MySQL.pdf` |
+| Controllers (lógica CRUD) | ⚠️ Solo navegación, falta conectar botones CRUD al DAO | `Swing_MVC_Interfaces_Java.pdf` |
+| Navegación entre vistas | ✅ `PatientView` ↔ `AlimentView` | `Swing_MVC_Interfaces_Java.pdf` |
+| Entidad `Diet` (3ra entidad) | ❌ No existe | `enunciado_rubrica.pdf` |
+| Diagramas UML | ❌ No hay | `Diagrama_Casos_de_Uso_UML.pdf`, `Diagrama_de_Secuencia_UML.pdf` |
 
-> [!info] El botón `Diets` ya tiene getter
-> Aunque la entidad `Diet` no existe (no hay `viewDiet`, `modelDiet` ni
-> `controllerDiet`), las dos vistas ya exponen el botón con `getBtnDiet()`
-> (commit `8fc5218`). Es una excepción deliberada a la convención de no agregar
-> getters especulativos. Ver [[convenciones]].
+## Riesgos verificados contra la rúbrica
 
-## Riesgos a verificar contra la rúbrica
+1. **Nombres de clase y paquetes:** ✅ **Resuelto.** Se renombraron todos los paquetes a minúscula singular (`model`, `view`, `controller`, `dao`) y todas las clases a PascalCase sin prefijos redundantes (`Patient`, `Aliment`, `PatientView`, `AlimentView`, `PatientController`, `AlimentController`, `DAO`, `PatientDAO`, `PatientDAOJPA`, `DaoException`), tal como indicó el profesor en la corrección de la Entrega 2.
+2. **Las vistas son código generado por el NetBeans GUI Builder.** Riesgo bajo; los getters públicos fuera de las secciones generadas ya tienen Javadoc según [[convenciones]].
+3. **Java 25 con JDK 26 instalado.** Compilar siempre con `--release 25`.
+4. **Ejecución real con base de datos (JPA vs JDBC):** Para compilar alcanza con `lib/javax.persistence-api-2.2.jar` (ya incluido), pero para conectar con MySQL en tiempo de ejecución hay que decidir si se agrega el stack de Hibernate/EclipseLink + `persistence.xml` o si se pasa la implementación a JDBC (`mysql-connector-j-9.6.0.jar`). Ver [[tutorial-dao-desde-cero]].
 
-> [!warning] Estado de esta sección
-> El encabezado decía que estos riesgos había que confirmarlos leyendo
-> `enunciado_rubrica.pdf`. **Ya se leyó** ([[enunciado_rubrica]], pág. 1 y 2), así
-> que lo que sigue está actualizado contra el texto real. El riesgo 1 y el 2
-> bajan bastante.
+## Entregas (metodología incremental)
 
-1. **Nombres de clase en minúscula.** `modelPatient`, `viewPatient`,
-   `controllerPatient`. La convención de Java pide PascalCase, y el criterio
-   *Documentación y Código Limpio* de la rúbrica evalúa "nombres descriptivos" y
-   "buenas prácticas de programación". No lo dice de forma explícita, pero es un
-   riesgo real de puntaje.
-   Además las carpetas son inconsistentes: `Controller` singular, `Models` y
-   `Views` plurales.
-
-2. **Las vistas son código generado por el NetBeans GUI Builder.** Se ve en el
-   patrón `initComponents()` con ~185 líneas de un solo bloque.
-   → **Riesgo bajo.** El criterio *Interfaz Gráfica de Usuario* de la rúbrica
-   evalúa exactamente cuatro cosas: que la GUI sea clara, que no tenga errores,
-   que sea intuitiva y que esté completa para **todas** las entidades. En ningún
-   momento menciona cómo se construyeron las ventanas. El designer no penaliza
-   por sí mismo.
-   → El riesgo real es otro: el criterio *Documentación y Código Limpio* pide
-   comentarios y código propios, y el bloque `initComponents()` no se puede
-   documentar. Por eso [[convenciones]] pone los getters fuera de las regiones
-   generadas: son las únicas partes de la vista que son código nuestro.
-   → **Contingencia ya preparada** en [[vistas-manuales]] por si más adelante
-   el profesor o el equipo decide cortar con el designer.
-
-3. **Java 25 con JDK 26 instalado.** Compila, pero si la corrección ocurre en una
-   máquina con un JDK anterior, el proyecto no levanta. Conviene fijar la versión
-   objetivo a lo que el profesor use.
-
-4. **Sin capa de datos.** La rúbrica exige DAO sobre base SQL para cada entidad
-   como requisito, no como extra. Hoy no hay nada.
-
-## Próximo paso
-
-> [!info] La rúbrica ya está procesada
-> Este bloque estaba desactualizado: [[enunciado_rubrica]] ya existe completa
-> (pág. 1 y 2 leídas). No hay que volver a abrir el PDF para saber qué hay que
-> hacer. Lo que queda abierto son las dudas que esa nota no pudo resolver.
-
-**Pendiente de confirmar con el profesor** (están en "Dudas y vacíos" de
-[[enunciado_rubrica]]):
-- Motor de base de datos: el enunciado dice que es libre. Si el profesor tiene
-  preferencia por MySQL, [[JDBC_DAO_MySQL]] es la nota a estudiar.
-- Característica extra para aspirar al 10: el enunciado pide "alguna
-  característica extra (investigación)", sin especificar cuál.
-
-**Entregas (metodología incremental):**
 - ✅ [[entrega-01-interfaces-graficas]] — GUI de `Patient` y `Aliment`.
-- ⬜ [[entrega-02-dao-una-entidad]] — DAO de una entidad (JDBC o JPA).
-
-**Trabajo de diseño que sí depende de lo que ya sabemos:**
-- Modelar **tres** entidades, no dos. La regla del enunciado es que dos se
-  combinan en una tercera: en este dominio la candidata es `Diet`, que relaciona
-  paciente y alimentos. Ver la sugerencia en [[enunciado_rubrica]].
-
-**Riesgo a resolver antes de escribir más código:**
-- Las vistas son generadas por el NetBeans GUI Builder. La rúbrica **no** las
-  penaliza (ver riesgos 2), pero [[vistas-manuales]] queda como contingencia
-  si el equipo decide cortar con el designer.
-- Los componentes de las vistas ya se exponen por getters según
-  [[convenciones]].
+- ✅ [[entrega-02-dao-una-entidad]] — DAO de `Patient` corregido e integrado.
 
 ## Relacionado
 
-[[convenciones]] · [[enunciado_rubrica]] · [[vistas-manuales]] · [[ME]] · [[MAP]]
+[[convenciones]] · [[enunciado_rubrica]] · [[vistas-manuales]] · [[tutorial-dao-desde-cero]] · [[ME]] · [[MAP]]

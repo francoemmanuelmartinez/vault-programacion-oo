@@ -53,7 +53,8 @@ profesor**. El profesor **Esteban Santini** define el contrato.
 | Encapsulamiento con getters | Hecho → commit `8fc5218` |
 | Vault versionado en git + GitHub | Hecho → [[Sincronizacion_Notebook]] |
 | **Entrega 1**: GUI de dos entidades | Hecho → [[entrega-01-interfaces-graficas]] |
-| **Entrega 2**: DAO de una entidad | Pendiente → [[entrega-02-dao-una-entidad]] |
+| **Entrega 2**: DAO de una entidad | Hecho (corregida) → [[entrega-02-dao-una-entidad]] |
+| Tutorial DAO desde cero (JPA + JDBC) | Hecho → [[tutorial-dao-desde-cero]] |
 | Modelo de clases / entidad `Diet` | Pendiente |
 | Entrega final (3 entidades + rúbrica) | Pendiente |
 | Videos procesados | Pendiente |

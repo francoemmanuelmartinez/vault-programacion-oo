@@ -11,8 +11,7 @@ tags: [indice, meta]
 
 - PDFs en el vault: **21**
 - Notas creadas: **21**
-- Tarea: `NutritionistApp` — entrega 1 (**GUI** de `Patient` y `Aliment`) entregada.
-  Modelos y persistencia vacíos; ver [[estado]].
+- Tarea: `NutritionistApp` — Entrega 1 (GUI) y Entrega 2 (DAO de `Patient` con JPA y `DaoException`) completadas y corregidas. Ver [[estado]].
 - Rúbrica ya procesada: [[enunciado_rubrica]]. Antes era un bloqueante; ya no.
 
 ## Bloque 1 — Teoría y conceptos
@@ -46,11 +45,12 @@ tags: [indice, meta]
 ### Entregas (metodología incremental)
 
 - ✅ [[entrega-01-interfaces-graficas]] — GUI de dos entidades (`Patient` y `Aliment`)
-- ⬜ [[entrega-02-dao-una-entidad]] — DAO de una entidad (JDBC o JPA)
+- ✅ [[entrega-02-dao-una-entidad]] — DAO de una entidad (`Patient` con JPA y `DaoException`)
 
 ### Notas de trabajo
 
 - ✅ [[estado]] — Estado general del código y de la tarea
+- ✅ [[tutorial-dao-desde-cero]] — Guía paso a paso del patrón DAO (JPA y JDBC) para el equipo
 - ✅ [[vistas-manuales]] — Contingencia: vistas Swing a mano (compilan) y
   alternativa de `setVisible(false)` a `dispose()`
 - ✅ [[convenciones]] — Convenciones de código: getters para exponer los
