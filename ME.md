@@ -20,9 +20,8 @@ profesor**. El profesor **Esteban Santini** define el contrato.
 - La tarea es una app de **nutricionistas** (`NutritionistApp`), con entidades
   `Patient` y `Aliment`, en Java + Swing + MVC.
 - El código ya está empezado en un proyecto NetBeans, en
-  `C:\Users\games\Desktop\Proyectos\NutritionistApp\NutritionistApp`
-  (**fuera del vault**). Hoy es un esqueleto: models y controllers vacíos.
-  Ver [[estado]] para el detalle.
+  `C:\Users\games\Desktop\Proyectos\NutritionistApp`
+  (**fuera del vault**). Ver [[estado]] y [[hoja-de-ruta-7-a-9]] para el detalle.
 - Necesita el material en un formato navegable y consultable desde Obsidian,
   no PDFs sueltos.
 
@@ -53,8 +52,9 @@ profesor**. El profesor **Esteban Santini** define el contrato.
 | Encapsulamiento con getters | Hecho → commit `8fc5218` |
 | Vault versionado en git + GitHub | Hecho → [[Sincronizacion_Notebook]] |
 | **Entrega 1**: GUI de dos entidades | Hecho → [[entrega-01-interfaces-graficas]] |
-| **Entrega 2**: DAO de una entidad | Hecho (corregida) → [[entrega-02-dao-una-entidad]] |
+| **Entrega 2**: DAO de una entidad | En curso (falta commit de `DaoException` del compañero) → [[entrega-02-dao-una-entidad]] |
 | Tutorial DAO desde cero (JPA + JDBC) | Hecho → [[tutorial-dao-desde-cero]] |
+| Hoja de ruta a nota 7-9 con PDFs | Hecho → [[hoja-de-ruta-7-a-9]] |
 | Modelo de clases / entidad `Diet` | Pendiente |
 | Entrega final (3 entidades + rúbrica) | Pendiente |
 | Videos procesados | Pendiente |

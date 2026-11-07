@@ -6,7 +6,7 @@ aliases: [00-estado]
 
 # Estado actual del código
 
-> Actualizado el 2026-11-03 tras aplicar las correcciones de la Entrega 2 y reestructurar paquetes y nombres de clases.
+> Actualizado el 2026-11-05 tras clonar el repositorio compartido de GitHub y aplicar la reestructuración manual de paquetes, nombres de clases y consultas JPQL.
 > **No** es contenido del profesor: es un relevamiento de lo que hay escrito.
 
 ## Ubicación
@@ -14,15 +14,15 @@ aliases: [00-estado]
 El código vive en el proyecto NetBeans:
 
 ```text
-C:\Users\games\Desktop\Proyectos\NutritionistApp\NutritionistApp\
+C:\Users\games\Desktop\Proyectos\NutritionistApp\
 ├── build.xml, manifest.mf, nbproject/    ← proyecto NetBeans (Ant)
-├── lib/
-│   └── javax.persistence-api-2.2.jar     ← librería JPA configurada en javac.classpath
+├── lib/ (o src/lib/)
+│   └── jakarta.persistence-2.2.3.jar     ← librería JPA configurada en javac.classpath
 └── src/appNutritionist/
     ├── AppNutritionist.java               ← main, cablea MVC de Patient
-    ├── controller/  PatientController.java  AlimentController.java
-    ├── model/       Patient.java            Aliment.java
-    ├── dao/         DAO.java  DaoException.java  PatientDAO.java  PatientDAOJPA.java
+    ├── controller/  PatientController.java  AlimentController.java  DietController.java  DietDetailController.java
+    ├── model/       Patient.java            Aliment.java            Diet.java            DietDetail.java
+    ├── dao/         DAO.java  PatientDAO.java  PatientDAOJPA.java  AlimentDAO.java  AlimentDAOJPA.java  DietDAO.java  DietDAOJPA.java  DietDetailDAO.java  DietDetailDAOJPA.java
     └── view/        PatientView.java        AlimentView.java (+ .form)
 ```
 
@@ -37,42 +37,45 @@ C:\Users\games\Desktop\Proyectos\NutritionistApp\NutritionistApp\
 | Archivo | Estado |
 |---|---|
 | `AppNutritionist.java` | Funciona. Instancia `Patient` → `PatientView` → `PatientController` |
-| `model/Patient.java` | **Completa.** Entidad JPA (`@Entity`, `@Table(name="Patients")`, `@Id`, `@GeneratedValue`) con `id`, `name`, `lastName`, `weight`, `height`, `observations`, constructores, getters/setters y Javadoc |
-| `model/Aliment.java` | **Vacía.** Pendiente de completar atributos |
-| `dao/DaoException.java` | **Completa.** Excepción *checked* (`extends Exception`) con Javadoc |
-| `dao/DAO.java` | **Completa.** Interfaz genérica `DAO<T, ID>` (`insert`, `findById`, `findAll`, `update`, `delete` con `throws DaoException`) |
-| `dao/PatientDAO.java` | **Completa.** Extiende `DAO<Patient, Integer>` y declara `findByLastName` |
-| `dao/PatientDAOJPA.java` | **Completa.** Implementación JPA con `EntityManager`, transacciones, `rollback()` y traducción de `PersistenceException` a `DaoException` |
-| `controller/PatientController.java` | Cablea el modelo y la vista. Listener de navegación a `AlimentView` |
-| `controller/AlimentController.java` | Cablea el modelo y la vista. Listener de navegación a `PatientView` |
-| `view/PatientView.java` | GUI armada. Componentes privados; `getBtnAliment()` y `getBtnDiet()` con Javadoc |
-| `view/AlimentView.java` | GUI armada. Componentes privados; `getBtnPatient()` y `getBtnDiet()` con Javadoc |
+| `model/Patient.java` | **Completa.** Entidad JPA (`@Entity`, `@Table(name="Patients")`, `@Id`, `@GeneratedValue`) con `id`, `name`, `lastName`, `weight`, `height`, `observations`, constructores y getters/setters |
+| `model/Aliment.java` | **Vacía.** Pendiente de completar atributos (ver [[hoja-de-ruta-7-a-9]], Bloque A.2) |
+| `model/Diet.java` | **Vacía.** Pendiente de completar atributos y relaciones (ver [[hoja-de-ruta-7-a-9]], Bloque A.3) |
+| `model/DietDetail.java` | **Vacía.** Pendiente de completar atributos y relaciones (ver [[hoja-de-ruta-7-a-9]], Bloque A.3) |
+| `dao/DAO.java` | Interfaz genérica `DAO<T, ID>` con métodos `insert`, `findById`, `findAll`, `update`, `delete` (pendiente agregar `throws DaoException` por un compañero) |
+| `dao/PatientDAO.java`, `AlimentDAO.java`, `DietDAO.java`, `DietDetailDAO.java` | Interfaces específicas que extienden `DAO<Entidad, Integer>` |
+| `dao/PatientDAOJPA.java`, `AlimentDAOJPA.java`, `DietDAOJPA.java`, `DietDetailDAOJPA.java` | Implementaciones JPA con consultas JPQL corregidas (`FROM Patient`, `FROM Aliment`, `FROM Diet`, `FROM DietDetail`). Pendiente reemplazar `RuntimeException` por `DaoException` (ver Bloque 0 de [[hoja-de-ruta-7-a-9]]) |
+| `controller/PatientController.java` | Cablea modelo y vista; listener de navegación a `AlimentView` |
+| `controller/AlimentController.java` | Cablea modelo y vista; listener de navegación a `PatientView` |
+| `controller/DietController.java`, `DietDetailController.java` | **Vacíos.** Esqueletos creados |
+| `view/PatientView.java` | GUI armada. Componentes privados; `getBtnAliment()` y `getBtnDiet()` |
+| `view/AlimentView.java` | GUI armada. Componentes privados; `getBtnPatient()` y `getBtnDiet()` |
 
 **Navegación entre vistas:** funcionando (`PatientView` ↔ `AlimentView` con `dispose()` y `SwingUtilities.invokeLater()`).
 
 ## Lo que falta, según lo que implican los PDFs
 
-| Capa | Estado | PDF que la gobierna |
+Ver el desglose completo con subtareas y páginas de cada PDF en **[[hoja-de-ruta-7-a-9]]**:
+
+| Bloque | Estado | PDFs que lo gobiernan |
 |---|---|---|
-| Modelo `Patient` + DAO | ✅ Completo con JPA | `JPA_Hibernate_DAO.pdf`, `Errores_y_Excepciones_Java.pdf` |
-| Modelo `Aliment` + DAO | ❌ Modelo vacío, sin DAO | `POO_Abstraccion.pdf`, `JPA_Hibernate_DAO.pdf` / `JDBC_DAO_MySQL.pdf` |
-| Controllers (lógica CRUD) | ⚠️ Solo navegación, falta conectar botones CRUD al DAO | `Swing_MVC_Interfaces_Java.pdf` |
-| Navegación entre vistas | ✅ `PatientView` ↔ `AlimentView` | `Swing_MVC_Interfaces_Java.pdf` |
-| Entidad `Diet` (3ra entidad) | ❌ No existe | `enunciado_rubrica.pdf` |
-| Diagramas UML | ❌ No hay | `Diagrama_Casos_de_Uso_UML.pdf`, `Diagrama_de_Secuencia_UML.pdf` |
+| **Bloque 0:** Excepción `DaoException` en los DAOs | ⏳ Listo para que lo commitee un compañero (ya está hecho en `Desktop\Entrega`) | `Errores_y_Excepciones_Java.pdf`, `JDBC_DAO_MySQL.pdf`, `JPA_Hibernate_DAO.pdf` |
+| **Bloque A:** Modelos `Aliment`, `Diet` y `DietDetail` | ❌ Vacíos | `POO_Abstraccion.pdf`, `POO_Metodos.pdf`, `JPA_Hibernate_DAO.pdf` |
+| **Bloque B:** Conectar Vistas + Controladores + DAOs (CRUD) | ⚠️ Solo navegación, falta conectar botones CRUD | `Swing_MVC_Interfaces_Java.pdf`, `Listas_y_ComboBox_Swing.pdf`, `JTable_en_Swing.pdf` |
+| **Bloque C:** Conexión real SQL (`persistence.xml`) | ❌ Falta configurar | `JPA_Hibernate_DAO.pdf`, `JDBC_DAO_MySQL.pdf` |
+| **Bloque D:** Javadoc en clases y métodos públicos | ⚠️ Parcial | `Javadoc_en_Java.pdf`, `Codigo_Limpio_Nombres_y_Estructura.pdf` |
+| **Bloque E:** Diagramas UML (Casos de Uso y Secuencia) | ❌ No hay | `Diagrama_Casos_de_Uso_UML.pdf`, `Diagrama_de_Secuencia_UML.pdf` |
 
 ## Riesgos verificados contra la rúbrica
 
-1. **Nombres de clase y paquetes:** ✅ **Resuelto.** Se renombraron todos los paquetes a minúscula singular (`model`, `view`, `controller`, `dao`) y todas las clases a PascalCase sin prefijos redundantes (`Patient`, `Aliment`, `PatientView`, `AlimentView`, `PatientController`, `AlimentController`, `DAO`, `PatientDAO`, `PatientDAOJPA`, `DaoException`), tal como indicó el profesor en la corrección de la Entrega 2.
-2. **Las vistas son código generado por el NetBeans GUI Builder.** Riesgo bajo; los getters públicos fuera de las secciones generadas ya tienen Javadoc según [[convenciones]].
+1. **Nombres de clase y paquetes:** ✅ **Resuelto.** Paquetes en minúscula singular (`model`, `view`, `controller`, `dao`) y clases en PascalCase sin prefijos redundantes (`Patient`, `Aliment`, `Diet`, `DietDetail`, `PatientView`, `AlimentView`, `PatientController`, `AlimentController`, `DietController`, `DietDetailController`, `DAO`, `*DAO`, `*DAOJPA`).
+2. **Las vistas son código generado por el NetBeans GUI Builder.** Riesgo bajo; los getters públicos van fuera de las secciones generadas según [[convenciones]].
 3. **Java 25 con JDK 26 instalado.** Compilar siempre con `--release 25`.
-4. **Ejecución real con base de datos (JPA vs JDBC):** Para compilar alcanza con `lib/javax.persistence-api-2.2.jar` (ya incluido), pero para conectar con MySQL en tiempo de ejecución hay que decidir si se agrega el stack de Hibernate/EclipseLink + `persistence.xml` o si se pasa la implementación a JDBC (`mysql-connector-j-9.6.0.jar`). Ver [[tutorial-dao-desde-cero]].
 
 ## Entregas (metodología incremental)
 
 - ✅ [[entrega-01-interfaces-graficas]] — GUI de `Patient` y `Aliment`.
-- ✅ [[entrega-02-dao-una-entidad]] — DAO de `Patient` corregido e integrado.
+- 🔄 [[entrega-02-dao-una-entidad]] — Corrección de nombres y `Patient` lista; `DaoException` lista en `Desktop\Entrega` y preparada para que otro integrante haga el commit en GitHub.
 
 ## Relacionado
 
-[[convenciones]] · [[enunciado_rubrica]] · [[vistas-manuales]] · [[tutorial-dao-desde-cero]] · [[ME]] · [[MAP]]
+[[hoja-de-ruta-7-a-9]] · [[tutorial-dao-desde-cero]] · [[convenciones]] · [[enunciado_rubrica]] · [[vistas-manuales]] · [[ME]] · [[MAP]]

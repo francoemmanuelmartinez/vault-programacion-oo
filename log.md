@@ -4,6 +4,52 @@ Registro append-only de cada tanda de trabajo. Entradas nuevas arriba.
 
 ---
 
+## 2026-11-06 — Nota nueva: ejemplo de excepciones (mensajes personalizados en el DAO)
+
+**Contexto:** quedó pendiente el paso de `DaoException` en el proyecto, y el equipo armó un borrador explicando por qué cada método del DAO lleva su propio mensaje. Se pidió formatearlo y guardarlo en el vault.
+
+**Hecho en el vault:**
+- Creada [[ejemplo-de-excepciones]] en `tarea/`: qué pide la rúbrica en el criterio *Manejo de Excepciones* (pág. 2 — `enunciado_rubrica.pdf`), el patrón de mensajes del profesor (pág. 16 a 18 — `JDBC_DAO_MySQL.pdf`; pág. 18 a 22 — `JPA_Hibernate_DAO.pdf`), tabla de los 5 mensajes × 4 entidades, código completo de `DaoException`, `DAO` y `PatientDAOJPA`, la conexión con `JOptionPane` desde el controlador, y un checklist de aplicación.
+- Agregada la nota en `index.md` (sección Tarea → Notas de trabajo) y en el árbol de `MAP.md`.
+
+**Correcciones detectadas al revisar el código real (van marcadas en la nota):**
+- `DaoException.java` **no existe** en `src/appNutritionist/dao/` (sólo está en `Desktop\Entrega`); el borrador asumía que ya estaba.
+- `Aliment` **ya tiene `getId()`** desde el commit `d8e40df`, así que el mensaje de `update` sí puede incluir el id (el borrador lo omitía por considerarla vacía).
+- El borrador usaba `SELECT p FROM Aliment p` (alias `p` para un alimento); se sugirió `a`.
+
+**Decisión pendiente que surgió de la nota:** en qué idioma van los mensajes de excepción, dado que la UI está en inglés y el profesor escribe los mensajes en español.
+
+---
+
+## 2026-11-06 — Rediseño de la UI con FlatLaf, autozoom y sincronización de `PatientView` con `AlimentView`
+
+**Contexto:** tras la reestructuración a PascalCase quedaban dos frentes abiertos: (1) las vistas seguían con la estética por defecto de Swing, sin la librería sugerida por el profesor Santini; (2) `PatientView` se había quedado atrás respecto de `AlimentView`, que ya estaba rediseñada. En paralelo, la entrega de `DaoException` quedó reservada para otro integrante del equipo (para que el historial de GitHub muestre aportes de todos).
+
+**Hecho en el proyecto NetBeans (`NutritionistApp`):**
+- Movidas las librerías a `lib/` en la **raíz** del proyecto: `flatlaf-3.5.4.jar` y `jakarta.persistence-2.2.3.jar`, ambas declaradas en `nbproject/project.properties` (`javac.classpath`). Se abandonó `javax.persistence-api-2.2` a favor de la implementación `jakarta.persistence-2.2.3`.
+- `AppNutritionist.java`: inicialización de **FlatLaf** con `FlatLightLaf.setup()`, arcos globales de la UI (`Button.arc = 999`, `TextComponent.arc = 15`, `Component.arc = 15`), y `--enable-native-access=ALL-UNNAMED` en las VM Options para evitar los *warnings* del JDK.
+- Layout general: la UI se dividió en `JPanel` independientes (navegación / formulario / acciones / tabla) y el `JFrame` usa `GridBagLayout` para centrar el contenido. La ventana mantiene proporción y centrado al abrirse.
+- `AlimentView` rediseñada como **vista de referencia**: `TitledBorder` en "Aliment Data" y "Actions", paleta de colores (nav `#00695C`, Search `#00838F`, Insert `#2E7D32`, Modify `#1565C0`, Delete `#C62828`, fondo `#E8F5E9`), `JTable` con `autoCreateRowSorter`, `SINGLE_SELECTION`, grilla visible y modelo `ID / Name / Category / Calories`, dentro de un `JScrollPane` de Swing.
+- Implementados en ambas vistas `enableAutoZoom()` y `collectComponents(...)`: recorren el árbol de componentes, guardan la fuente y el tamaño base de cada uno y, al redimensionar la ventana, escalan fuentes, alturas de fila y tamaños preferidos (con tope inferior en `1.0` para no achicar).
+- `PatientView.java` + `.form` **sincronizados con `AlimentView`**: mismo header de navegación (`[Aliments] — Patients — [Diets]`), `TitledBorder` centrado en "Actions", botón `Search` en turquesa con tooltip, corrección del cruce entre `idTx` y `lastNameTx` en el panel de datos, `horizontalAlignment = CENTER` en todos los `JTextField`, tabla reconfigurada con las columnas `ID / Name / Last Name / Weight / Height / IMC / Diet` y eliminación del `jPanel5` intermedio que dejaba la tabla clavada en 100 px.
+- Renombres propagados en los 4 DAO JPA: `save` → `insert` y `listAll` → `findAll`, con las consultas JPQL corregidas (`FROM Patient`, `FROM Aliment`, `FROM Diet`, `FROM DietDetail`).
+- Verificada la compilación completa con `javac --release 25 -cp "lib/jakarta.persistence-2.2.3.jar;lib/flatlaf-3.5.4.jar"` → exit code 0, 0 errores.
+
+**Hecho en Git:**
+- El push fue rechazado porque un compañero (`turquoise28`) había subido el commit `d8e40df` (*"Aliment.java hecho/Diet.java y DietDetail.java en proceso"*, sólo 3 archivos de `model`). Como no había archivos en común con los cambios de UI, se resolvió con **Rebase** en lugar de Merge: historial lineal, sin commit de unión ni conflictos.
+- El commit de UI quedó como `be82843` sobre `d8e40df` y ya está en `origin/master` (rama `master` sincronizada).
+- Sin commitear todavía: `DaoException` y el reemplazo de `RuntimeException` en los DAO, a la espera de que lo suba otro integrante.
+
+**Hecho en el vault:**
+- Entrada nueva en esta bitácora; sin cambios de contenido en [[estado]], [[hoja-de-ruta-7-a-9]] ni [[entrega-02-dao-una-entidad]] (se mantienen vigentes tal como quedaron el 2026-11-03).
+
+**Pendiente / próximos pasos:**
+- Bloque 0 de [[hoja-de-ruta-7-a-9]]: `DaoException` en la interfaz `DAO` y en los 4 `*DAOJPA` (a cargo de un compañero).
+- Completar `model/Aliment.java`, `model/Diet.java` y `model/DietDetail.java` (Bloque A).
+- Definir si se elimina `DietDetailController` (vacío) o se absorbe en `DietController`.
+
+---
+
 ## 2026-11-03 — Corrección de la Entrega 2 (DAO de `Patient` con JPA), limpieza de nombres y tutorial DAO
 
 **Contexto:** el profesor Esteban Santini devolvió dos correcciones sobre la Entrega 2 (carpeta `Desktop\Entrega`):
@@ -29,7 +75,8 @@ Registro append-only de cada tanda de trabajo. Entradas nuevas arriba.
 
 **Hecho en el vault:**
 - Creada [[tutorial-dao-desde-cero]] en `tarea/` con la explicación paso a paso del patrón DAO desde cero tanto en JPA como en JDBC para el equipo.
-- Actualizadas [[entrega-02-dao-una-entidad]], [[estado]], `ME.md`, `MAP.md` e `index.md`.
+- Creada [[hoja-de-ruta-7-a-9]] en `tarea/` con el checklist detallado (Bloques 0 a E) vinculado a los PDFs y páginas específicas de la cátedra para cada subtarea.
+- Actualizadas [[entrega-02-dao-una-entidad]], [[estado]], `ME.md`, `MAP.md` e `index.md` reflejando la estructura actual de `C:\Users\games\Desktop\Proyectos\NutritionistApp` tras el refactor manual sobre el clon de GitHub (dejando el commit de `DaoException` listo para que lo suba otro integrante del equipo).
 
 ---
 

@@ -25,7 +25,9 @@ Programacion Orientada a Objetos/
 │   ├── entregas/              ← una nota por entrega (metodología incremental)
 │   │   ├── entrega-01-interfaces-graficas.md
 │   │   └── entrega-02-dao-una-entidad.md
+│   ├── hoja-de-ruta-7-a-9.md  ← checklist A-E con guía de PDFs para aprobar con 7-9
 │   ├── tutorial-dao-desde-cero.md ← guía paso a paso de DAO (JPA y JDBC) para el equipo
+│   ├── ejemplo-de-excepciones.md  ← mensajes de DaoException por método y su uso en el controlador
 │   ├── estado.md              ← estado general del código y la tarea
 │   ├── vistas-manuales.md     ← contingencia: vistas Swing a mano
 │   └── convenciones.md        ← convenciones de código del proyecto
