@@ -53,6 +53,7 @@ tags: [indice, meta]
 - ✅ [[hoja-de-ruta-7-a-9]] — Checklist de bloques 0 a E con los PDFs de la cátedra para cada subtarea
 - ✅ [[tutorial-dao-desde-cero]] — Guía paso a paso del patrón DAO (JPA y JDBC) para el equipo
 - ✅ [[ejemplo-de-excepciones]] — Mensajes personalizados por método del DAO (`DaoException`) y su llegada al usuario
+- ✅ [[plan-cableado-patient]] — Plan de cableado Vista ↔ Controlador ↔ Modelo para `Patient` (paso a paso, con código y trampas)
 - ✅ [[vistas-manuales]] — Contingencia: vistas Swing a mano (compilan) y
   alternativa de `setVisible(false)` a `dispose()`
 - ✅ [[convenciones]] — Convenciones de código: getters para exponer los

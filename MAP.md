@@ -28,6 +28,7 @@ Programacion Orientada a Objetos/
 │   ├── hoja-de-ruta-7-a-9.md  ← checklist A-E con guía de PDFs para aprobar con 7-9
 │   ├── tutorial-dao-desde-cero.md ← guía paso a paso de DAO (JPA y JDBC) para el equipo
 │   ├── ejemplo-de-excepciones.md  ← mensajes de DaoException por método y su uso en el controlador
+│   ├── plan-cableado-patient.md   ← plan de cableado Vista ↔ Controlador ↔ Modelo de Patient
 │   ├── estado.md              ← estado general del código y la tarea
 │   ├── vistas-manuales.md     ← contingencia: vistas Swing a mano
 │   └── convenciones.md        ← convenciones de código del proyecto

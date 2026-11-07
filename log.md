@@ -4,6 +4,22 @@ Registro append-only de cada tanda de trabajo. Entradas nuevas arriba.
 
 ---
 
+## 2026-11-07 — Nota nueva: plan de cableado de `Patient` (Vista ↔ Controlador ↔ Modelo)
+
+**Contexto:** se pidió el plan para cablear la entidad `Patient` usando `PatientController` como puente entre la vista y el modelo, guiándose por los PDFs de la cátedra, para implementarlo a mano.
+
+**Hecho en el vault:**
+- Creada [[plan-cableado-patient]] en `tarea/` con el plan completo: contrato de getters de la vista, `PatientDAOInMemory` como doble de prueba, `PatientTableModel` (`AbstractTableModel`), helpers del controlador, listeners de los 4 botones, limpieza de handlers de NetBeans y la Etapa B de persistencia.
+- Agregada en `index.md` (Tarea → Notas de trabajo) y en el árbol de `MAP.md`.
+- Registradas las citas usadas: MVC (pág. 20 a 23) y eventos (pág. 14) de `Swing_MVC_Interfaces_Java.pdf`; `AbstractTableModel` y configuración de tabla (pág. 4 a 18) de `JTable_en_Swing.pdf`; `persistence.xml` y `EntityManagerFactory` (pág. 8 y 9) de `JPA_Hibernate_DAO.pdf`.
+
+**Hallazgos del relevamiento (2026-11-07):**
+- El repo local está **sincronizado** con `origin/master`: sin commits nuevos de compañeros ni cambios sin commitear.
+- **No existe** `src/META-INF/persistence.xml`, ni proveedor JPA (Hibernate), ni driver MySQL en `lib/`. La capa de persistencia no puede ejecutarse todavía: por eso el plan separa Etapa A (sin base) y Etapa B (con base).
+- La vista sólo expone `getBtnAliment()` y `getBtnDiet()`: falta todo el contrato de lectura/escritura del formulario, los 4 botones de acción y la tabla.
+
+---
+
 ## 2026-11-06 — Nota nueva: ejemplo de excepciones (mensajes personalizados en el DAO)
 
 **Contexto:** quedó pendiente el paso de `DaoException` en el proyecto, y el equipo armó un borrador explicando por qué cada método del DAO lleva su propio mensaje. Se pidió formatearlo y guardarlo en el vault.
