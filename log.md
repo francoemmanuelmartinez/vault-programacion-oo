@@ -4,6 +4,27 @@ Registro append-only de cada tanda de trabajo. Entradas nuevas arriba.
 
 ---
 
+## 2026-11-09 — Plan de cableado actualizado con los nombres nuevos y el DAO de RomiM
+
+**Contexto:** terminado el renombrado de `AlimentView` y la entidad `Aliment`, arranca el cableado de `Patient`. La nota [[plan-cableado-patient]] estaba escrita con los nombres viejos (`jTextField1`, `getBtnAliment()`) y con un `PatientDAOInMemory` que ya no compilaría, porque el commit `797b39c` cambió las firmas del DAO.
+
+**Hecho en el vault (reescritura de la nota):**
+- **Paso A0 nuevo:** tabla de mapeo entre los componentes reales de `PatientView`, sus campos camelCase y el getter/setter que hay que exponer.
+- Todo el código actualizado a los nombres reales: `getButtonInsert()`, `getTablePatients()`, `getButtonAliments()`, `idTextField`, `patientsTable`.
+- `PatientDAOInMemory` reescrito para la interfaz actual: `insert`/`update` devuelven `Patient` y suma `buscarPorApellido` (6 métodos, no 5).
+- Se reemplazó el `getImc()` inventado por `calcularIMC()`, que es el que existe en `Patient` desde el commit de RomiM.
+- `PatientTableModel` con `isCellEditable()` en `false`: el override vive hoy en el `DefaultTableModel` anónimo del `.form` y se pierde al cambiar de modelo.
+- Tabla nueva "qué se reutiliza de RomiM": `DAO` sirve para las dos etapas; `DAOJpa`/`PatientDAOJPA`/`JPAUtil` sólo para la Etapa B; `DAOException` ya deja compilar el `catch` hoy.
+- Etapa B reescrita como checklist de configuración, con las tres bombas de RomiM: nombre de la PU (`nutricionPU` vs `persistence.xml`), base de datos `mysql` (catálogo del sistema) y `schema-generation=create` (borra en cada arranque).
+
+**Hallazgos nuevos anotados:**
+- La altura tiene que estar en metros para que `calcularIMC()` dé bien; quedó como decisión pendiente (metros vs. centímetros).
+- `dietComboBox` tiene 4 ítems de relleno ("Item 1"…"Item 4").
+- `imcTextField` ya tiene `editable=false` y tooltip explicativo; `idTextField` sí es editable, así que el flujo de búsqueda por ID funciona.
+- `AppNutritionist.java:22` todavía hace `new PatientController(new Patient(), vista)`: hay que cambiar la firma cuando se cablee el DAO.
+
+---
+
 ## 2026-11-09 — Revisión del renombrado de `AlimentView` y del atributo `Aliment.aliment` → `name`
 
 **Contexto:** tras el renombrado de `PatientView` a camelCase, el Estudiante renombró las 22 variables de `AlimentView` con los nombres sugeridos por rol y cambió el atributo `aliment` de la entidad `Aliment` por `name`. Se pidió revisar typos, errores de compilación e incoherencias antes de commitear.
