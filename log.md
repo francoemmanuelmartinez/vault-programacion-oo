@@ -4,6 +4,31 @@ Registro append-only de cada tanda de trabajo. Entradas nuevas arriba.
 
 ---
 
+## 2026-11-09 — Revisión del renombrado de `AlimentView` y del atributo `Aliment.aliment` → `name`
+
+**Contexto:** tras el renombrado de `PatientView` a camelCase, el Estudiante renombró las 22 variables de `AlimentView` con los nombres sugeridos por rol y cambió el atributo `aliment` de la entidad `Aliment` por `name`. Se pidió revisar typos, errores de compilación e incoherencias antes de commitear.
+
+**Verificado en el proyecto NetBeans (`NutritionistApp`):**
+- `javac --release 25` → **exit 0**. Las 22 variables de `AlimentView` quedaron en camelCase (`mainPanel`, `actionsPanel`, `alimentsTable`, `tableScrollPane`, `titleLabel`…), `.form` y `.java` sincronizados, **cero** restos de `jPanel`/`jButton`/`jTextField`/`idTx`, y los eventos del diseñador renombrados junto con los campos.
+- Getters de navegación simétricos entre las dos vistas: `getButtonPatients()` / `getButtonDiets()`, y `AlimentController:17` ya usa `view.getButtonPatients()`.
+- `Aliment`: campo, getter, setter y `toString` pasados a `name`; no queda ningún `getAliment()`/`setAliment()` en el proyecto.
+
+**Correcciones aplicadas por el Estudiante (revisadas y OK):**
+- `Aliment(String aliment, …)` → `Aliment(String name, …)`.
+- Tabla de `AlimentView` en `editable="false"` para las 4 columnas + `isCellEditable()` con `canEdit[]`, igual que `PatientView`.
+
+**Pendientes marcados al Estudiante (no bloquean el commit):**
+- Tooltip del botón Search: `"Input and ID and click…"` → `"Input an ID and click…"`.
+- Los `name` properties de NetBeans siguen con el esquema viejo (`insertTx`, `modifyBt`, `deleteTx`, `searchTx`, `alimentTx`, `categoryTx`, `caloriesPerServingTx`). Cosmético: nadie llama a `getName()`.
+
+**Hecho en el vault:**
+- Creada [[bug-jpql-dao]] en `tarea/`: las 4 consultas JPQL de los `*DAOJPA` usan nombres de entidad en español (`Alimento`, `Dieta`, `DetalleDieta`, `Paciente`) y campos inexistentes (`categoria`, `dieta`, `apellido`). Va con archivo, línea exacta, consulta corregida, por qué `javac` no lo detecta y quién lo dispara al cablear los buscadores.
+- Agregada en `index.md` (Tarea → Notas de trabajo) y en el árbol de `MAP.md`.
+
+**Cita usada:** «JPQL trabaja sobre entidades y atributos en lugar de tablas y columnas» — pág. 13 a 16, `JPA_Hibernate_DAO.pdf`.
+
+---
+
 ## 2026-11-07 — Nota nueva: plan de cableado de `Patient` (Vista ↔ Controlador ↔ Modelo)
 
 **Contexto:** se pidió el plan para cablear la entidad `Patient` usando `PatientController` como puente entre la vista y el modelo, guiándose por los PDFs de la cátedra, para implementarlo a mano.

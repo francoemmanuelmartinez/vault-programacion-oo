@@ -58,6 +58,7 @@ tags: [indice, meta]
   alternativa de `setVisible(false)` a `dispose()`
 - ✅ [[convenciones]] — Convenciones de código: getters para exponer los
   componentes al controlador, abreviaturas, Javadoc
+- ✅ [[bug-jpql-dao]] — Bug de las consultas JPQL de los DAO: entidades y campos nombrados en español (archivo y línea exactos)
 - ✅ [[enunciado_rubrica]] — Enunciado y rúbrica del trabajo práctico
 
 ## Navegación

@@ -31,7 +31,8 @@ Programacion Orientada a Objetos/
 │   ├── plan-cableado-patient.md   ← plan de cableado Vista ↔ Controlador ↔ Modelo de Patient
 │   ├── estado.md              ← estado general del código y la tarea
 │   ├── vistas-manuales.md     ← contingencia: vistas Swing a mano
-│   └── convenciones.md        ← convenciones de código del proyecto
+│   ├── convenciones.md        ← convenciones de código del proyecto
+│   └── bug-jpql-dao.md        ← bug de las consultas JPQL (entidades/campos en español)
 │
 └── plantillas/
     └── tema.md
