@@ -25,7 +25,7 @@ Programacion Orientada a Objetos/
 │   ├── entregas/              ← una nota por entrega (metodología incremental)
 │   │   ├── entrega-01-interfaces-graficas.md
 │   │   └── entrega-02-dao-una-entidad.md
-│   ├── hoja-de-ruta-7-a-9.md  ← checklist A-E con guía de PDFs para aprobar con 7-9
+│   ├── hoja-de-ruta-7-a-9.md  ← checklist 0-G con guía de PDFs para 7-9 y el 10
 │   ├── tutorial-dao-desde-cero.md ← guía paso a paso de DAO (JPA y JDBC) para el equipo
 │   ├── ejemplo-de-excepciones.md  ← mensajes de DaoException por método y su uso en el controlador
 │   ├── plan-cableado-patient.md   ← plan de cableado Vista ↔ Controlador ↔ Modelo de Patient

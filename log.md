@@ -4,6 +4,26 @@ Registro append-only de cada tanda de trabajo. Entradas nuevas arriba.
 
 ---
 
+## 2026-11-09 — Hoja de ruta auditada contra el código + bloque nuevo para el 10
+
+**Contexto:** el Estudiante preguntó si el CRUD en memoria (Etapa A del cableado) suma para el 10 y recordó un comentario del profesor sobre testear sin tocar la base. Se auditó el proyecto completo para marcar lo ya hecho y se agregó lo que falta para escalar de 7–9 a 10.
+
+**Auditoría (contra commits `008edbf`, `b357923` y cambios locales):**
+- **Completos:** excepción propia y `throws` en `DAO` (Bloque 0), `Patient` y `Aliment` con anotaciones JPA y constructores (A.1.1, A.1.2, A.2.1–A.2.4), campo ID en `AlimentView`, tablas read-only en las dos vistas, IMC no editable, textos "Height (m)"/"Weight (kg)"/"Patient ID", títulos y centrado (B.1), todos los getters/setters de `PatientView` (B.2.1, con pulido pendiente), `lib/` en la raíz y `persistence.xml` (con errores).
+- **Pendientes detectados:** `equals`/`hashCode` (A.1.3, A.2.5); `Diet` sin relaciones (A.3.1); `DietDetail` sin `servings` ni `@ManyToOne` (A.3.2); `DietDetailController` vacío (A.3.3); `PatientController` y `AlimentController` sin cablear (B.2.2 a B.4); proveedor JPA y driver MySQL ausentes (C.4); 7 archivos con encabezados de NetBeans (D.1); `Patient` sin Javadoc (D.3).
+
+**Hecho en el vault:**
+- Reescrita [[hoja-de-ruta-7-a-9]] con los 24 ítems completados marcados y el estado real de cada pendiente.
+- **Bloque G nuevo: "Escalar de 7–9 a 10"**, con la cita de la rúbrica, la tabla de las tres entidades (falta `Diet`), la tabla de extras candidatos, el guion de defensa del DAO en memoria (citas `SOLID_Principios.pdf` pág. 28 a 33 y `JDBC_DAO_MySQL.pdf` pág. 11, 12, 19 y 20) y el warning de que el DAO en memoria **no reemplaza** la base.
+- Corregida en [[plan-cableado-patient]] la decisión pendiente sobre la unidad de la altura: quedó resuelta en metros por el propio diseñador.
+
+**Hallazgos para el Estudiante:**
+- `PatientView.java:478` tiene `confirmInsert{` **sin paréntesis**: el proyecto no compila y el fix no está guardado en disco.
+- El commit `b357923` unió el renombrado de `AlimentView` y el cambio `aliment` → `name` en un solo commit (se había sugerido separarlos).
+- Respuesta a la consulta: el DAO en memoria **no es** la "característica extra" que pide el 10, pero sí sostiene los criterios DAO y MVC, y es lo que permite mostrar el CRUD si MySQL falla en la defensa.
+
+---
+
 ## 2026-11-09 — Plan de cableado actualizado con los nombres nuevos y el DAO de RomiM
 
 **Contexto:** terminado el renombrado de `AlimentView` y la entidad `Aliment`, arranca el cableado de `Patient`. La nota [[plan-cableado-patient]] estaba escrita con los nombres viejos (`jTextField1`, `getBtnAliment()`) y con un `PatientDAOInMemory` que ya no compilaría, porque el commit `797b39c` cambió las firmas del DAO.

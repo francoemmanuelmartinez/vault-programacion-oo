@@ -330,8 +330,8 @@ private void refrescarTabla() {
 > ```
 > **No** hay que inventar un `getImc()`: usá `calcularIMC()`, que además coincide con el estilo `calcularCaloriasTotales()` de `DietDetail`. La regla de negocio queda en el modelo, que es lo que pide la cátedra.
 
-> [!warning] La unidad de la altura
-> `calcularIMC()` divide por `height * height`, así que la altura tiene que estar **en metros** (1.75). Si el usuario escribe 175, el IMC va a dar 0.0004. Decidilo ahora: o se documenta "Height (m)" en la etiqueta, o se cambia el modelo a centímetros y se divide por 100. Lo que no puede pasar es que el campo acepte las dos cosas.
+> [!success] La unidad de la altura ya está resuelta
+> El diseñador ya dice **"Height (m)"** y **"Weight (kg)"**, así que `calcularIMC()` (que divide por `height * height`) recibe metros y funciona tal cual. No hay que tocar nada, sólo **respetar la unidad al cargar datos de prueba**: 1.75, no 175.
 
 ### Paso A4 — La tabla
 
@@ -578,7 +578,7 @@ javac --release 25 -cp "lib/jakarta.persistence-2.2.3.jar;lib/flatlaf-3.5.4.jar"
 ## 6. Dudas y vacíos
 
 - [ ] ¿La cátedra prefiere `DefaultTableModel` (simple, pág. 4 a 7) o el `AbstractTableModel` (MVC, pág. 11 a 18) para la entrega? El segundo es mejor diseño, pero es más código.
-- [ ] **Unidad de la altura**: ¿metros (y el label dice "Height (m)") o centímetros (y `calcularIMC()` divide por 100)?
+- [x] Unidad de la altura: **metros**, ya rotulada como "Height (m)" y "Weight (kg)" en el diseñador.
 - [ ] `dietComboBox` tiene 4 ítems de relleno ("Item 1"…"Item 4"): vaciarlo o dejarlo inerte hasta que exista `Diet` (Bloque A de [[hoja-de-ruta-7-a-9]]).
 - [ ] ¿Se deshabilita el botón `Diets` o se deja clickeable sin acción?
 - [ ] ¿Se renombra `DAOException` → `DaoException` y el paquete `excepciones` → `appNutritionist.dao`? Es de RomiM; hablarlo antes.
