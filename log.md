@@ -4,6 +4,40 @@ Registro append-only de cada tanda de trabajo. Entradas nuevas arriba.
 
 ---
 
+## 2026-11-10 — Cableado de `Patient` terminado (A0 a A7) y checklist B.2 cerrada
+
+**Contexto:** el Estudiante implementó a mano, en NetBeans, todo el plan de [[plan-cableado-patient]] y fue pidiendo revisión paso a paso. El proyecto pasó de no compilar a tener el CRUD de `Patient` funcionando contra un DAO en memoria.
+
+**Qué se implementó (revisado leyendo el código, no contado por el Estudiante):**
+- `appNutritionist.dao.PatientDAOInMemory` — 6 métodos (`insert`, `findById`, `findAll`, `update`, `delete`, `buscarPorApellido`), con las firmas nuevas del DAO genérico de RomiM. Sin header de NetBeans.
+- `appNutritionist.view.PatientTableModel` — `AbstractTableModel` con 7 columnas, `isCellEditable()` en `false`, `getPatient(fila)` e IMC como `Double` redondeado. Sin header.
+- `PatientController` — firma `(PatientDAO, PatientView)`, listeners de los 4 botones CRUD, `selectRow()` con `convertRowIndexToModel`, helpers `leerFormulario()`, `mostrarPaciente()`, `refrescarTabla()` y `resetFields()`, más `insert`, `modify`, `delete` y `search`.
+- `PatientView` — `clearForm()`, `confirmInsert()`, `confirmModify()` y `confirmDelete()`; getters/setters completos.
+- `AlimentController` — recibe el `PatientDAO` y lo pasa de vuelta al abrir Patients: así hay **una sola instancia** del DAO y los pacientes no desaparecen al navegar.
+- Diseñador — `rowCount` de `patientsTable` en **0** (ya no se regeneran las 4 filas de `null`).
+
+**Verificado:** `javac --release 25 -cp "lib/jakarta.persistence-2.2.3.jar;lib/flatlaf-3.5.4.jar"` sobre todo `src` → **0 errores, 0 warnings**.
+
+**Decisiones que se resolvieron durante la implementación:**
+- Los helpers del A3 van **dentro** del controlador como `private`, no en una clase aparte (necesitan `view`, `dao` y `actual`).
+- `PatientTableModel` sí es clase propia, en `view`, porque es un componente de Swing.
+- El reset del formulario y el de `actual` van juntos en `resetFields()`: evita que `Modify` pise al paciente que estaba seleccionado antes de un Insert.
+- Se agregó `confirmModify()`, que no estaba en el plan.
+
+**Hallazgos para el Estudiante:**
+- Dos veces el cambio estaba en el editor y **no en disco**: `confirmInsert{` sin paréntesis y, después, la validación de nombre/apellido sin mover. `javac` compilaba la versión vieja. NetBeans tiene *Compile on Save*, pero compila desde memoria: no escribe el archivo.
+- Quedaron dos deudas menores: falta el **botón Clear** en la vista (el método existe) y en `modify()` conviene `actual = p;` después de `dao.update(p)`, porque el DAO en memoria reemplaza el elemento de la lista.
+- El `"Informacion"` de `showInfo` sigue sin tilde.
+
+**Hecho en el vault:**
+- [[hoja-de-ruta-7-a-9]]: **B.2.1 a B.2.6 marcados como completos** (con el detalle real de cada uno), B.1.2 y B.1.4 actualizados, D.1 anotado, tabla G.1 con `Patient` cableado y el aviso de "el build está roto" reemplazado por el estado real.
+- [[plan-cableado-patient]]: frontmatter a `estado: implementado`, callout nuevo con la tabla de diferencias entre el plan y el código, y la tabla de "Orden de trabajo" con la columna de estado (1 a 6 hechos, 7 pendiente).
+- Ninguna nota de `temas/` se tocó: esto es trabajo de la tarea, no material de la cátedra.
+
+**Qué sigue:** commit de los 8 archivos (van juntos porque el cambio de firma acopla `PatientController` y `AlimentController`), después el Bloque B.3 (`Aliment`) o la Etapa B de MySQL.
+
+---
+
 ## 2026-11-09 — Hoja de ruta auditada contra el código + bloque nuevo para el 10
 
 **Contexto:** el Estudiante preguntó si el CRUD en memoria (Etapa A del cableado) suma para el 10 y recordó un comentario del profesor sobre testear sin tocar la base. Se auditó el proyecto completo para marcar lo ya hecho y se agregó lo que falta para escalar de 7–9 a 10.

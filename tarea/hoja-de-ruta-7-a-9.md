@@ -2,7 +2,7 @@
 fuente: síntesis de enunciado_rubrica.pdf, auditoría de las vistas actuales y cruce con los 21 PDFs de la cátedra
 tags: [tarea, plan, checklist, rubrica, hoja-de-ruta, gui, mvc, dao]
 estado: vigente
-actualizado: 2026-11-09
+actualizado: 2026-11-10
 ---
 
 # Hoja de Ruta y Checklist del Proyecto (`NutritionistApp`) — Nota 7–9 y escalada al 10
@@ -12,10 +12,10 @@ actualizado: 2026-11-09
 >
 > **Referencia general del trabajo:** `enunciado_rubrica.pdf` (pág. 1 y 2) → [[enunciado_rubrica]]
 >
-> **Estado auditado el 2026-11-09** contra el código real (commits `008edbf`, `b357923` y cambios locales sin commitear). Los `[x]` son de esa auditoría; los `[ ]` siguen pendientes.
+> **Estado auditado el 2026-11-10** contra el código real (commits `008edbf`, `b357923` y los cambios locales del cableado de `Patient`). Los `[x]` son de esa auditoría; los `[ ]` siguen pendientes.
 
-> [!danger] El build está roto ahora mismo
-> `PatientView.java:478` tiene `public boolean confirmInsert{` **sin los paréntesis**. `javac` falla con `';' expected`. Es el único error del proyecto: guardar el archivo con `confirmInsert()` lo resuelve.
+> [!success] El build compila
+> `javac --release 25` sobre todo `src` da **0 errores** al 2026-11-10. El error de `confirmInsert{` (sin paréntesis) que traía la versión anterior de esta nota ya está resuelto, y el CRUD de `Patient` funciona contra `PatientDAOInMemory`.
 
 ---
 
@@ -93,7 +93,7 @@ actualizado: 2026-11-09
 
 ### B.1. Correcciones de Usabilidad y Estética en las Vistas actuales (para cumplir *"intuitiva, estéticamente agradable y sin errores"*)
 - [x] **B.1.1. Campo ID en `AlimentView`** ✔: existe `idTextField` con su etiqueta `alimentIdLabel`, así que Search/Modify/Delete por ID ya son posibles.
-- [x] **B.1.2. `JTable` en las vistas para mostrar `findAll()`** ✔ parcial: `PatientView` (`patientsTable`) y `AlimentView` (`alimentsTable`) ya la tienen, read-only y dentro de `tableScrollPane`. **Falta `DietView`.**
+- [x] **B.1.2. `JTable` en las vistas para mostrar `findAll()`** ✔ parcial: `PatientView` (`patientsTable`) y `AlimentView` (`alimentsTable`) ya la tienen, read-only y dentro de `tableScrollPane`. En `Patient` el modelo ya no es el `DefaultTableModel` anónimo de NetBeans sino `PatientTableModel` (`AbstractTableModel`), con `isCellEditable()` en `false` y `getPatient(fila)`. **Falta lo mismo en `AlimentView` y la `DietView`.**
 - [x] **B.1.3. IMC no editable** ✔: `imcTextField` tiene `editable="false"` y el tooltip *"Calculated automatically from Weight and Height"*.
 - [ ] **B.1.4. Textos, títulos y centrado** — estado por ítem:
   - [x] `"High"` → **`"Height (m)"`** ✔ (y `"Weight (kg)"` agregado).
@@ -102,22 +102,31 @@ actualizado: 2026-11-09
   - [x] Títulos de ventana ✔: `"NutritionistApp - Patients Management"` y `"NutritionistApp - Aliments Management"`.
   - [x] Centrado ✔: `setLocationRelativeTo(null)` en las dos vistas.
   - [ ] `Observations` sigue siendo `JTextField`: pasarlo a `JTextArea` dentro de un `JScrollPane`.
-  - [ ] Botón **`Clear`** (limpiar formulario): en las dos vistas falta.
+  - [ ] Botón **`Clear`** (limpiar formulario): en las dos vistas falta. En `PatientView` el método `clearForm()` **ya existe** y lo usa el controlador; falta sólo el botón que lo dispare.
 
 ### B.2. Conectar `PatientView.java` y `PatientController.java` con `PatientDAO`
-- [x] **B.2.1.** Getters de la vista ✔ (casi completo): `getButtonAliments()`, `getButtonDiets()`, `getIdText()`, `getNameText()`, `getLastNameText()`, `getWeightText()`, `getHeightText()`, `getObservationsText()`, `getImcText()`, los seis setters, `getButtonInsert()`, `getButtonSearch()`, `getButtonModify()`, `getButtonDelete()`, `getPatientstable()`, `showError()`, `showInfo()` y `confirmInsert()`.
-  - ⚠️ Pendientes de pulido, todos de una línea:
-    - `confirmInsert` **sin `()`** → no compila (lo primero que hay que arreglar).
-    - `getPatientstable()` → `getTablePatients()` (la `s` de `Table` y el orden, como en [[plan-cableado-patient]]).
-    - `setnameText()` → `setNameText()`.
-    - `"Informacion"` → `"Información"` en `showInfo`.
-    - Falta `clearForm()` para el botón Clear.
-  - ⚠️ `confirmInsert()` no estaba en el plan: usaste `OK_CANCEL_OPTION`. Está bien; sólo hay que llamarlo desde el controlador.
-- [ ] **B.2.2.** `PatientController` sigue recibiendo `new Patient()`; falta la firma `PatientController(PatientDAO dao, PatientView view)` (*`Swing_MVC_Interfaces_Java.pdf`, pág. 26 y 27*).
-- [ ] **B.2.3.** Insert: validar nombre/apellido, `try/catch (NumberFormatException)` al parsear peso y altura, `dao.insert(patient)`, refrescar la tabla.
-- [ ] **B.2.4.** Search: validar ID entero, `dao.findById(id)`, cargar los campos o avisar si no existe.
-- [ ] **B.2.5.** Modify: leer ID + campos, `dao.update(patient)`, refrescar.
-- [ ] **B.2.6.** Delete: leer ID, pedir confirmación (`showConfirmDialog`), `dao.delete(id)`, limpiar campos y refrescar.
+
+> [!success] Bloque cerrado el 2026-11-10
+> El CRUD de `Patient` funciona contra `PatientDAOInMemory` y el proyecto compila sin errores. `AlimentController` también se actualizó para recibir el `PatientDAO` y pasarlo de vuelta al volver a Patients: **una sola instancia** de DAO, así los datos no se pierden al navegar.
+
+- [x] **B.2.1.** Getters y setters de la vista ✔ completo: `getButtonAliments()`, `getButtonDiets()`, `getIdText()`, `getNameText()`, `getLastNameText()`, `getWeightText()`, `getHeightText()`, `getObservationsText()`, `getImcText()`, los seis setters, `getButtonInsert()`, `getButtonSearch()`, `getButtonModify()`, `getButtonDelete()`, `getTablePatients()`, `showError()`, `showInfo()`, `confirmInsert()`, `confirmModify()`, `confirmDelete()` y `clearForm()`.
+  - ✔ `confirmInsert()` quedó con los paréntesis (el error de compilación está resuelto).
+  - ✔ `getPatientstable()` → `getTablePatients()`.
+  - ✔ `setnameText()` → `setNameText()`.
+  - ⬜ `"Informacion"` → `"Información"` en `showInfo` (falta la tilde).
+  - ✔ `clearForm()` existe y lo llama el controlador.
+  - ✔ Se agregó `confirmModify()`, que no estaba en el plan original.
+- [x] **B.2.2.** `PatientController` con la firma `PatientController(PatientDAO dao, PatientView view)` y los campos `dao`, `view`, `actual` y `tableModel` (*`Swing_MVC_Interfaces_Java.pdf`, pág. 26 y 27*). Se implementó antes el `PatientDAOInMemory` (6 métodos, con las firmas nuevas de `insert`/`update`).
+- [x] **B.2.3.** Insert: valida nombre/apellido **antes** de parsear, `try/catch (NumberFormatException)` con mensaje en castellano, `confirmInsert()`, `dao.insert(patient)`, refresco de la tabla y reset del formulario.
+- [x] **B.2.4.** Search: `Integer.parseInt` con catch, `dao.findById(id)` y mensaje propio cuando el id no existe (distinto del mensaje de fallo del DAO).
+- [x] **B.2.5.** Modify: guard de "seleccioná un paciente", misma validación que en Insert, `p.setId(actual.getId())` y `dao.update(patient)`.
+- [x] **B.2.6.** Delete: guard, `confirmDelete()`, `dao.delete(id)`, `resetFields()` (que limpia la vista **y** `actual`) y mensaje de confirmación.
+- [x] **Extra.** `PatientTableModel extends AbstractTableModel` en `appNutritionist.view` (7 columnas, `isCellEditable()` en `false`, `getPatient(fila)`, IMC como `Double`) + `selectRow()` con `convertRowIndexToModel` para que el ordenamiento no cargue el paciente equivocado.
+- [x] **Extra.** `rowCount` de la tabla bajado a **0** en el diseñador: `initComponents()` ya no regenera las 4 filas de `null`.
+
+> [!warning] Deuda menor que quedó del bloque
+> - Falta el **botón Clear** en la vista (el método `clearForm()` está, el botón no).
+> - En `modify()` conviene `actual = p;` después de `dao.update(p)`: `PatientDAOInMemory.update()` reemplaza el elemento de la lista con el objeto nuevo, así que `actual` queda apuntando al viejo. No rompe hoy porque sólo se usa `actual.getId()`.
 
 > [!tip] Ya está el código exacto de todo esto
 > [[plan-cableado-patient]] tiene los métodos completos (con `PatientDAOInMemory`, `PatientTableModel`, `convertRowIndexToModel` y las trampas). Acá sólo se sigue el estado.
@@ -164,7 +173,7 @@ actualizado: 2026-11-09
 - 📄 **`SOLID_Principios.pdf`** (`> pág. 1 a 14`: responsabilidad única e inversión de dependencias programando contra las interfaces `PatientDAO`, `AlimentDAO`, `DietDAO` y no contra las clases `*DAOJPA`) → [[SOLID_Principios]]
 
 ### Subtareas:
-- [ ] **D.1.** Borrar los encabezados basura de NetBeans (`Click nbfs://...` y `@author Usuario`). **Quedan 7 archivos**: `DietController`, `DietDetailController`, `AlimentDAO`, `DietDAO`, `DietDetailDAO`, `AlimentView` y `DAOException`. El resto ya está limpio ✔.
+- [ ] **D.1.** Borrar los encabezados basura de NetBeans (`Click nbfs://...` y `@author Usuario`). **Quedan 7 archivos**: `DietController`, `DietDetailController`, `AlimentDAO`, `DietDAO`, `DietDetailDAO`, `AlimentView` y `DAOException`. El resto ya está limpio ✔. Los dos archivos nuevos del cableado (`PatientDAOInMemory` y `PatientTableModel`) se crearon **sin** header.
 - [x] **D.2.** Javadoc en `appNutritionist.dao` ✔ parcial: `DAO`, `DAOJpa`, las 4 interfaces, `DAOException` y `JPAUtil` están documentados; a los cuatro `*DAOJPA` les falta el bloque de clase completo (`@param`/`@return`/`@throws` de sus métodos).
 - [x] **D.3.** Javadoc en el modelo ✔ parcial: `Aliment`, `Diet` y `DietDetail` tienen Javadoc de clase; **`Patient` no tiene ninguno**.
 - [ ] **D.4.** Javadoc en los controladores y en `AppNutritionist`: **cero** hoy (los dos controladores vacíos sólo tienen `@author Usuario`).
@@ -211,7 +220,7 @@ actualizado: 2026-11-09
 
 | Entidad | Modelo | Vista | Controlador cableado | DAO | Estado |
 |---|---|---|---|---|---|
-| `Patient` | ✅ | ✅ | ⬜ | ✅ | falta cablear (Bloque B.2) |
+| `Patient` | ✅ | ✅ | ✅ | ✅ | **cableado (B.2)**, funciona en memoria |
 | `Aliment` | ✅ | ✅ | ⬜ | ✅ | falta cablear (Bloque B.3) |
 | `Diet` | ⚠️ sólo `id` + `nombre` | ❌ no existe `DietView` | ❌ `DietController` vacío | ✅ (JPQL roto) | falta todo (A.3 + B.4) |
 

@@ -1,8 +1,8 @@
 ---
 fuente: síntesis basada en Swing_MVC_Interfaces_Java.pdf (pág. 14, 20 a 23), JTable_en_Swing.pdf (pág. 4 a 18), JPA_Hibernate_DAO.pdf (pág. 8 y 9), enunciado_rubrica.pdf (pág. 1 y 2) y convenciones propias del proyecto
 tags: [tarea, plan, mvc, swing, cableado, patient]
-estado: vigente
-actualizado: 2026-11-09
+estado: implementado
+actualizado: 2026-11-10
 aliases: [plan-cableado, plan-patient]
 ---
 
@@ -15,6 +15,18 @@ aliases: [plan-cableado, plan-patient]
 > [!warning] Procedencia del contenido
 > - **Del profesor:** las reglas de MVC, el registro de eventos, la configuración de `JTable` y la unidad de persistencia (citas en cada sección).
 > - **Criterio de equipo (NO del profesor):** el `PatientDAOInMemory`, el `PatientTableModel`, el `JOptionPane` en la vista y el orden de trabajo. Van marcados con `[!warning]` o `[!tip]`.
+
+> [!success] Implementado el 2026-11-10 — los pasos A0 a A7 están hechos
+> El CRUD de `Patient` funciona contra `PatientDAOInMemory` y `javac --release 25` compila todo `src` con **0 errores**. Diferencias entre el plan y lo que quedó en el código (todas válidas):
+>
+> | El plan decía | El código dice | Por qué |
+> |---|---|---|
+> | `limpiarFormulario()` | **`resetFields()`** | nombre en inglés y, además, `clearSelection()` de la tabla |
+> | `setPacientes()` / `getPaciente()` | **`setPatients()` / `getPatient()`** | todo el `TableModel` quedó en inglés |
+> | `seleccionarFila()` | **`selectRow()`** | idem |
+> | sólo `confirmInsert()` | **`confirmInsert()` + `confirmModify()` + `confirmDelete()`** | se agregaron las tres confirmaciones |
+>
+> **Hueco del plan que apareció al implementar:** el `insertar()` de acá hacía `view.clearForm()` **sin** reiniciar `actual`, así que después de insertar quedaba "seleccionado" el paciente que se había elegido antes en la tabla, y `Modify` lo pisaba. Se corrigió con `resetFields()`, que hace las dos cosas juntas.
 
 ---
 
@@ -546,15 +558,15 @@ Casi todo el código ya está (RomiM). Lo que falta es **configuración**:
 
 ## 4. Orden de trabajo
 
-| # | Paso | Dónde | Se puede probar |
-|---|---|---|---|
-| 1 | Getters y setters del formulario + mensajes | `PatientView` | — |
-| 2 | `PatientDAOInMemory` (6 métodos) | `dao` | — |
-| 3 | `PatientTableModel` (con `isCellEditable` en `false`) | `view` | — |
-| 4 | Campos + constructor + helpers + listeners | `PatientController` | compila |
-| 5 | Cambiar la firma del constructor | `AppNutritionist` | **sí, todo el CRUD** |
-| 6 | Borrar el modelo de ejemplo del `JTable` | diseñador | sí |
-| 7 | Etapa B (jars + PU + base + JPQL) | `META-INF`, `lib`, `dao` | con MySQL arriba |
+| # | Paso | Dónde | Se puede probar | Estado |
+|---|---|---|---|---|
+| 1 | Getters y setters del formulario + mensajes | `PatientView` | — | ✅ |
+| 2 | `PatientDAOInMemory` (6 métodos) | `dao` | — | ✅ |
+| 3 | `PatientTableModel` (con `isCellEditable` en `false`) | `view` | — | ✅ |
+| 4 | Campos + constructor + helpers + listeners | `PatientController` | compila | ✅ |
+| 5 | Cambiar la firma del constructor | `AppNutritionist` | **sí, todo el CRUD** | ✅ |
+| 6 | Borrar el modelo de ejemplo del `JTable` | diseñador | sí | ✅ (`rowCount` en 0) |
+| 7 | Etapa B (jars + PU + base + JPQL) | `META-INF`, `lib`, `dao` | con MySQL arriba | ⬜ |
 
 Compilación manual (siempre `--release 25`):
 
