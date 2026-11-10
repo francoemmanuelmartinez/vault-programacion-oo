@@ -30,9 +30,8 @@ Registro append-only de cada tanda de trabajo. Entradas nuevas arriba.
 - El `"Informacion"` de `showInfo` sigue sin tilde.
 
 **Hecho en el vault:**
-- [[hoja-de-ruta-7-a-9]]: **B.2.1 a B.2.6 marcados como completos** (con el detalle real de cada uno), B.1.2 y B.1.4 actualizados, D.1 anotado, tabla G.1 con `Patient` cableado y el aviso de "el build está roto" reemplazado por el estado real.
+- [[hoja-de-ruta-7-a-9]]: **B.2.1 a B.2.6 marcados como completos** (con el detalle real de cada uno), B.1.2 y B.1.4 actualizados, D.1 anotado, tabla G.1 con `Patient` cableado y el aviso de "el build está roto" reemplazado por el estado real. Se agregó además la receta **C.6** para pasar `Patient` de `PatientDAOInMemory` a `PatientDAOJPA` en 7 pasos ordenados (jars, base, `persistence.xml`, `JPAUtil`, JPQL, la línea de `AppNutritionist` y prueba), con la tabla de "qué significa cada mensaje de error" y los dos riesgos de configuración (`create` vs `update` y la contraseña en el repo); se unificó el nombre de la base a `nutritionistdb`.
 - [[plan-cableado-patient]]: frontmatter a `estado: implementado`, callout nuevo con la tabla de diferencias entre el plan y el código, y la tabla de "Orden de trabajo" con la columna de estado (1 a 6 hechos, 7 pendiente).
-- [[hoja-de-ruta-7-a-9]]: agregada la receta **C.6** para pasar `Patient` de `PatientDAOInMemory` a `PatientDAOJPA` en 7 pasos ordenados (jars, base, `persistence.xml`, `JPAUtil`, JPQL, la línea de `AppNutritionist` y prueba), con la tabla de "qué significa cada mensaje de error" y los dos riesgos de configuración (`create` vs `update` y la contraseña en el repo). Se unificó el nombre de la base a `nutritionistdb`.
 - Ninguna nota de `temas/` se tocó: esto es trabajo de la tarea, no material de la cátedra.
 
 **Qué sigue:** commit de los 8 archivos (van juntos porque el cambio de firma acopla `PatientController` y `AlimentController`), después el Bloque B.3 (`Aliment`) o la Etapa B de MySQL.
