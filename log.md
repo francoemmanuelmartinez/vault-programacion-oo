@@ -4,6 +4,22 @@ Registro append-only de cada tanda de trabajo. Entradas nuevas arriba.
 
 ---
 
+## 2026-11-10 — Plan de cableado de `Aliment` creado
+
+**Contexto:** con `Patient` cerrado (entrada de abajo), el Estudiante pidió el mismo plan de cableado para la segunda entidad, para implementarla sin volver al chat.
+
+**Hecho en el vault:**
+- Nota nueva [[plan-cableado-aliment]] con la misma estructura que [[plan-cableado-patient]]: estado de partida verificado contra el código, mapa de nombres del `.form` a getters, `AlimentDAOInMemory` completo (6 métodos, con `buscarPorCategoria`), `AlimentTableModel` de 4 columnas, `AlimentController` con los 4 listeners y `selectRow()` con `convertRowIndexToModel`, la tabla de 8 trampas, el orden de trabajo y 10 pruebas manuales.
+- Actualizados `index.md` y [[MAP]] con la nota nueva.
+
+**Decisiones que quedaron planteadas en la nota:**
+- `Category` puede seguir como `JTextField` o pasar a `JComboBox` (`Listas_y_ComboBox_Swing.pdf`, pág. 1 a 15). Hay que elegirlo **antes** de escribir el controlador, porque cambia los getters.
+- La firma del controlador pasa a `(AlimentDAO, PatientDAO, AlimentView)` y se elimina el `Aliment model` que nunca se usaba.
+- `AppNutritionist` pasa a crear **los dos DAO una sola vez** y `PatientController` los recibe a ambos, para que la navegación no reinicie los datos. Se deja anotado que, cuando llegue `Diet`, conviene un `AppContext`.
+- El JPQL de `AlimentDAOJPA:19` (`Alimento`, `categoria`) se arregla en la Etapa B, junto con `<class>appNutritionist.model.Aliment</class>` en el `persistence.xml`.
+
+---
+
 ## 2026-11-10 — Cableado de `Patient` terminado (A0 a A7) y checklist B.2 cerrada
 
 **Contexto:** el Estudiante implementó a mano, en NetBeans, todo el plan de [[plan-cableado-patient]] y fue pidiendo revisión paso a paso. El proyecto pasó de no compilar a tener el CRUD de `Patient` funcionando contra un DAO en memoria.

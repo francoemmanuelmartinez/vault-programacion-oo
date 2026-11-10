@@ -29,6 +29,7 @@ Programacion Orientada a Objetos/
 │   ├── tutorial-dao-desde-cero.md ← guía paso a paso de DAO (JPA y JDBC) para el equipo
 │   ├── ejemplo-de-excepciones.md  ← mensajes de DaoException por método y su uso en el controlador
 │   ├── plan-cableado-patient.md   ← plan de cableado Vista ↔ Controlador ↔ Modelo de Patient
+│   ├── plan-cableado-aliment.md   ← el mismo plan aplicado a Aliment
 │   ├── estado.md              ← estado general del código y la tarea
 │   ├── vistas-manuales.md     ← contingencia: vistas Swing a mano
 │   ├── convenciones.md        ← convenciones de código del proyecto

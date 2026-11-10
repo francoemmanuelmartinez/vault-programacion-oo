@@ -54,6 +54,7 @@ tags: [indice, meta]
 - ✅ [[tutorial-dao-desde-cero]] — Guía paso a paso del patrón DAO (JPA y JDBC) para el equipo
 - ✅ [[ejemplo-de-excepciones]] — Mensajes personalizados por método del DAO (`DaoException`) y su llegada al usuario
 - ✅ [[plan-cableado-patient]] — Plan de cableado Vista ↔ Controlador ↔ Modelo para `Patient` (paso a paso, con código y trampas)
+- ✅ [[plan-cableado-aliment]] — El mismo plan aplicado a `Aliment`: getters, `AlimentDAOInMemory`, `AlimentTableModel`, controlador y trampas
 - ✅ [[vistas-manuales]] — Contingencia: vistas Swing a mano (compilan) y
   alternativa de `setVisible(false)` a `dispose()`
 - ✅ [[convenciones]] — Convenciones de código: getters para exponer los

@@ -135,6 +135,9 @@ actualizado: 2026-11-10
 - [ ] **B.3.1.** Exponer con getters los botones CRUD, los campos (`idTextField`, `nameTextField`, `categoryTextField`, `caloriesTextField`) y `alimentsTable`. *(Sugerencia: `JComboBox` para `Category` — Frutas, Verduras, Carnes, Lácteos, Cereales — según `Listas_y_ComboBox_Swing.pdf`)*.
 - [ ] **B.3.2.** Listeners de **Insert**, **Search**, **Modify**, **Delete** y **Clear** en `AlimentController`, con validación numérica de calorías y manejo de `DAOException`.
 
+> [!tip] Ya está el código exacto de todo esto
+> [[plan-cableado-aliment]] tiene el paso a paso completo (getters, `AlimentDAOInMemory`, `AlimentTableModel`, `convertRowIndexToModel` y las trampas), calcado del que se usó con `Patient`.
+
 ### B.4. Crear `DietView.java` y conectar `DietController.java` (3ra Entidad)
 - [ ] **B.4.1.** Crear `DietView.java` en `appNutritionist.view` con:
   - Barra superior de navegación hacia `Patient` y `Aliment`.
