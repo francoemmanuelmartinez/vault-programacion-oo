@@ -155,13 +155,52 @@ actualizado: 2026-11-10
 
 ### Subtareas:
 - [x] **C.1.** `lib/` en la raíz del proyecto ✔ (`flatlaf-3.5.4.jar`, `jakarta.persistence-2.2.3.jar`), declarada en `nbproject/project.properties`.
-- [ ] **C.2.** Crear la base en MySQL (`CREATE DATABASE nutritionist_db;`). *No se puede verificar desde el código.*
+- [ ] **C.2.** Crear la base en MySQL (`CREATE DATABASE nutritionistdb;`). *No se puede verificar desde el código.*
 - [x] **C.3.** `src/META-INF/persistence.xml` ✔, pero **con tres errores de configuración**:
   - La unidad se llama `"persistence.xml"` y `JPAUtil.java:12` pide `"nutricionPU"` → nunca va a encontrarla.
   - La URL apunta a `jdbc:mysql://localhost:3306/mysql` (el **catálogo del sistema**, no una base propia).
   - `javax.persistence.schema-generation.database.action` está en **`create`**: borra y recrea las tablas en cada arranque. Para desarrollo va `update`.
 - [ ] **C.4.** Faltan en `lib/` el **proveedor JPA** (EclipseLink, que es el declarado en el XML) y el **driver MySQL** (*`JDBC_DAO_MySQL.pdf`, pág. 4 y `JPA_Hibernate_DAO.pdf`, pág. 4 a 6*). Sin ellos, `PatientDAOJPA` no arranca.
 - [ ] **C.5.** `Persistencia` inicializada desde `AppNutritionist` ✔ parcial: existe `util.JPAUtil` (singleton del `EntityManagerFactory`), pero **nadie llama a `JPAUtil.cerrar()`** al cerrar la aplicación y el `EntityManagerFactory` se crea de forma perezosa en el primer DAO (*`JPA_Hibernate_DAO.pdf`, pág. 7 y 8*).
+
+### C.6. Receta: pasar `Patient` de memoria a MySQL (en este orden)
+
+> [!important] El código es una línea; lo que cuesta es la configuración
+> Cuando todo esto esté listo, el cambio real es **una línea** en `AppNutritionist.java:23`:
+>
+> ```java
+> PatientDAO patientDao = new PatientDAOJPA();   // antes: new PatientDAOInMemory();
+> ```
+>
+> `PatientController`, `PatientView`, `PatientTableModel` y la interfaz `PatientDAO` **no se tocan**. Eso es lo que compró el patrón DAO, y es lo que hay que saber defender en la oral (Bloque F).
+
+1. **Jars en `lib/`**: EclipseLink **2.7.x** (el `persistence.xml` declara `org.eclipse.persistence.jpa.PersistenceProvider`) y **MySQL Connector/J 8.x** (`com.mysql.cj.jdbc.Driver`). Agregarlos también a `javac.classpath` en `nbproject/project.properties`, como se hizo con FlatLaf (*`JDBC_DAO_MySQL.pdf`, pág. 4 a 6*).
+2. **Crear la base**: `CREATE DATABASE nutritionistdb;`
+3. **`src/META-INF/persistence.xml`**, cuatro cambios juntos:
+   - `name="nutritionistPU"` (el mismo que use `JPAUtil`),
+   - URL `jdbc:mysql://localhost:3306/nutritionistdb`,
+   - `javax.persistence.schema-generation.database.action` en **`update`**,
+   - `<class>appNutritionist.model.Patient</class>` dentro de la unidad.
+4. **`util/JPAUtil.java:12`**: `UNIDAD_PERSISTENCIA = "nutritionistPU"`.
+5. **`PatientDAOJPA.java:19`**: `"SELECT p FROM Paciente p WHERE LOWER(p.apellido) LIKE :ap"` → `"SELECT p FROM Patient p WHERE LOWER(p.lastName) LIKE :ap"`.
+6. **`AppNutritionist.java:23`**: la línea del cambio.
+7. **Probar** las mismas 11 pruebas de [[plan-cableado-patient]] y llamar `JPAUtil.cerrar()` al cerrar la aplicación.
+
+> [!note] El JPQL roto no frena el CRUD
+> `buscarPorApellido` no lo llama nadie todavía (`search()` usa `findById`), así que Insert/Search/Modify/Delete andan aunque el paso 5 quede pendiente. Pero explota el día que se use, y es la misma bomba que tienen los otros tres DAO: ver [[bug-jpql-dao]].
+
+**Cómo saber qué falló**, por el mensaje de la excepción:
+
+| Mensaje | Causa | Paso |
+|---|---|---|
+| `No Persistence provider for EntityManager named ...` | falta el jar de EclipseLink o el nombre de la unidad no coincide | 1 y 3 |
+| `No suitable driver found for jdbc:mysql://...` | falta el Connector/J o la URL está mal | 1 y 3 |
+| `Unknown entity: appNutritionist.model.Patient` | EclipseLink no descubrió la entidad | 3 (`<class>`) |
+| `Table 'nutritionistdb.patient' doesn't exist` | la base o las tablas no se crearon | 2 y 3 |
+
+> [!warning] Dos riesgos de la configuración actual
+> - Con `schema-generation.database.action=create`, **cada arranque borra las tablas**. Si se olvidan de cambiar a `update`, van a perder los datos de prueba en cada ejecución.
+> - La contraseña de MySQL (`2711`) está hardcodeada en `persistence.xml` y va a quedar en el repo. Avisar al equipo antes de pushear.
 
 ---
 
