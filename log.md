@@ -4,6 +4,25 @@ Registro append-only de cada tanda de trabajo. Entradas nuevas arriba.
 
 ---
 
+## 2026-11-10 — [[bug-jpql-dao]] reescrita con el estado post-rebase de RomiM
+
+**Contexto:** RomiM hizo un rebase y un push (4 commits, rama `master`, hasta `0f060f5`) y avisó que `PatientDAOInMemory` le había dado un error. Se auditó el remoto antes de que el Estudiante hiciera el pull: **fast-forward limpio, sin conflictos**, `ahead 0`, y tanto la copia local como `origin/master` compilan con `javac --release 25` (`ExitCode: 0`). El commit propio `8c7e94c` ya estaba en el remoto. `controller/`, `view/` y `AppNutritionist` **no fueron tocados**.
+
+**Lo que cambió en la nota:** la versión anterior describía los JPQL con nombres en **español** (`Paciente`, `apellido`, `Alimento`). RomiM los "corrigió" y los dejó con nombres de **tabla** (`patients`, `aliments`, `diets`, `p.id_dieta`), que sigue siendo JPQL inválido. Se reescribió la nota completa con:
+
+- Tabla de las **5** consultas rotas (antes eran 4): se sumó `PatientDAOJPA:26` (`buscarPorDieta`, nuevo).
+- `DietDAOJPA:19` ahora tiene **dos** errores: RomiM cambió `d.nombre` por `d.name` (nombre correcto en la tabla SQL, incorrecto en la entidad). Es el mejor ejemplo del error conceptual del commit.
+- `DietDetailDAOJPA:17-18`: el JPQL ya no existe, quedó un `UnsupportedOperationException`. El modelo, en cambio, **sí** tiene las dos relaciones, así que el arreglo es de una línea.
+- Sección nueva: **`Sql/nutricion.sql` no coincide con las entidades** (`diets.name` vs `Diet.nombre`, `aliments.aliment` vs `Aliment.name`). Y `schema-generation.database.action=create` en el `persistence.xml` **borra y recrea el esquema en cada arranque**, así que los `INSERT` del script se pierden.
+- Sección nueva: los otros `UnsupportedOperationException` (`PatientDAOInMemory:66-67`, `DietDetailDAOJPA:18`) y la hipótesis de cuál fue el error que vio RomiM después del rebase.
+- Sección nueva: los cinco `{@link}` que apuntan a clases inexistentes (`Alimento`, `Dieta`, `Paciente`, `DetalleDieta`) rompen `Generate Javadoc`.
+- Deudas cerradas respecto de la nota anterior: `DietDetailDAO.buscarPorDieta` ya es `Integer` (no `Long`) y `DietDetail` ya tiene las relaciones.
+- Checklist de 12 ítems y comando de `grep` para listar los JPQL inválidos en dos segundos.
+
+**Pendiente de decisión:** el campo `cantidad` de `DietDetail` (el commit `797b39c` lo definía como *un alimento + cantidad*; hoy es un pivot puro `Diet`–`Aliment` con `UniqueConstraint`, así que un alimento no puede repetirse en una dieta ni llevar gramaje). Hay que hablarlo con RomiM antes de cablear dietas.
+
+---
+
 ## 2026-11-10 — Plan de cableado de `Aliment` creado
 
 **Contexto:** con `Patient` cerrado (entrada de abajo), el Estudiante pidió el mismo plan de cableado para la segunda entidad, para implementarla sin volver al chat.

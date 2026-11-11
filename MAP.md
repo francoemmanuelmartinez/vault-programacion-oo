@@ -33,7 +33,7 @@ Programacion Orientada a Objetos/
 │   ├── estado.md              ← estado general del código y la tarea
 │   ├── vistas-manuales.md     ← contingencia: vistas Swing a mano
 │   ├── convenciones.md        ← convenciones de código del proyecto
-│   └── bug-jpql-dao.md        ← bug de las consultas JPQL (entidades/campos en español)
+│   └── bug-jpql-dao.md        ← bug de las consultas JPQL (nombres de tabla en vez de entidades)
 │
 └── plantillas/
     └── tema.md
