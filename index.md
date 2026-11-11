@@ -55,11 +55,13 @@ tags: [indice, meta]
 - ✅ [[ejemplo-de-excepciones]] — Mensajes personalizados por método del DAO (`DaoException`) y su llegada al usuario
 - ✅ [[plan-cableado-patient]] — Plan de cableado Vista ↔ Controlador ↔ Modelo para `Patient` (paso a paso, con código y trampas)
 - ✅ [[plan-cableado-aliment]] — El mismo plan aplicado a `Aliment`: getters, `AlimentDAOInMemory`, `AlimentTableModel`, controlador y trampas
+- ✅ [[plan-cableado-diet]] — El tercer cableado: crear `DietView` y `DietTableModel`, `DietController` completo, navegación desde el botón Diets y el JPQL de `DietDAOJPA`
+- ✅ [[plan-crud-bd]] — Plan para dejar el CRUD de `Patient` y `Aliment` andando contra MySQL: jars, esquema, los 5 JPQL, 25 pruebas y commit
 - ✅ [[vistas-manuales]] — Contingencia: vistas Swing a mano (compilan) y
   alternativa de `setVisible(false)` a `dispose()`
 - ✅ [[convenciones]] — Convenciones de código: getters para exponer los
   componentes al controlador, abreviaturas, Javadoc
-- ✅ [[bug-jpql-dao]] — Bug de las consultas JPQL de los DAO: nombres de tabla en vez de entidades (5 consultas, archivo y línea exactos, estado post-rebase de RomiM)
+- ✅ [[bug-jpql-dao]] — Bug de las consultas JPQL de los DAO: nombres de tabla en vez de entidades (5 consultas, archivo y línea exactos, estado al `1f785b6`)
 - ✅ [[enunciado_rubrica]] — Enunciado y rúbrica del trabajo práctico
 
 ## Navegación

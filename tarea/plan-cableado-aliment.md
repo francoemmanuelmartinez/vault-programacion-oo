@@ -1,8 +1,8 @@
 ---
 fuente: síntesis basada en Swing_MVC_Interfaces_Java.pdf (pág. 14, 20 a 23 y 26 a 27), JTable_en_Swing.pdf (pág. 4 a 18), Listas_y_ComboBox_Swing.pdf (pág. 1 a 15), POO_Equals.pdf, JPA_Hibernate_DAO.pdf (pág. 9 a 12), enunciado_rubrica.pdf (pág. 1 y 2) y convenciones propias del proyecto
 tags: [tarea, plan, mvc, swing, cableado, aliment]
-estado: vigente
-actualizado: 2026-11-10
+estado: implementado
+actualizado: 2026-11-11
 aliases: [plan-cableado-aliment, plan-aliment]
 ---
 
@@ -11,7 +11,16 @@ aliases: [plan-cableado-aliment, plan-aliment]
 > [!info] Qué es esta nota
 > El mismo recorrido que se hizo con `Patient` en [[plan-cableado-patient]], aplicado a `Aliment`: qué exponer en la vista, qué DAO crear, cómo armar el controlador y dónde están las trampas. Escrita para implementarla **sin depender del chat**.
 >
-> **Actualizada el 2026-11-10**, cuando `Patient` ya quedó cableado y funcionando contra `PatientDAOInMemory`. Todo el código usa los nombres reales del proyecto.
+> **Actualizada el 2026-11-11**: ya está implementada (ver la sección *Estado actual*); el 2026-11-10 se escribió a partir de cómo había quedado `Patient` cableado contra `PatientDAOInMemory`. Todo el código usa los nombres reales del proyecto **al `1f785b6`**.
+
+> [!warning] Cambió el nombre del campo: `name` → `aliment`
+> En `1f785b6` RomiM renombró `Aliment.name` a **`Aliment.aliment`**, y con eso
+> `getName()`/`setName()` pasaron a **`getAliment()`/`setAliment()`**. Los bloques de
+> código de esta nota **ya están actualizados**. Si copiás ejemplos de commits
+> anteriores, del vault o de internet, el `cannot find symbol: method getName()`
+> viene de acá y no de tu código.
+> El nombre del campo **en la vista** no cambió: `nameTextField`, `getNameText()`,
+> `setNameText()` siguen igual (`Patient` también usa `getNameText()`).
 
 > [!warning] Procedencia del contenido
 > - **Del profesor:** las reglas de MVC, el registro de eventos, la configuración de `JTable` y el uso de `JComboBox` (citas en cada sección).
@@ -19,11 +28,57 @@ aliases: [plan-cableado-aliment, plan-aliment]
 
 ---
 
-## 0. Estado de partida (verificado el 2026-11-10)
+## Estado actual: **implementado por RomiM** (2026-11-11)
+
+> [!success] Este plan ya no es una propuesta: está en el código
+> RomiM implementó el cableado de `Aliment` en los commits `ef8be3a` y `bf52102`
+> (*"conecte las vistas Patient y Aliment con las tablas de la BD"*), y lo ajustó en
+> `1f785b6` (*"Vistas de alimentos y pacientes ya estan funcionales"*). Las secciones
+> A1 a A5 de abajo están implementadas casi al pie de la letra.
+> **La diferencia grande: no usó un DAO en memoria, fue directo a los DAO de JPA.**
+
+### Qué quedó igual que el plan
+
+| Paso | Estado |
+|---|---|
+| **A1** — getters, setters, `clearForm()`, `showError/Info` y confirmaciones en `AlimentView` | ✅ implementado |
+| **A2** — `AlimentDAOInMemory` | ❌ **no se creó** (innecesario: se fue directo a JPA) |
+| **A3** — `AlimentController` con DAO, `selectedAliment` y helpers privados | ✅ implementado |
+| **A4** — `AlimentTableModel` (4 columnas, read-only, `getAliment(fila)`) | ✅ implementado, idéntico al del plan |
+| **A5** — listeners de los 4 botones + `selectRow()` con `convertRowIndexToModel` | ✅ implementado |
+| **A6** — handlers vacíos que dejó NetBeans | ✅ siguen vacíos |
+| **A7** — navegación a Patients | ✅ implementado |
+| Navegación a Diets | ⚠️ sigue sin listener (no existe `DietView`) |
+
+### Qué cambió respecto del plan
+
+| Tema | En el plan | En el código |
+|---|---|---|
+| Firma del controlador | `(AlimentDAO, PatientDAO, AlimentView)` | `(AlimentDAO, PatientDAO, DietDAO, AlimentView)` — se sumó `DietDAO` para el combo de dietas de `PatientView` |
+| `AppNutritionist` | crear los DAO una vez, **en memoria** | crea `PatientDAOJPA`, `DietDAOJPA` y `AlimentDAOJPA` |
+| Selección de fila | `MouseAdapter` → `mouseClicked` | `ListSelectionListener` (también funciona con las flechas del teclado) |
+| Validación numérica | `Double.parseDouble` + mensaje "usá punto decimal" | `parseNonNegative()` acepta coma **y** punto, y rechaza negativos |
+| Error al borrar | mensaje genérico del DAO | mensaje específico de clave foránea ("puede estar incluido en alguna dieta") |
+| `Category` | quedaba como `JTextField`, a decidir | quedó `JTextField` |
+| Nombre del atributo | `Aliment.name`, `getName()`/`setName()` | **`Aliment.aliment`, `getAliment()`/`setAliment()`** — renombre de `1f785b6` |
+
+### Lo que falta de este plan
+
+- **La búsqueda por categoría** — el equivalente del `Search by Last Name` de `Patient`: el botón sigue buscando por **ID**, así que `AlimentDAOJPA.buscarPorCategoria` continúa sin usarse, y con el JPQL roto.
+- **`rowCount="4"`** en `AlimentView.form:236` (trampa 3, sigue pendiente).
+- **`"Informacion"`** sin tilde en `showInfo`.
+- **Las librerías del build**: después de estos commits el proyecto no arranca sin EclipseLink y el driver de MySQL en `lib/`. Ver [[bug-jpql-dao]] y la entrada del 2026-11-11 en [[log]].
+
+---
+
+## 0. Estado de partida histórico (verificado el 2026-11-10)
+
+> Lo de abajo es el punto de partida cuando se escribió el plan. Se deja como
+> registro; el estado real de hoy está en la sección anterior.
 
 | Pieza | Estado |
 |---|---|
-| `Aliment.java` (modelo) | ✅ `id`, `name`, `category`, `caloriesPerServing`, constructor vacío y con parámetros, `toString()` → `"name (category)"` |
+| `Aliment.java` (modelo) | ✅ `id`, `category`, `caloriesPerServing`, constructor vacío y con parámetros, `toString()` → `"aliment (category)"`. El campo de nombre se llamaba `name`; desde `1f785b6` es **`aliment`** |
 | `AlimentDAO` (interfaz) | ✅ extiende `DAO<Aliment, Integer>` y agrega `buscarPorCategoria(String)` |
 | `AlimentDAOJPA` | ✅ hereda de `DAOJpa`; ⚠️ JPQL roto en la línea 19 (`Alimento`, `categoria`) |
 | `AlimentView` | ✅ 4 campos, 4 botones CRUD, tabla y navegación; ❌ **no expone nada al controlador** (sólo `getButtonPatients()` y `getButtonDiets()`) |
@@ -37,6 +92,12 @@ aliases: [plan-cableado-aliment, plan-aliment]
 ---
 
 ## 1. Etapa A — Cablear sin base (contra un DAO en memoria)
+
+> [!note] Etapa que no se siguió
+> El plan proponía cablear primero contra `AlimentDAOInMemory` y recién después
+> enchufar MySQL. RomiM fue directo a los DAO de JPA. Las secciones quedan igual
+> porque describen la forma del cableado (getters, modelo de tabla, listeners,
+> helpers), que **sí** se implementó así; sólo `AlimentDAOInMemory` (paso A2) no existe.
 
 ### Paso A0 — El mapa de nombres
 
@@ -234,7 +295,7 @@ public class AlimentController {
 
     private Aliment readForm() {
         Aliment a = new Aliment();
-        a.setName(view.getNameText().trim());
+        a.setAliment(view.getNameText().trim());
         a.setCategory(view.getCategoryText().trim());
         a.setCaloriesPerServing(Double.parseDouble(view.getCaloriesText().trim()));
         return a;
@@ -242,7 +303,7 @@ public class AlimentController {
 
     private void showAliment(Aliment a) {
         view.setIdText(String.valueOf(a.getId()));
-        view.setNameText(a.getName());
+        view.setNameText(a.getAliment());
         view.setCategoryText(a.getCategory());
         view.setCaloriesText(String.valueOf(a.getCaloriesPerServing()));
     }
@@ -340,7 +401,7 @@ public class AlimentTableModel extends AbstractTableModel {
         Aliment a = aliments.get(row);
         return switch (column) {
             case 0 -> a.getId();
-            case 1 -> a.getName();
+            case 1 -> a.getAliment();
             case 2 -> a.getCategory();
             case 3 -> Math.round(a.getCaloriesPerServing() * 100.0) / 100.0;
             default -> null;
@@ -496,17 +557,19 @@ javax.swing.SwingUtilities.invokeLater(() -> {
 
 Casi todo es configuración, y ya está detallada paso a paso en **C.6 de [[hoja-de-ruta-7-a-9]]**. Lo propio de `Aliment`:
 
-- [ ] Agregar la entidad al `persistence.xml`: `<class>appNutritionist.model.Aliment</class>` (además de `Patient`).
-- [ ] Arreglar el JPQL de `AlimentDAOJPA.java:19`:
+- [x] Agregar la entidad al `persistence.xml`: `<class>appNutritionist.model.Aliment</class>` (además de `Patient`, `Diet` y `DietDetail`). **Hecho** en `ef8be3a`, junto con `<exclude-unlisted-classes>`.
+- [ ] Arreglar el JPQL de `AlimentDAOJPA.java:19` — **sigue roto**, con otra forma:
 
 ```java
-// hoy (roto: la entidad es Aliment y el campo es category)
-"SELECT a FROM Alimento a WHERE a.categoria = :cat"
+// hoy (roto: usa el nombre de la tabla y no normaliza mayúsculas)
+"SELECT a FROM aliments a WHERE a.category = :cat"
 // corregido
 "SELECT a FROM Aliment a WHERE LOWER(a.category) LIKE :cat"
 ```
 
-- [ ] Cambiar una línea en `AppNutritionist`: `AlimentDAO alimentDao = new AlimentDAOJPA();`
+- [x] Cambiar una línea en `AppNutritionist`: `AlimentDAO alimentDao = new AlimentDAOJPA();` **Hecho** en `bf52102`.
+- [x] Resolver el desalineado `aliments.aliment` (script) vs `Aliment.name` (entidad) — **resuelto en `1f785b6`**, renombrando la entidad a `Aliment.aliment`. Ver [[bug-jpql-dao]].
+- [ ] Instalar EclipseLink y el driver de MySQL en `lib/` (el build hoy apunta a rutas de la máquina de RomiM).
 - [ ] Probar el mismo circuito de 10 pruebas de abajo.
 
 > [!note] El JPQL roto no frena el CRUD
@@ -527,21 +590,27 @@ Casi todo es configuración, y ya está detallada paso a paso en **C.6 de [[hoja
 | 7 | Cambiar `Category` a `JComboBox` **después** de cablear | hay que tocar `readForm`, `showAliment` y los getters de nuevo |
 | 8 | Poner lógica en los handlers de la vista | se ejecuta dos veces (vista + controlador) |
 
+> [!note] Estado de las trampas al 2026-11-11
+> - **#2** cubierta: `selectRow()` usa `convertRowIndexToModel`.
+> - **#4** cubierta con creces: `parseNonNegative()` acepta coma y punto, y rechaza negativos.
+> - **#1** ya no aplica: no hay DAO en memoria.
+> - **#3 sigue pendiente**: `AlimentView.form:236` está en `rowCount="4"`.
+
 ---
 
 ## 4. Orden de trabajo
 
-| # | Paso | Dónde | Se puede probar |
-|---|---|---|---|
-| 1 | Getters, setters, mensajes y `clearForm()` | `AlimentView` | — |
-| 2 | `AlimentDAOInMemory` (6 métodos) | `dao` | — |
-| 3 | `AlimentTableModel` (4 columnas, read-only) | `view` | — |
-| 4 | Reemplazar el controlador: firma, campos, helpers y listeners | `AlimentController` | compila |
-| 5 | Pasar los dos DAO desde `AppNutritionist` y ajustar `PatientController` | `AppNutritionist`, `PatientController` | **sí, todo el CRUD** |
-| 6 | `rowCount` de la tabla en 0 | diseñador | sí |
-| 7 | Etapa B (entidad en el XML + JPQL + una línea) | `META-INF`, `dao` | con MySQL arriba |
+| # | Paso | Dónde | Se puede probar | Estado |
+|---|---|---|---|---|
+| 1 | Getters, setters, mensajes y `clearForm()` | `AlimentView` | — | ✅ hecho |
+| 2 | `AlimentDAOInMemory` (6 métodos) | `dao` | — | ✖ no se hizo (se fue a JPA) |
+| 3 | `AlimentTableModel` (4 columnas, read-only) | `view` | — | ✅ hecho |
+| 4 | Reemplazar el controlador: firma, campos, helpers y listeners | `AlimentController` | compila | ✅ hecho |
+| 5 | Pasar los DAO desde `AppNutritionist` y ajustar `PatientController` | `AppNutritionist`, `PatientController` | **sí, todo el CRUD** | ✅ hecho (con JPA) |
+| 6 | `rowCount` de la tabla en 0 | diseñador | sí | ⏳ pendiente |
+| 7 | Etapa B (entidad en el XML + JPQL + una línea) | `META-INF`, `dao` | con MySQL arriba | ⚠️ XML hecho, **JPQL sigue roto** |
 
-Compilación manual (siempre `--release 25`):
+Compilación manual (siempre `--release 25`). Ojo: después de `bf52102` el proyecto corre contra JPA, así que para **compilar** alcanza con las dos libs, pero para **ejecutar** hacen falta EclipseLink y el driver de MySQL:
 
 ```powershell
 javac --release 25 -cp "lib/jakarta.persistence-2.2.3.jar;lib/flatlaf-3.5.4.jar" `

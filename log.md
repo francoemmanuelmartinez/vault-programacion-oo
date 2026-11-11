@@ -4,6 +4,157 @@ Registro append-only de cada tanda de trabajo. Entradas nuevas arriba.
 
 ---
 
+## 2026-11-11 — [[plan-cableado-diet]]: el CRUD de dietas se reasigna a Caro
+
+**Contexto:** Caro avisó que está haciendo la interfaz de dietas. El Estudiante decidió pasarle **todo el CRUD** —no sólo la vista— para que tenga commits reales antes de la entrega, y pidió un plan detallado como los de `Patient` y `Aliment`.
+
+**Qué se auditó antes de escribir** (sobre `1f785b6`, árbol limpio):
+- `model/Diet` ✅ lista: `id`, `name`, `description`, `toString()` → `name`, constructor `(String name, String description)`. No hay que tocarla.
+- `dao/DietDAO` ✅ lista: `extends DAO<Diet, Integer>` + `buscarPorNombre(String)`.
+- `dao/DietDAOJPA:19` ⚠️ único error pendiente: `FROM diets` en vez de `FROM Diet`. El `d.name` ya está bien desde `1f785b6`.
+- `controller/DietController` ❌ vacío (sólo el header de licencia). `view/DietView` y `view/DietTableModel` ❌ no existen.
+- `getButtonDiets()` existe en `PatientView:469` y `AlimentView:364`, **sin listener** en ninguno de los dos controladores.
+- `AppNutritionist` ✅ ya crea `new DietDAOJPA()` y ya se lo pasa a los dos controladores existentes: no hay que tocarlo.
+- `PatientController.loadDiets()/selectedDiet()/dietIndexOf()` ✅ funcionan: el combo de dietas ya lee de la base.
+
+**La nota (`tarea/plan-cableado-diet.md`, 12 secciones):** diagnóstico pieza por pieza, `DietView` con la tabla de componentes y `rowCount="0"`, `DietTableModel` completo, `DietController` completo (firma, listeners, helpers, las cuatro acciones), los listeners del botón Diets en los dos controladores, el JPQL de una palabra, 21 pruebas contra MySQL, 11 trampas, tabla de troubleshooting, los dos commits sugeridos y la Fase 7 opcional con `DietDetail`.
+
+**Decisiones que quedaron argumentadas en la nota:**
+- La firma del controlador calca a los otros dos: `(DAO principal, los otros dos DAO, vista)`.
+- Los `JOptionPane` van en la vista (criterio de equipo, marcado como no-cátedra).
+- Se valida el largo (50/100) y el nombre no vacío **antes** de confirmar, porque la base los rechaza con un mensaje en inglés.
+- `convertRowIndexToModel` en `selectRow()`: es la trampa que ya se pagó dos veces.
+- `delete()` con `catch (DAOException)` y mensaje explicando la FK: las dietas 1 y 2 están referenciadas desde `Patients.id_diet` y `DietsDetails.id_diet`.
+
+**Advertencias que se dejaron escritas:** avisarle a RomiM **antes** de crear `DietView.java` (dos ramas con el mismo archivo nuevo no tienen resolución automática); y coordinar quién arregla `DietDAOJPA:19`, porque esa línea también está asignada en [[plan-crud-bd]].
+
+**También:** `index.md` y `MAP.md` con la nota nueva.
+
+---
+
+## 2026-11-11 — Un `{@link}` en rojo en NetBeans: eran **ocho**, no cinco
+
+**Contexto:** después del `pull` a `1f785b6`, el Estudiante abrió `PatientDAO.java`, vio `Paciente` en rojo y preguntó qué significaba.
+
+**Diagnóstico:** `PatientDAO:8` tiene `{@link Paciente}` y no existe ninguna clase con ese nombre (la entidad es `Patient`). NetBeans resuelve los `{@link}` contra las clases del proyecto para armar el hipervínculo; si no las encuentra, los pinta en rojo. **No es error de compilación**: `javac --release 25` sobre su árbol recién pulleado da `ExitCode: 0`. Sí rompe `Generate Javadoc` y `javac -Xdoclint:all`.
+
+**No lo trajo el pull:** `git log -S '{@link Paciente}'` lo ubica en `797b39c` (RomiM, 8 nov). El Estudiante simplemente abrió el archivo recién ahora.
+
+**Corrección de la nota:** la sección *Extra: Javadoc* de [[bug-jpql-dao]] decía cinco y son **ocho**. Faltaban `AlimentDAOJPA:8` (`{@link AlimentoDAO}`), `DAOJpa:10` (`{@link GenericDAO}`) y `DietDAOJPA:8` (`{@link DietaDAO}`). Además `DietDAO` está en la línea **8**, no 11: `1f785b6` le borró el header de licencia y corrió todo el archivo para arriba.
+
+**Qué se cambió:**
+- [[bug-jpql-dao]]: sección reescrita con las ocho filas y dos columnas nuevas (*dice* / *debería decir*); `[!info]` explicando por qué NetBeans los pinta en rojo; y la aclaración de que `EntityManager` (`DAOJpa:11`) y `Diet`/`Aliment` (`DietDetail:15`) **sí** resuelven, para que nadie los busque de más. Checklist actualizado.
+- [[plan-crud-bd]]: Fase 6, ítem 2, con la lista completa de las ocho.
+- Verificado sobre `src/` que no existen `GenericDAO`, `AlimentoDAO`, `DietaDAO`, `Paciente`, `Alimento`, `Dieta` ni `DetalleDieta`.
+
+**Nota:** las entradas viejas de este log que dicen "cinco" se dejan como están: son registro de lo que se escribió en su momento, no del estado actual.
+
+---
+
+## 2026-11-11 — Actualización de [[bug-jpql-dao]] y [[plan-cableado-aliment]] tras `1f785b6`
+
+**Contexto:** el Estudiante aprobó cerrar las dos notas que quedaron desactualizadas por el renombre de entidades del commit `1f785b6`.
+
+**[[bug-jpql-dao]]** — la nota ya no dice que el esquema está desalineado, porque dejó de estarlo:
+- Encabezado: se agregó que `1f785b6` renombró **también las entidades** (`Aliment.name` → `aliment`, `Diet.nombre` → `name`) y que eso achicó el arreglo sin tocar una sola línea de JPQL.
+- Tabla de historia del archivo: cuarta fila para `1f785b6`.
+- Tabla de estado: el desalineado pasó de ❌ a ✅ ("resuelto al revés"), y cada arreglo quedó atribuido a su commit (`ef8be3a`, `bf52102`).
+- Tabla resumen: la fila 4 (Diet) ya no pide `d.nombre` sino `d.name`; el único error que queda es la entidad.
+- Sección 4 de `Diet` reescrita entera: en vez de "el arreglo agregó un error", ahora cuenta la historia en tres commits y muestra que el bug **se movió al modelo**. El arreglo pendiente se encogió de dos errores a uno.
+- Sección del script reescrita: de "no coincide con las entidades" a "ya no está desalineado", con la tabla 1:1 en ✅, un `[!danger]` explícito contra el consejo invertido de la v1 (renombrar las columnas ahora rompe todo) y un `[!warning]` nuevo sobre las columnas huérfanas que puede dejar una base creada antes del renombre.
+- `PatientDAOInMemory` actualizado: ya no es "el DAO que la app usa hoy".
+- Checklist: `DietDAOJPA:19` con `d.name`, y el punto de alinear el esquema marcado como hecho por RomiM.
+- Ampliación de la IA: el bullet de `@Column` pasó de recomendación a "la alternativa que NO se eligió", con las dos opciones explicadas.
+
+**[[plan-cableado-aliment]]** — el código de los pasos A3 y A4 ya compila:
+- Callout nuevo arriba: `Aliment.name` → `aliment`, `getName()`/`setName()` → `getAliment()`/`setAliment()`, y la aclaración de que el nombre **en la vista** (`getNameText()`) no cambió.
+- `readForm()` → `a.setAliment(...)`; `showAliment()` → `a.getAliment()`; `getValueAt` caso 1 → `a.getAliment()`.
+- "Estado actual": se sumó `1f785b6` a los commits que implementaron el cableado, y una fila nueva en "Qué cambió respecto del plan" con el renombre.
+- Sección histórica 0: la fila de `Aliment.java` aclara que el campo se llamaba `name` y hoy es `aliment`.
+- Etapa B: el ítem "resolver el desalineado" quedó marcado como resuelto en `1f785b6`.
+
+**También:** `index.md` — la descripción de [[bug-jpql-dao]] pasó de "estado post-rebase de RomiM" a "estado al `1f785b6`".
+
+---
+
+## 2026-11-11 — [[plan-crud-bd]] v2: RomiM invirtió la alineación del esquema
+
+**Contexto:** RomiM pusheó `1f785b6` (*"Vistas de alimentos y pacientes ya estan funcionales"*) después de probar. Avisó por WhatsApp que **select, insert y update funcionan** y que trae los datos de prueba; le falta la vista de dietas y quiere agregar excepciones específicas para los borrados con clave foránea.
+
+**Qué hizo el commit (`1f785b6`, 7 archivos):**
+- Renombró las **entidades** para que coincidan con el script SQL, en vez de al revés: `Aliment.name` → **`aliment`** (`getName/setName` → `getAliment/setAliment`), `Diet.nombre` → **`name`** y agregó `description`. `Diet(String nombre)` pasó a `Diet(String name, String description)`.
+- Actualizó los tres usos afectados: `AlimentController.readForm/showAliment`, `AlimentTableModel` (columna 1) y `PatientTableModel` (columna 6 → `getDieta().getName()`).
+- Limpieza de comentarios `// NUEVO` y del header de `DietDAO`.
+- **No tocó los JPQL.** Verificado: `AlimentDAOJPA:19` (`FROM aliments`), `DietDAOJPA:19` (`FROM diets`), `PatientDAOJPA:19` (`FROM patients`), `PatientDAOJPA:26` (`FROM patients … p.id_dieta`) y `DietDetailDAOJPA:18` (`throw`). Compila con `javac --release 25` (`ExitCode: 0`).
+
+**Consecuencia para el plan:** la Fase 2 de la v1 recomendaba renombrar las columnas del script (`diets.name` → `nombre`, `aliments.aliment` → `name`). **Ahora eso rompería el proyecto.** Se reescribió la nota entera:
+
+- Nueva sección de advertencia al principio: el esquema ya está alineado 1:1 y el script es la referencia; **no se toca**.
+- Fase 2 pasó de "arreglar el script" a "verificar el esquema", con la tabla de mapeo y un `[!danger]` explícito contra el renombre invertido.
+- Fase 3 se simplificó: el renombre **arregló de paso** `d.name` (Diet) y `a.category` (Aliment), así que ahora sólo quedan **cuatro nombres de entidad**, un camino (`p.id_dieta`) y un método sin cuerpo.
+- Fase 4 se reenfocó: insert/update/select ya están probados por RomiM; lo que falta probar es el **DELETE** (18 pruebas, con la de la FK del alimento en dieta).
+- Sección nueva **Reparto del trabajo con RomiM**: ella toma `DietView` + `DietController` y las excepciones de FK; el Estudiante toma build portable + JPQL + pruebas. Se avisa del riesgo de conflicto, porque cablear el botón *Diets* obliga a tocar `PatientController` y `AlimentController`.
+- Sección nueva de consecuencias del renombre (`getName()` ya no existe en `Aliment`) para que no copie ejemplos viejos, propios o de internet.
+- Troubleshooting actualizado: se fueron los errores del esquema viejo como causa principal y se agregó el síntoma `cannot find symbol: getName()`.
+
+**Notas desactualizadas por este commit:** [[bug-jpql-dao]] todavía decía que `DietDAOJPA:19` tenía dos errores (ahora `d.name` es correcto) y que RomiM "agregó un error"; [[plan-cableado-aliment]] mostraba `a.setName()`/`a.getName()` en los pasos A3 y A4, que ya no compilan. **Las dos se actualizaron en la entrada de arriba.**
+
+---
+
+## 2026-11-11 — Plan para el CRUD completo contra MySQL
+
+**Contexto:** RomiM avisó por chat que ya conectó las vistas a la base ("las consultas las hace… me muestra los pacientes y los alimentos"), pero aclaró que no probó insertar ni modificar. El Estudiante pidió un plan ejecutable para cerrar el CRUD completo y pushear.
+
+**Diagnóstico que fundamenta el plan:** lo que RomiM vio son los `findAll()`, que arman la consulta con `clase.getSimpleName()` (`DAOJpa:60`) y **no usan ninguno de los cinco JPQL escritos a mano**. Verificado con `git grep buscarPor`: los cinco métodos tienen **cero llamadores**. O sea, la evidencia prueba la conexión y el DDL, no las búsquedas.
+
+**Nota nueva [[plan-crud-bd]]** (9 secciones, ~25 pruebas): 
+- **Fase 1** — que arranque en la máquina del Estudiante: `pull`, `Start-Service MySQL97` (está detenido), bajar EclipseLink 2.7.16, copiar los dos jars a `lib/` y sacar las rutas `C:\Users\DELL01\Downloads\…` de `project.properties`.
+- **Fase 2** — un solo esquema: alinear `Sql/nutricion.sql` con las entidades (`diets.name` → `nombre`, `aliments.aliment` → `name`) y, sobre todo, **`DROP DATABASE` + recrear**, porque `create-or-extend-tables` agrega columnas pero no arregla las `NOT NULL` viejas.
+- **Fase 3** — los cinco JPQL corregidos, con el código exacto y el aviso de que `Aliment` pasa de igualdad a `LIKE`.
+- **Fase 4** — 19 pruebas del CRUD, con la regla de oro: **cerrar y reabrir la app** después de cada alta, que es lo que distingue MySQL de memoria.
+- **Fase 5** — cablear `Search by Last Name` y `Search by Category` (sin agregar controles), que es lo que le da llamador a los JPQL y permite demostrarlos. Incluye el `import java.util.List` que le falta a `AlimentController`.
+- **Fase 6** — limpieza: `PatientDAOInMemory.buscarPorDieta`, los cinco `{@link}` rotos, `rowCount="4"`, `"Informacion"`, `selectedDiet()`, doble diálogo, botones Diets.
+- **Fase 7** — commit y push: qué entra, mensaje sugerido, y qué avisarle a RomiM (cambia el nombre del jar de MySQL y cambia el script).
+
+**Decisiones de la nota:** arreglar el script y no las entidades (la entidad es la fuente de verdad en JPA y evita `@Column` duplicando nombres); mantener `create-or-extend-tables` como red de seguridad; hacer las búsquedas en la misma tanda porque sin llamador los JPQL no se pueden probar.
+
+**Advertencias agregadas:** la contraseña `2711` de RomiM está commiteada en `persistence.xml` — si el Estudiante usa otra, no debe commitear la suya.
+
+**Actualizados:** `index.md` y [[MAP]] con la nota nueva.
+
+---
+
+## 2026-11-11 — RomiM conectó las vistas a MySQL: auditoría de `ef8be3a` y `bf52102`
+
+**Contexto:** RomiM pusheó dos commits que cablean `PatientView` y `AlimentView` contra los DAO de JPA. El Estudiante pidió leerlos antes de hacer el pull.
+
+**Estado del repo:** `behind 6`, `ahead 0` → fast-forward limpio, sin conflictos. `javac --release 25` sobre `origin/master` (`bf52102`) da `ExitCode: 0`.
+
+**Lo que hizo RomiM (verificado leyendo el código, no contado por ella):**
+- `persistence.xml` (`ef8be3a`): PU renombrada a **`nutricionPU`** (antes `persistence.xml`, que no coincidía con `util/JPAUtil.java:12`, así que el `EntityManagerFactory` **no se podía crear nunca**), cuatro `<class>` + `<exclude-unlisted-classes>`, URL con `createDatabaseIfNotExist`, y `create` → `eclipselink.ddl-generation=create-or-extend-tables`.
+- `DAOJpa` (`bf52102`): `EntityManager` y `Transaction` creados **dentro** del `try`, más `if (em != null)` en el `finally` → si la base está caída sale un `DAOException` con diálogo, no un crash.
+- `PatientController`: recibe `DietDAO` y `AlimentDAO`, llena el `dietComboBox` de la vista, `parsePositive()` acepta coma decimal, `ListSelectionListener` en vez de `MouseListener`, y `p.setDieta(selectedDiet())` en `readForm()` (sin eso, cada Modify borraba la dieta del paciente).
+- `AlimentController`: CRUD completo, igual a los pasos A3 y A5 de [[plan-cableado-aliment]], con mensaje específico para el error de clave foránea al borrar.
+- `AlimentTableModel` nuevo, idéntico al paso A4 del plan.
+- `PatientTableModel`, columna 6: ahora muestra la dieta real en vez de `""`.
+- `AlimentView`: getters, setters, `clearForm()` y confirmaciones (paso A1).
+- `AppNutritionist`: pasa a `PatientDAOJPA`, `DietDAOJPA` y `AlimentDAOJPA`; **`PatientDAOInMemory` quedó sin uso**.
+- `.gitignore`: se agregó `/dist/`.
+
+**Problemas encontrados (informados en el chat):**
+1. **Bloqueante:** `nbproject/project.properties` commitea rutas absolutas `C:\Users\DELL01\Downloads\eclipselink-2.7.16.jar` y `...mysql-connector-j-8.2.0.jar`. No existen en la máquina del Estudiante y no están en `lib/`. Como la app ahora usa JPA, **compila pero no arranca** (`No Persistence provider for EntityManager named nutricionPU`).
+2. Los **5 JPQL siguen rotos** (no los tocó): `patients`, `aliments`, `diets`, `p.id_dieta`, y `DietDetailDAOJPA` sin consulta.
+3. `nutricion.sql` sigue desalineado (`diets.name` vs `Diet.nombre`, `aliments.aliment` vs `Aliment.name`). Con `create-or-extend-tables` el resultado son columnas `NOT NULL` sin default: los `INSERT` de alimentos fallan si la base la creó el script.
+4. Menores: `AlimentView.form` sigue en `rowCount="4"`, `"Informacion"` sin tilde, botón **Diets** sin listener en ninguna pantalla, `selectedDiet()` sin validar el índice contra `diets.size()`.
+
+**Actualizado en el vault:**
+- [[bug-jpql-dao]]: sección nueva *Qué cambió con el push del 2026-11-11* (arreglado vs. pendiente), el callout del `create` reescrito para `create-or-extend-tables` + el problema de los `NOT NULL`, tabla de deudas resueltas ampliada a siete filas y checklist de 13 ítems.
+- [[plan-cableado-aliment]]: `estado: implementado`; sección nueva *Estado actual* con qué quedó igual al plan, qué cambió y qué falta; la sección 0 pasó a *estado de partida histórico*; Etapa B y tabla de trampas actualizadas con su estado real.
+
+**Pendiente de decisión (sin cambios):** la búsqueda por apellido en `Patient` y por categoría en `Aliment` — los dos `search()` siguen buscando por ID.
+
+---
+
 ## 2026-11-10 — [[bug-jpql-dao]] reescrita con el estado post-rebase de RomiM
 
 **Contexto:** RomiM hizo un rebase y un push (4 commits, rama `master`, hasta `0f060f5`) y avisó que `PatientDAOInMemory` le había dado un error. Se auditó el remoto antes de que el Estudiante hiciera el pull: **fast-forward limpio, sin conflictos**, `ahead 0`, y tanto la copia local como `origin/master` compilan con `javac --release 25` (`ExitCode: 0`). El commit propio `8c7e94c` ya estaba en el remoto. `controller/`, `view/` y `AppNutritionist` **no fueron tocados**.
