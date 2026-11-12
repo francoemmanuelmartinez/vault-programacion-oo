@@ -1,7 +1,7 @@
 ---
-fuente: Javadoc_en_Java.pdf (pág. 1 a 13) + enunciado_rubrica.pdf (pág. 1 y 2) + auditoría con `javadoc -Xdoclint:all` sobre el commit `9a1b06a`
+fuente: Javadoc_en_Java.pdf (pág. 1 a 13) + enunciado_rubrica.pdf (pág. 1 y 2) + auditoría del código en el working copy sobre `9a1b06a` (2026-11-12)
 tags: [tarea, plan, javadoc, documentacion, rubrica]
-estado: propuesto
+estado: en curso
 actualizado: 2026-11-12
 aliases: [plan-javadoc, javadoc, documentacion-api]
 ---
@@ -9,13 +9,13 @@ aliases: [plan-javadoc, javadoc, documentacion-api]
 # Plan: Javadoc en clases y métodos públicos
 
 > [!info] Qué es esta nota
-> La rúbrica pide **Javadoc para las clases y los métodos públicos**, y el nivel máximo de *Documentación y Código Limpio* dice "documentado en **todas las entidades**". Hoy el proyecto tiene **87 elementos públicos sin un solo comentario**, **8 sin descripción principal** y **7 `{@link}` que apuntan a clases que no existen**.
+> La rúbrica pide **Javadoc para las clases y los métodos públicos**, y el nivel máximo de *Documentación y Código Limpio* dice "documentado en **todas las entidades**".
 >
-> Este plan ordena el trabajo por archivo, fija la plantilla de cada tipo de clase y define cómo se verifica. Todo el marco viene de `Javadoc_en_Java.pdf`.
+> **Estado:** los 7 `{@link}` rotos ya están arreglados y los cuatro modelos del dominio documentados. Faltan **144 elementos públicos**, la mayoría getters de las vistas.
 
 > [!warning] Procedencia
 > - **Del profesor:** qué es Javadoc, la diferencia con los comentarios comunes, el formato, el orden de las etiquetas y cómo se genera (pág. 2, 3, 6, 7, 8 y 12 — `Javadoc_en_Java.pdf`), y el requisito de la rúbrica (`enunciado_rubrica.pdf`, pág. 1 y 2).
-> - **Criterio de equipo/IA:** las plantillas concretas, el orden de trabajo, el uso de `@author` y el criterio de aceptación.
+> - **Criterio de equipo/IA:** las plantillas concretas, el orden de trabajo y el criterio de aceptación.
 
 ---
 
@@ -24,73 +24,90 @@ aliases: [plan-javadoc, javadoc, documentacion-api]
 > pág. 1 y 2 — enunciado_rubrica.pdf
 > **Javadoc:** será necesaria la realización de Javadoc para los **métodos y clases públicas**.
 
-Y en la rúbrica de criterios:
-
 > pág. 2 — enunciado_rubrica.pdf
-> *Documentación y Código Limpio* — **Satisfactorio/Avanzado:** "código bien estructurado y documentado en **todas las entidades**, fácil de leer, con buenas prácticas de programación".
+> *Documentación y Código Limpio* — **Avanzado:** "código bien estructurado y documentado en **todas las entidades**, fácil de leer, con buenas prácticas de programación".
 
 Traducido: no alcanza con un par de comentarios. Se evalúa el conjunto, y "todas las entidades" son `Patient`, `Aliment` y `Diet` (con `DietDetail` como pivot).
 
 ---
 
-## 1. Estado actual (medido, no estimado)
+## 1. Cómo se mide (y por qué no con `doclint`)
 
-Generado con el JDK:
+Primer intento: correr `javadoc` con `-Xdoclint:all` y contar los warnings `no comment`. **No sirve** por dos motivos, y los dos se descubrieron a los golpes:
+
+1. **`doclint` cuenta los campos privados.** Da 204 faltantes, cuando la rúbrica pide clases y métodos **públicos**. Documentar 55 campos privados no suma nada.
+2. **`javadoc` corta a los 100 warnings por defecto** (`-Xmaxwarns`). Las primeras corridas siempre daban "100" y parecía que el arreglo no bajaba el número: en realidad estaba ocultando el resto.
+
+La métrica que sí sirve es un conteo directo sobre el fuente: **elemento público sin un bloque `/** ... */` inmediatamente antes** (salteando anotaciones y líneas en blanco).
 
 ```powershell
-& "C:\Program Files\Java\jdk-26\bin\javadoc.exe" --release 25 -encoding UTF-8 `
-    -d <salida> -sourcepath src -subpackages appNutritionist `
-    -subpackages excepciones -subpackages util -classpath "lib/*" `
-    -Xdoclint:all -quiet
+$files = Get-ChildItem -Recurse src -Filter *.java
+foreach ($f in $files) {
+    $lines = Get-Content $f.FullName
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+        $l = $lines[$i]
+        if ($l -match '^\s*public\s' -and ($l -match '\(' -or $l -match '\b(class|interface|enum)\b')) {
+            # retrocede hasta 15 lineas buscando el cierre del Javadoc,
+            # sin cruzar otra declaracion (tolera @Table(...) multilinea)
+            $j = $i - 1
+            $lim = [Math]::Max(0, $i - 15)
+            $doc = $false
+            while ($j -ge $lim) {
+                $t = $lines[$j].Trim()
+                if ($t.EndsWith('*/')) { $doc = $true; break }
+                if ($t -match '^\s*(public|private|protected)\b') { break }
+                $j--
+            }
+            if (-not $doc) { "$($f.Name):$($i+1): $($l.Trim())" }
+        }
+    }
+}
 ```
 
-**Resultado:** `javadoc` termina con **exit 1**, **7 errores** y **100 warnings**.
+> [!warning] El script también tiene su trampa
+> La primera versión salteaba sólo líneas en blanco y anotaciones de **una** línea. Con `@Table(name = …,` partido en varias líneas se detenía antes de llegar al `*/` y marcaba como "sin documentar" una clase que sí lo estaba (`DietDetail`). Por eso ahora retrocede hasta 15 líneas y corta al cruzar otra declaración.
 
-| Tipo de warning | Cantidad | Qué significa |
-|---|---|---|
-| `no comment` | **87** | clase o método público sin ningún `/** ... */` |
-| `no main description` | **8** | tiene etiquetas pero le falta la descripción de apertura |
-| `use of default constructor…` | 5 | constructor implícito sin comentario |
+### 1.1 El número real: 144
 
-### 1.1 Los 87 sin comentario, por archivo
-
-| Archivo | Faltantes |
+| Archivo | Faltan |
 |---|---|
-| `view/DietView.java` | **26** |
-| `view/AlimentView.java` | **22** |
-| `model/Aliment.java` | 9 |
-| `model/DietDetail.java` | 7 |
-| `model/Diet.java` | 7 |
-| `view/AlimentTableModel.java` | 3 |
-| `view/DietTableModel.java` | 3 |
-| `AppNutritionist.java` | 2 |
+| `view/PatientView.java` | **33** |
+| `view/DietView.java` | **29** |
+| `view/AlimentView.java` | **24** |
+| `view/PatientTableModel.java` | 8 |
+| `view/AlimentTableModel.java` | 8 |
+| `view/DietTableModel.java` | 8 |
+| `view/DietAlimentTableModel.java` | 7 |
+| `dao/PatientDAOInMemory.java` | 7 |
+| `dao/DAOJpa.java` | 5 |
+| `dao/PatientDAOJPA.java` | 3 |
+| `controller/PatientController.java` | 2 |
 | `controller/AlimentController.java` | 2 |
-| `view/DietAlimentTableModel.java` | 2 |
-| `dao/AlimentDAOJPA.java` · `dao/DietDAOJPA.java` · `dao/DietDetailDAOJPA.java` · `controller/DietController.java` | 1 cada uno |
+| `AppNutritionist.java` | 2 |
+| `dao/AlimentDAOJPA.java` | 2 |
+| `dao/DietDAOJPA.java` | 2 |
+| `dao/DietDetailDAOJPA.java` | 1 |
+| `controller/DietController.java` | 1 |
 
-> [!tip] Lo que ya está bien
-> `Patient`, `PatientView`, `PatientController` y `PatientTableModel` **no aparecen** en la lista: ya están documentados. Sirven de molde y demuestran que el estilo se puede sostener.
+**Total: 144**, de los cuales **86 son getters o setters de las tres vistas**.
 
-### 1.2 Los 7 `{@link}` rotos
+### 1.2 Lo ya resuelto
 
-Son **errores** (no warnings): cortan la generación del sitio. Apuntan a nombres que quedaron de una versión anterior del modelo.
+- Los **7 `{@link}` rotos** (bloque 1): `{@link Alimento}` → `Aliment`, `{@link Dieta}` → `Diet`, `{@link Paciente}` → `Patient`, `{@link DetalleDieta}` → `DietDetail`, y los DAO equivalentes. `javadoc` pasó de **exit 1** a **exit 0**.
+- **`Aliment`, `Diet`, `DietDetail` y `Patient` completos**: constructores, todos los getters/setters, `calcularIMC` y los `toString`, con `@param` y `@return`.
 
-| Archivo | Línea | Dice | Debería decir |
-|---|---|---|---|
-| `dao/AlimentDAO.java` | 10 | `{@link Alimento}` | `{@link Aliment}` |
-| `dao/AlimentDAOJPA.java` | 8 | `{@link AlimentoDAO}` | `{@link AlimentDAO}` |
-| `dao/DietDAO.java` | 8 | `{@link Dieta}` | `{@link Diet}` |
-| `dao/DietDAOJPA.java` | 8 | `{@link DietaDAO}` | `{@link DietDAO}` |
-| `dao/DietDetailDAO.java` | 8 | `{@link DetalleDieta}` | `{@link DietDetail}` |
-| `dao/PatientDAO.java` | 8 | `{@link Paciente}` | `{@link Patient}` |
-| `model/Diet.java` | 11 | `{@link DetalleDieta}` | `{@link DietDetail}` |
+### 1.3 Un archivo que sobra
 
-> [!note] Uno menos que en [[bug-jpql-dao]]
-> Esa nota contaba **ocho**: `DAOJpa:10` decía `{@link GenericDAO}` y ya está corregido a `{@link DAO}`.
+`dao/PatientDAOInMemory.java` **no lo usa nadie**: es el remanente de la etapa con DAO en memoria que se descartó cuando se pasó a JPA. Tiene 7 métodos públicos sin Javadoc.
 
-### 1.3 Los 8 "no main description"
+Dos caminos:
 
-`AlimentView`, `DietView`, `DAOJpa`, `Navigator`, `Patient` y dos en `DuplicateRecordException`. Tienen etiquetas (`@param`, `@return`) pero les falta la primera oración que describe qué hace.
+| Opción | Qué implica |
+|---|---|
+| **Borrarlo** | menos código, menos documentación y menos preguntas en la defensa ("¿por qué hay dos `PatientDAO`?") |
+| **Documentarlo** | 7 Javadocs más y una explicación de por qué sigue ahí |
+
+Recomendación: **borrarlo**, pero es decisión del equipo porque no lo escribimos nosotros.
 
 ---
 
@@ -126,8 +143,8 @@ Son **errores** (no warnings): cortan la generación del sitio. Apuntan a nombre
 | `@author` | **no** se usa: sería el mismo en 30 clases y no aporta |
 | `@since` | **no** se usa |
 | `@see` | sólo donde hay una relación real (entidad ↔ DAO) |
-| Campos privados | no se documentan, salvo que expliquen una regla (como `Patient.diet`) |
-| Métodos privados | no (no forman la API) |
+| Campos privados | **no** se documentan (la rúbrica habla de públicos) |
+| Métodos privados | **no** (no forman la API) |
 
 ---
 
@@ -145,31 +162,31 @@ Son **errores** (no warnings): cortan la generación del sitio. Apuntan a nombre
 public class Aliment implements Serializable { ... }
 ```
 
-### 4.2 Método con parámetros y retorno
+### 4.2 Método con retorno
 
 ```java
     /**
-     * Calcula el indice de masa corporal del paciente.
+     * Calcula el índice de masa corporal con la fórmula peso / altura².
      *
-     * @return el IMC redondeado a dos decimales
+     * @return el IMC, o {@code 0} si la altura no es mayor a cero
      */
     public double calcularIMC() { ... }
 ```
 
-Con parámetros y excepción:
+### 4.3 Método con parámetros y excepción
 
 ```java
     /**
-     * Busca los alimentos que pertenecen a una categoria.
+     * Busca los alimentos que pertenecen a una categoría.
      *
-     * @param categoria nombre exacto de la categoria
-     * @return la lista de alimentos de esa categoria; vacia si no hay ninguno
+     * @param categoria nombre exacto de la categoría
+     * @return la lista de alimentos de esa categoría; vacía si no hay ninguno
      * @throws DAOException si falla la consulta a la base
      */
     List<Aliment> buscarPorCategoria(String categoria) throws DAOException;
 ```
 
-### 4.3 Interfaz DAO
+### 4.4 Interfaz DAO
 
 ```java
 /**
@@ -179,16 +196,16 @@ Con parámetros y excepción:
 public interface AlimentDAO extends DAO<Aliment, Integer> { ... }
 ```
 
-### 4.4 Implementación JPA
+### 4.5 Implementación JPA
 
 ```java
 /**
- * Implementacion JPA de {@link AlimentDAO}.
+ * Implementación JPA de {@link AlimentDAO}.
  */
 public class AlimentDAOJPA extends DAOJpa<Aliment, Integer> implements AlimentDAO { ... }
 ```
 
-### 4.5 Controlador
+### 4.6 Controlador
 
 ```java
 /**
@@ -198,7 +215,7 @@ public class AlimentDAOJPA extends DAOJpa<Aliment, Integer> implements AlimentDA
 public class AlimentController { ... }
 ```
 
-### 4.6 Getter y setter de una vista
+### 4.7 Getter y setter de una vista
 
 ```java
     /**
@@ -216,10 +233,10 @@ public class AlimentController { ... }
     public void setNameText(String s) { nameTextField.setText(s); }
 ```
 
-> [!tip] Los 48 getters de las vistas son el grueso del trabajo…
-> …y también los más rápidos: una línea de resumen, `@return` o `@param`, y listo. `DietView` (26) y `AlimentView` (22) suman más de la mitad de los 87.
+> [!tip] Los 86 getters de las vistas son el grueso…
+> …y también lo más rápido: una línea de resumen, `@return` o `@param`, y listo. `PatientView` (33), `DietView` (29) y `AlimentView` (24) concentran el 58% del trabajo.
 
-### 4.7 Excepción
+### 4.8 Excepción
 
 ```java
 /**
@@ -232,58 +249,55 @@ public class RecordInUseException extends DAOException { ... }
 
 ## 5. Orden de trabajo
 
-De lo que más valor documental aporta a lo más mecánico:
-
-| # | Bloque | Archivos | Elementos | Por qué primero |
+| # | Bloque | Archivos | Elementos | Estado |
 |---|---|---|---|---|
-| 1 | **Arreglar los `{@link}`** | 6 archivos | 7 líneas | sin esto el `javadoc` no genera nada |
-| 2 | **Modelos** | `Aliment`, `Diet`, `DietDetail` | 23 | es la API del dominio |
-| 3 | **DAO + excepciones** | 4 `DAOJPA`, `DAOJpa`, `DuplicateRecordException` | ~5 + 4 | contrato de persistencia |
-| 4 | **Controladores** | `AlimentController`, `DietController`, `Navigator` | 4 | reglas de negocio |
-| 5 | **Modelos de tabla** | `AlimentTableModel`, `DietTableModel`, `DietAlimentTableModel` | 8 | breve |
-| 6 | **Vistas** | `AlimentView`, `DietView` | 48 | mecánico y voluminoso |
-| 7 | **Main** | `AppNutritionist` | 2 | cierre |
+| 1 | **Los `{@link}`** | 6 archivos | 7 líneas | ✅ **hecho** |
+| 2 | **Modelos del dominio** | `Aliment`, `Diet`, `DietDetail`, `Patient` | 29 | ✅ **hecho** |
+| 3 | **`PatientDAOInMemory`** | decidir: borrar (recomendado) o documentar | 7 | a decidir |
+| 4 | **DAO** | `DAOJpa` 5, `PatientDAOJPA` 3, `AlimentDAOJPA` 2, `DietDAOJPA` 2, `DietDetailDAOJPA` 1 | 13 | pendiente |
+| 5 | **Controladores y main** | `AlimentController` 2, `PatientController` 2, `DietController` 1, `AppNutritionist` 2 | 7 | pendiente |
+| 6 | **Modelos de tabla** | los 4 | 31 | pendiente |
+| 7 | **Vistas** | `PatientView` 33, `DietView` 29, `AlimentView` 24 | **86** | pendiente, el grueso |
 
-> [!warning] El bloque 1 no es opcional
-> Los `{@link}` rotos son **errores**: `javadoc` corta y no produce el sitio. Se arreglan primero, en una sola pasada, y después se documenta.
+> [!warning] El bloque 1 no era opcional
+> Los `{@link}` rotos eran **errores**: `javadoc` cortaba y no producía el sitio. Se arreglaron primero, en una sola pasada.
 
 ---
 
 ## 6. Cómo se verifica
 
+**1. El conteo de públicos** (el script de §1): tiene que dar **0**.
+
+**2. `javadoc` sin errores de referencia**, ignorando el grupo `missing` (que es el que cuenta privados):
+
 ```powershell
 & "C:\Program Files\Java\jdk-26\bin\javadoc.exe" --release 25 -encoding UTF-8 `
     -d C:\ruta\salida -sourcepath src -subpackages appNutritionist `
     -subpackages excepciones -subpackages util -classpath "lib/*" `
-    -Xdoclint:all
+    -Xdoclint:all,-missing -quiet
 ```
 
-| Métrica | Hoy | Meta |
-|---|---|---|
-| `error:` | 7 | **0** |
-| `warning: no comment` | 87 | **0** |
-| `warning: no main description` | 8 | **0** |
-| constructor por defecto | 5 | **0** |
-| Exit code | 1 | **0** |
+| Métrica | Al empezar | Hoy | Meta |
+|---|---|---|---|
+| Errores (`{@link}`) | 7 | **0** | 0 |
+| Públicos sin Javadoc | 173 | **144** | **0** |
+| `javadoc` exit code | 1 | **0** | 0 |
 
-Y una verificación visual: abrir `index.html` del sitio generado y comprobar que:
-
-- las tres entidades aparecen en el índice de clases;
-- los `{@link}` son enlaces azules y **no** texto plano;
-- cada método público muestra su resumen en la tabla del índice.
+**3. El sitio generado**: abrir `index.html` y comprobar que las tres entidades aparecen en el índice, que los `{@link}` son enlaces y que cada método público muestra su resumen.
 
 > [!tip] Desde NetBeans
-> *Project → Generate Javadoc* con `-Xdoclint:all` en las opciones. Es la misma herramienta y sirve para ver el resultado sin salir del IDE.
+> *Project → Generate Javadoc*. Es la misma herramienta y sirve para ver el resultado sin salir del IDE.
 
 ---
 
 ## 7. Criterio de aceptación
 
-1. `javadoc` con `-Xdoclint:all` → **0 errores y 0 warnings**.
-2. Toda clase, interfaz y excepción pública tiene resumen.
-3. Todo método público tiene resumen; **todos** los parámetros tienen `@param`; todo método no `void` tiene `@return`; todo método que lanza una checked tiene `@throws` con la condición.
-4. Los 7 `{@link}` resuelven a clases existentes.
-5. El sitio generado abre y navega.
+1. El script de conteo da **0** elementos públicos sin Javadoc.
+2. `javadoc` con `-Xdoclint:all,-missing` → **0 errores y 0 warnings**.
+3. Toda clase, interfaz y excepción pública tiene resumen.
+4. Todo método público tiene resumen; todos los parámetros tienen `@param`; todo método no `void` tiene `@return`; todo método que lanza una checked tiene `@throws` con la condición.
+5. Los `{@link}` resuelven a clases existentes.
+6. El sitio generado abre y navega.
 
 ---
 
@@ -291,20 +305,21 @@ Y una verificación visual: abrir `index.html` del sitio generado y comprobar qu
 
 | Bloque | Tiempo |
 |---|---|
-| `{@link}` (7 líneas) | 10 min |
-| Modelos + DAO + controladores | 1 h |
-| Vistas (48 getters/setters) | 1 h 30 min |
-| Generar, revisar y corregir warnings | 30 min |
+| `{@link}` + modelos del dominio (36 elementos) | ✅ **hecho** (~1 h) |
+| DAO + controladores + main (20) | 40 min |
+| Modelos de tabla (31) | 45 min |
+| Vistas (86) | 2 h |
+| Generar, revisar y corregir | 30 min |
 
-**Total: ~3 horas**, repartibles entre los tres integrantes (uno por entidad, como pide la rúbrica: "documentado en todas las entidades").
+**Resta: ~3 h 30 min**, repartibles entre los tres integrantes (uno por entidad, como pide la rúbrica: "documentado en todas las entidades").
 
 ---
 
 ## 9. Lo que queda afuera
 
-- **`pom.xml` o Maven**: el proyecto es Ant/NetBeans; no se agrega plugin.
-- **Incluir el sitio HTML en el zip**: la duda está anotada en [[Javadoc_en_Java]] §Dudas. Alcanza con los `/** */` en el fuente y, si se quiere, una carpeta `doc/` generada. Decisión pendiente del equipo.
-- **Documentar métodos privados**: no los pide la rúbrica.
+- **Campos privados y métodos privados**: la rúbrica pide públicos.
+- **`pom.xml` o Maven**: el proyecto es Ant/NetBeans.
+- **Incluir el sitio HTML en el zip**: la duda está anotada en [[Javadoc_en_Java]] §Dudas. Alcanza con los `/** */` en el fuente y, si se quiere, una carpeta `doc/` generada.
 
 ---
 
@@ -325,17 +340,17 @@ Y una verificación visual: abrir `index.html` del sitio generado y comprobar qu
 
 ## 11. Ampliación de la IA
 
-> [!note] `doclint` es el juez objetivo
-> `-Xdoclint:all` convierte el "está documentado" en un número. Es la diferencia entre "creo que falta poco" y "faltan 87". Vale la pena correrlo **antes** de empezar y **después** de cada bloque: los 87 bajan rápido y los errores de `{@link}` se ven enseguida.
+> [!note] `-Xmaxwarns` es una trampa silenciosa
+> `javadoc` corta en **100 warnings** por defecto. Si el conteo no baja al arreglar cosas, no es que el arreglo no sirva: es que hay más warnings escondidos. Se sube con `-Xmaxwarns 10000`. Nos pasó dos veces.
+
+> [!note] `doclint` mide el código, no la rúbrica
+> `-Xdoclint:all` incluye el grupo `missing`, que cuenta campos privados. Para la rúbrica (clases y métodos **públicos**) eso infla el número. `-Xdoclint:all,-missing` deja los chequeos que sí importan: referencias, HTML y sintaxis.
 
 > [!note] Por qué no `@author` en cada clase
 > El profesor lo lista en el orden de etiquetas (pág. 6), pero en un TP de tres integrantes termina siendo el mismo dato repetido 30 veces. Si prefieren incluirlo, va **antes** de `@param` y no rompe nada.
 
 > [!note] `{@inheritDoc}`
-> En las implementaciones JPA (`AlimentDAOJPA`), el contrato está en la interfaz. Se podría usar `{@inheritDoc}` para no repetir la descripción. Es válido y elegante, pero para un TP que se lee en el IDE conviene la descripción breve en cada clase: se entiende sin saltar de archivo.
-
-> [!note] El orden importa más de lo que parece
-> Documentar primero las vistas (48 elementos mecánicos) y dejar los modelos para el final da la sensación de avance pero deja sin documentar lo que la cátedra llama "las entidades". Empezar por el dominio también hace que los `{@link}` de los DAO ya tengan destino cuando se escriban.
+> En las implementaciones JPA (`AlimentDAOJPA`), el contrato está en la interfaz. Se podría usar `{@inheritDoc}` para no repetir la descripción. Es válido, pero para un TP que se lee en el IDE conviene la descripción breve en cada clase.
 
 ---
 
@@ -344,7 +359,7 @@ Y una verificación visual: abrir `index.html` del sitio generado y comprobar qu
 - [[Javadoc_en_Java]] — la fuente del profesor, pág. 1 a 13
 - [[bug-jpql-dao]] — la sección *Extra: Javadoc*, con los `{@link}` rotos
 - [[plan-de-pruebas-crud]] — la otra deuda de calidad antes de la entrega
+- [[cambios-sobre-codigo-de-romi]] — qué código ajeno tocamos
 - [[convenciones]] — nombres, getters y estilo del proyecto
-- [[estado]] — qué falta en general
 - [[enunciado_rubrica]] — el requisito
 - [[MAP]] · [[index]]
