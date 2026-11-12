@@ -50,7 +50,7 @@ aliases: [plan-cableado-diet, plan-diet, plan-crud-diet, plan-dietas]
 
 ### Entra
 
-- **Ajustar** `DietView` (ya existe) para que sea intuitiva: 2 columnas en la tabla de dietas, descripción de una línea, rótulos, tooltips y los getters que hoy no tiene (§2 bis).
+- **Ajustar** `DietView` (ya existe) para que sea intuitiva: 2 columnas en la tabla de dietas, descripción en un área de texto corta, rótulos, tooltips y los getters que hoy no tiene (§2 bis).
 - `DietController` completo: insert, modify, delete, search por nombre y selección de fila.
 - `DietTableModel` de dos columnas.
 - **Los listeners del botón Diets** en `PatientView` y `AlimentView` para llegar a la pantalla nueva desde las otras dos.
@@ -71,9 +71,11 @@ aliases: [plan-cableado-diet, plan-diet, plan-crud-diet, plan-dietas]
 ## 2. Fase 1 — Crear `DietView` en el diseñador
 
 > [!warning] Esta fase ya está hecha
-> Caro creó la vista en `6f6a449` y la corrigió en `751bb35`. Lo que sigue queda como **referencia del diseño original** (qué componentes lleva, qué propiedades, qué getters), pero el resultado real difiere en tres puntos: la tabla de dietas tiene 4 columnas, la descripción es un `JTextArea`, y no hay un solo método público.
+> Caro creó la vista en `6f6a449` y la corrigió en `751bb35`. Lo que sigue queda como **referencia del diseño original** (qué componentes lleva, qué propiedades, qué getters), pero el resultado real difiere en tres puntos: la tabla de dietas tiene 4 columnas, la descripción es un `JTextArea` y no hay un solo método público.
 >
 > **Para trabajar, usá §2 bis.** Ahí está el paso a paso sobre la vista que ya existe. De esta sección sólo sigue válido §2.4 (los límites de 50/100 caracteres).
+>
+> ⚠️ Los nombres de esta sección (por ejemplo `descriptionTextField` en §2.1 y §2.3) **no son los definitivos**: la descripción se queda como `descriptionTextArea` (decisión del 2026-11-12, §2 bis.2). Los getters y setters que valen son los de §2 bis.9.
 
 ### 2.1 Los componentes
 
@@ -210,26 +212,35 @@ O sea: el nombre **no puede ser vacío** (es `NOT NULL`) y **ninguno de los dos 
 > [!important] Por qué la descripción no va en la tabla
 > Es el mismo criterio que ya usa `PatientTableModel`: **`observations`, que es `VARCHAR(500)`, no está en la grilla**. La tabla muestra lo que sirve para **identificar y comparar** registros (`ID`, `Name`); el texto largo se lee completo en el formulario, que se llena al seleccionar la fila.
 >
-> Consecuencia práctica: no hay que pelear con celdas recortadas, ni con `\n` adentro de una celda (que el renderer por defecto dibuja como un cuadradito), ni con alto de fila variable. Y la descripción **no se pierde**: sigue en la base y aparece completa en `descriptionTextField` al hacer clic.
+> Consecuencia práctica: no hay que pelear con celdas recortadas, ni con `\n` adentro de una celda (que el renderer por defecto dibuja como un cuadradito), ni con alto de fila variable. Y la descripción **no se pierde**: sigue en la base y aparece completa en `descriptionTextArea` al hacer clic.
 >
 > Para la defensa: *"la descripción no va en la tabla porque es texto largo y la celda lo recorta; se muestra completa en el formulario, igual que las observaciones en pacientes"*.
 
 **Resultado:** 2 columnas, que es exactamente lo que espera `DietTableModel` en §3.
 
-### 2 bis.2 `descriptionTextArea` → `descriptionTextField`
+### 2 bis.2 `descriptionTextArea`: se queda, pero con `lineWrap`
 
-**Qué:** hoy es un `JTextArea` de 20 columnas por 5 filas, adentro de un `JScrollPane` llamado `jScrollPane1`. La columna es `description VARCHAR(100)` (`Sql/nutricion.sql:10`): un texto corto, de una línea. Una textarea de cinco renglones promete un párrafo y acepta `Enter`, que mete un salto de línea adentro de un `VARCHAR`.
+**Qué:** hoy es un `JTextArea` de 20 columnas por 5 filas, adentro de `jScrollPane1`. La columna es `description VARCHAR(100)` (`Sql/nutricion.sql:10`): un texto corto.
+
+**Decisión (2026-11-12):** se **mantiene la textarea**. El argumento original para cambiarla era que el `\n` salía como cuadradito en la celda de `dietsTable`, y eso desapareció cuando la descripción salió de la tabla (§2 bis.1). Ahora el único lugar donde se muestra es este formulario, y una textarea dibuja los saltos de línea bien.
+
+Pero hay que configurarla, porque hoy **no tiene `lineWrap`**: al escribir, el texto se corre horizontalmente en vez de bajar de renglón.
 
 **Cómo:**
 
-1. En el **Navigator** (ventana *Inspector*), seleccionar `jScrollPane1` → `Delete`. Se va el scroll pane **y** la textarea de adentro.
-2. Arrastrar un **Text Field** desde la paleta al `dietFormPanel`, debajo de `nameTextField`.
-3. Clic derecho → **Change Variable Name…** → `descriptionTextField`.
-4. Reacomodar el `GroupLayout` para que quede alineado con `nameTextField` (el diseñador lo inserta suelto; hay que arrastrarlo en el orden visual).
+1. Seleccionar `descriptionTextArea` en el **Navigator**.
+2. En **Properties**, tildar **`lineWrap`** y **`wrapStyleWord`** (corta por palabra, no por letra).
+3. Bajar `rows` de 5 a **3**: con 100 caracteres alcanza, y le devuelve ~40 px al formulario.
+4. Opcional: `toolTipText` → `Descripcion breve (opcional)`.
 5. `Ctrl+S` y compilar.
 
-> [!warning] Después de esto, `jScrollPane1` no existe más
-> Si quedó alguna referencia a `jScrollPane1` en el código que escribiste a mano, no compila. Buscá con `Ctrl+F` antes de cerrar el paso.
+**Resultado:** el texto baja de renglón al escribir y el componente sigue llamándose `descriptionTextArea`, así que los getters son los de §2 bis.9.
+
+> [!important] El `Enter` se neutraliza al guardar, no en la vista
+> La textarea sigue aceptando `Enter`, y un salto de línea adentro de un `VARCHAR(100)` no aporta nada. En vez de bloquear la tecla (un `KeyListener` en la vista sería lógica en el lugar equivocado), el controlador lo normaliza en `readForm()` con `replaceAll("\\s+", " ").trim()` (§4.3). Así el usuario puede apretar `Enter` sin miedo y la base guarda una sola línea.
+
+> [!warning] Si no tildás `lineWrap`
+> Queda exactamente el problema de `observations`: el texto se escribe y se va escondiendo a la izquierda. Es una propiedad, no código: no hay forma de arreglarlo desde el controlador.
 
 ### 2 bis.3 El campo ID no se edita
 
@@ -324,11 +335,11 @@ public javax.swing.JTable getTableDietAliments() {return dietAlimentsTable;}
 // --- Campos del formulario ---
 public String getIdText()          {return idTextField.getText();}
 public String getNameText()        {return nameTextField.getText();}
-public String getDescriptionText() {return descriptionTextField.getText();}
+public String getDescriptionText() {return descriptionTextArea.getText();}
 
 public void setIdText(String value)          {idTextField.setText(value);}
 public void setNameText(String value)        {nameTextField.setText(value);}
-public void setDescriptionText(String value) {descriptionTextField.setText(value);}
+public void setDescriptionText(String value) {descriptionTextArea.setText(value);}
 
 public void clearForm() {
     setIdText("");
@@ -402,14 +413,14 @@ Todavía no hay `DietController`, así que la pantalla va a estar vacía. Lo que
 | # | Qué mirar | Esperado |
 |---|---|---|
 | 1 | La tabla de dietas | 2 columnas: `ID`, `Name`. Sin `Aliment 1/2` ni `Description` |
-| 2 | Descripción | un campo de **una línea**, no un recuadro de cinco |
+| 2 | Descripción | recuadro de ~3 renglones que **baja de renglón** al escribir (tiene `lineWrap`) |
 | 3 | El campo ID | gris, no se puede escribir |
 | 4 | El combo de alimentos | vacío, sin `Item 1..4` |
 | 5 | Add / Remove / combo | grises al abrir |
 | 6 | Rótulo sobre la tabla de abajo | `Aliments of the diet` |
 | 7 | Rótulo junto al combo | `Aliment :` |
 | 8 | Tooltips | al pasar el mouse por Remove: *"Quita el alimento de la dieta (no lo borra del sistema)"* |
-| 9 | `Ctrl+F` en `DietView.java` | no aparece `descriptionTextArea` ni `jScrollPane1` |
+| 9 | `Ctrl+F` en `DietView.java` | aparecen `descriptionTextArea` y `jScrollPane1`; **no** queda ningún `descriptionTextField` |
 | 10 | Compilar | `ExitCode: 0` |
 
 > [!tip] La prueba que vale
@@ -594,7 +605,9 @@ public class DietController {
     private Diet readForm() {
         Diet d = new Diet();
         d.setName(view.getNameText().trim());
-        d.setDescription(view.getDescriptionText().trim());
+        // La descripcion viene de un JTextArea: cualquier Enter se convierte en un
+        // espacio para que en el VARCHAR(100) no queden saltos de linea.
+        d.setDescription(view.getDescriptionText().replaceAll("\\s+", " ").trim());
         return d;
     }
 
@@ -1329,13 +1342,14 @@ No tiene que devolver nada.
 | 12 | Commitear `DietView.java` sin `DietView.form` (o al revés) | el par queda desincronizado y el diseñador reescribe el `.java` al abrirlo |
 | 13 | Dos personas tocando `DietView.form` a la vez | conflicto de XML generado: no se resuelve solo |
 | 14 | Dejar `dietsTable` con las columnas `Aliment 1` / `Aliment 2` | no puede representar N alimentos y duplica lo que ya muestra `dietAlimentsTable` |
-| 15 | Dejar `description` como `JTextArea` | acepta `Enter` en una columna `VARCHAR(100)`: entra un salto de línea donde va un texto corto |
+| 15 | Dejar `descriptionTextArea` **sin `lineWrap`** | el texto no baja de renglón: se corre y se esconde a la izquierda, como pasaba con `observations`. Es una propiedad del diseñador, no código |
 | 16 | Escribir `dd.dieta.id` en el JPQL del detalle | JPQL usa **campos**, no getters: es `dd.diet.id`. Si no, *"The state field path cannot be resolved"* |
 | 17 | Borrar los `DietDetail` sin mirar si hay pacientes | la cascada funciona, la dieta no se puede borrar, y queda **sin alimentos**: pérdida silenciosa. La guarda de §4 bis.6 lo evita |
 | 18 | Habilitar Add/Remove con una dieta sin `id` | el `INSERT` del pivot manda `id_diet` nulo: *"foreign key constraint fails"* |
 | 19 | Comparar alimentos con `contains()` o `equals()` | `Aliment` no define `equals`: compara identidad y nunca coincide, el combo ofrece alimentos que ya están |
 | 20 | Poner el panel de alimentos con `enabled` en el `JPanel` | el `JPanel` deshabilitado no deshabilita a sus hijos (§2 bis.7) |
 | 21 | Dejar `Description` como columna de `dietsTable` | la celda es de una línea: el texto se recorta, y si tiene `\n` sale un cuadradito. El texto largo va en el formulario (§2 bis.1) |
+| 22 | Guardar el texto de la textarea sin normalizar | un `Enter` entra como `\n` en el `VARCHAR(100)`. `readForm()` lo convierte en espacio con `replaceAll("\\s+", " ")` (§4.3) |
 
 > [!tip] Las trampas 11 a 13 son las únicas que pueden costar horas
 > Las otras se arreglan leyendo el error. Un `initComponents()` pisado o un `.form` mergeado a mano, no: se pierde trabajo sin que nadie se entere.

@@ -25,7 +25,7 @@ Registro append-only de cada tanda de trabajo. Entradas nuevas arriba.
 - `dietsTable` queda con **2 columnas** (`ID`, `Name`). La `Description` no va en la grilla: es texto largo, la celda lo recorta y un `\n` sale como cuadradito. Se lee completa en el formulario al seleccionar la fila, igual que `observations` en `PatientTableModel`.
 
 **Qué se escribió en la nota:**
-- **§2 bis**, con 13 subsecciones (`2 bis.0` a `2 bis.12`): coordinación con Caro, los pasos del diseñador (borrar columnas por *Table Contents*, cambiar la textarea por `JTextField`, rótulos, tooltips, combo vacío, panel deshabilitado, agrupamiento opcional), los ~30 métodos del bloque de código completo, un checklist visual de 10 puntos y 7 trampas del editor.
+- **§2 bis**, con 13 subsecciones (`2 bis.0` a `2 bis.12`): coordinación con Caro, los pasos del diseñador (borrar columnas por *Table Contents*, dejar la textarea con `lineWrap` y 3 renglones, rótulos, tooltips, combo vacío, panel deshabilitado, agrupamiento opcional), los ~30 métodos del bloque de código completo, un checklist visual de 10 puntos y 7 trampas del editor.
 - **§4 bis**, con 12 subsecciones (`4 bis.0` a `4 bis.11`): estado nuevo del controlador, constructor sobrecargado que no toca `PatientController` ni `AlimentController`, `refreshDietAliments()` / `loadAvailableAliments()` con las dos listas en paralelo, `addAliment()` / `removeAliment()`, `selectRow`/`resetFields`/`selectDietEnTabla`, `delete()` con cascada manual, los dos getters del panel, `buscarPorDieta`, **16 pruebas** del panel, tabla de troubleshooting y 8 trampas.
 - Frontmatter a `751bb35` y `estado: en curso`; callout nuevo arriba que cubre las dos secciones.
 - §0: `DietView` pasa de "no existe" a "existe, sin ajustar"; `DietDetailDAOJPA.buscarPorDieta` pasa de "no afecta" a bloqueante.
@@ -33,12 +33,14 @@ Registro append-only de cada tanda de trabajo. Entradas nuevas arriba.
 - §2: marcada como superada por §2 bis, salvo §2.4 (límites 50/100).
 - §2 bis.12: pasa de "esto todavía no está escrito" a la tabla que apunta a §4 bis.8.
 - §7: la prueba 14 ahora verifica la guarda de pacientes; §4 bis.9 tiene las 16 del panel.
-- §8: trampas 11 a 21 (pisar `initComponents()`, commitear `.java` sin `.form`, dos personas en el `.form`, las columnas `Aliment 1/2`, la textarea, `dd.dieta.id`, borrar detalles sin mirar pacientes, habilitar el panel sin id, `contains()`, `enabled` en el `JPanel` y la `Description` en la celda).
+- §8: trampas 11 a 22 (pisar `initComponents()`, commitear `.java` sin `.form`, dos personas en el `.form`, las columnas `Aliment 1/2`, la textarea sin `lineWrap`, `dd.dieta.id`, borrar detalles sin mirar pacientes, habilitar el panel sin id, `contains()`, `enabled` en el `JPanel`, la `Description` en la celda y el texto sin normalizar).
 - §9: cuatro errores nuevos del panel (`Duplicate entry`, `UnsupportedOperationException`, `convertRowIndexToModel`, borrar al revés).
 - §10: `DietDetailDAOJPA.java` entra en el primer commit.
 - §12: de "(opcional)" a "ya no es opcional", con el diseño real (tabla + combo, no dos tablas) y la tabla de dónde está cada pieza; lo único opcional que queda es la cantidad.
 
 **Una decisión nueva, tomada al escribir §4 bis.6:** `delete()` **pregunta antes** si algún paciente usa la dieta (`contarPacientesConDieta`), en vez de intentar borrar y atajar la excepción de la FK. Sin esa guarda, la cascada borraba los `DietDetail` y después MySQL rechazaba la dieta por `fk_paciente_dieta`: la dieta quedaba viva y sin alimentos, sin que nadie lo hubiera pedido. Es el tipo de bug que no da error y se descubre en la defensa.
+
+**Cambio de decisión (misma fecha):** la `description` **se queda como `JTextArea`**, no pasa a `JTextField`. El argumento original era que el `\n` salía como cuadradito en la celda de `dietsTable`, y eso dejó de aplicar cuando la descripción salió de la tabla (2 columnas). Pero la textarea actual **no tiene `lineWrap`**, así que scrollea horizontal igual que `observations`: se configura en el diseñador (`lineWrap`, `wrapStyleWord`, `rows` = 3) y el controlador normaliza el texto en `readForm()` con `replaceAll("\\s+", " ")` para que no entren saltos de línea al `VARCHAR(100)`. Los getters de §2 bis.9 vuelven a apuntar a `descriptionTextArea`.
 
 **Pendiente:** nada de esta nota. Lo que falta del lado del repo lo hace el Estudiante en NetBeans: §2 bis (vista), §3 (modelo), §4 + §4 bis (controlador), §5 (navegación), §6 (JPQL) y cargar los 4 `INSERT` del script para poder correr las pruebas. No se tocó el código del proyecto.
 
