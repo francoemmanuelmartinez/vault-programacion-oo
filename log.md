@@ -4,6 +4,30 @@ Registro append-only de cada tanda de trabajo. Entradas nuevas arriba.
 
 ---
 
+## 2026-11-12 — Implementación de H1 a H10 y búsquedas híbridas (commit `9a1b06a`)
+
+**Contexto:** cerrada la auditoría de [[plan-de-pruebas-crud]], el Estudiante pidió implementar los diez huecos y después las búsquedas. Todo se commiteó junto al final, por decisión suya, con el mensaje `Corrijo los JPQL y completo validaciones y busquedas del CRUD`.
+
+**Lo que se implementó:**
+
+- **H1 a H4 (los JPQL):** `PatientDAOJPA` (`buscarPorApellido` y `buscarPorDieta`), `AlimentDAOJPA` (`buscarPorCategoria`) y `DietDAOJPA` (`buscarPorNombre`). Todos usaban el nombre de la tabla en vez de la entidad y, en `buscarPorDieta`, `p.id_dieta` en vez de `p.diet.id`. H1 bloqueaba el borrado de dietas.
+- **H5 a H8:** `validarLargo` en los tres controladores con los límites del DDL (80/500/50/100), normalización de la descripción de `Diet` con `replaceAll("\\s+", " ")`, calorías mayores a cero y rechazo de duplicados (nombre+apellido, alimento, dieta) comparando contra `findAll()`.
+- **H9 y H10:** el combo de alimentos ofrece sólo los que faltan (`alimentsDisponibles`), `refreshPanel()` refresca tabla y combo juntos, y Add/Remove piden confirmación.
+- **Búsquedas híbridas:** `search()` usa el apellido, la categoría o el nombre si están cargados; si no, el ID; si no hay nada, recarga todo. La búsqueda por texto **filtra la tabla** y limpia el formulario.
+- **Tooltips:** los tres de Search estaban desactualizados y en inglés; se reescribieron en inglés (idioma del resto de la interfaz) y se corrigió el de la descripción.
+
+**Decisiones que cambiaron sobre la marcha:** se revirtió la confirmación con el nombre del alimento (volvió a "este alimento") porque el Estudiante no quería sumar parámetros a la vista sin avisar; y se pasaron los tooltips nuevos a inglés para no romper la coherencia con `Insert`, `Search`, `Actions`, etc.
+
+**Cómo se probó:** cinco suites de UI sin mouse (`doClick()` sobre los botones y un `Timer` que lee y responde los `JOptionPane`). Verificaron los mensajes literales, la inserción real en MySQL, la cascada de borrado (D7), la guarda de pacientes (D8) y las cuatro búsquedas con los datos del script: **1 / 2 / 1 / 1**, como anticipaba el plan.
+
+**Hallazgos de las pruebas:** el mensaje *"Las observaciones no puede superar…"* tenía un error de concordancia (corregido a *"Las observaciones no pueden…"*), y al cargar los `INSERT` el pipe de PowerShell convirtió las tildes en `?` (se resolvió importando con redirección de bytes crudos).
+
+**Qué quedó afuera del commit, a propósito:** `persistence.xml` (tiene la contraseña local), `.mailmap` y `test/` (la clase `PruebaBusquedas` es herramienta local).
+
+**Pendiente:** push (lo hace el Estudiante), avisarle a Romi con el texto de [[cambios-sobre-codigo-de-romi]] §6, y definir el empaquetado en zip para la entrega.
+
+---
+
 ## 2026-11-12 — [[plan-categoria-combo]]: la categoría de `Aliment` pasa a `JComboBox` cerrado
 
 **Contexto:** el Estudiante notó que `categoryTextField` deja escribir `Verdur`, `Verduras` y `Verduraaaaaas` como si fueran categorías distintas. Pidió evaluar un combo con valores fijos y después un plan aparte, agregando `Legumbres` y `Otros`.

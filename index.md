@@ -58,6 +58,10 @@ tags: [indice, meta]
 - ✅ [[plan-cableado-diet]] — El tercer cableado: ajustar la `DietView` que hizo Caro (§2 bis), `DietTableModel`, `DietController` completo con el panel de alimentos (§4 bis), la navegación desde el botón Diets y el JPQL de `DietDAOJPA`
 - ✅ [[plan-categoria-combo]] — La categoría de `Aliment` pasa de `JTextField` a `JComboBox` cerrado: 7 valores, placeholder, validación y normalización de datos viejos
 - ✅ [[plan-crud-bd]] — Plan para dejar el CRUD de `Patient` y `Aliment` andando contra MySQL: jars, esquema, los 5 JPQL, 25 pruebas y commit
+- ✅ [[plan-de-pruebas-crud]] — 70 casos manuales para verificar el CRUD de las tres entidades, con matriz de cobertura, verificaciones SQL y los huecos H1 a H12
+- ✅ [[plan-arreglos-h1-h10]] — Cómo se cerraron los diez huecos: los 4 JPQL, largos, saltos de línea, calorías, duplicados, combo filtrado y confirmaciones
+- ✅ [[plan-busquedas-hibridas]] — Búsqueda por texto con fallback a ID (apellido / categoría / nombre) y campo ID editable en las tres vistas
+- ✅ [[cambios-sobre-codigo-de-romi]] — Qué se tocó del código de Romi y de Caro, con la autoría verificada por commit, y el mensaje listo para avisarle
 - ✅ [[vistas-manuales]] — Contingencia: vistas Swing a mano (compilan) y
   alternativa de `setVisible(false)` a `dispose()`
 - ✅ [[convenciones]] — Convenciones de código: getters para exponer los
