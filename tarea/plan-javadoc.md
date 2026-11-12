@@ -11,7 +11,7 @@ aliases: [plan-javadoc, javadoc, documentacion-api]
 > [!info] Qué es esta nota
 > La rúbrica pide **Javadoc para las clases y los métodos públicos**, y el nivel máximo de *Documentación y Código Limpio* dice "documentado en **todas las entidades**".
 >
-> **Estado:** los 7 `{@link}` rotos ya están arreglados y los cuatro modelos del dominio documentados. Faltan **144 elementos públicos**, la mayoría getters de las vistas.
+> **Estado:** los 7 `{@link}` rotos ya están arreglados, y están documentados los modelos, los DAO, los controladores, los modelos de tabla, el main y `AlimentView`. Faltan **62**: `DietView` (29) y `PatientView` (33).
 
 > [!warning] Procedencia
 > - **Del profesor:** qué es Javadoc, la diferencia con los comentarios comunes, el formato, el orden de las etiquetas y cómo se genera (pág. 2, 3, 6, 7, 8 y 12 — `Javadoc_en_Java.pdf`), y el requisito de la rúbrica (`enunciado_rubrica.pdf`, pág. 1 y 2).
@@ -67,47 +67,30 @@ foreach ($f in $files) {
 > [!warning] El script también tiene su trampa
 > La primera versión salteaba sólo líneas en blanco y anotaciones de **una** línea. Con `@Table(name = …,` partido en varias líneas se detenía antes de llegar al `*/` y marcaba como "sin documentar" una clase que sí lo estaba (`DietDetail`). Por eso ahora retrocede hasta 15 líneas y corta al cruzar otra declaración.
 
-### 1.1 El número real: 144
+### 1.1 El número real: 86
 
 | Archivo | Faltan |
 |---|---|
 | `view/PatientView.java` | **33** |
 | `view/DietView.java` | **29** |
-| `view/AlimentView.java` | **24** |
-| `view/PatientTableModel.java` | 8 |
-| `view/AlimentTableModel.java` | 8 |
-| `view/DietTableModel.java` | 8 |
-| `view/DietAlimentTableModel.java` | 7 |
-| `dao/PatientDAOInMemory.java` | 7 |
-| `dao/DAOJpa.java` | 5 |
-| `dao/PatientDAOJPA.java` | 3 |
-| `controller/PatientController.java` | 2 |
-| `controller/AlimentController.java` | 2 |
-| `AppNutritionist.java` | 2 |
-| `dao/AlimentDAOJPA.java` | 2 |
-| `dao/DietDAOJPA.java` | 2 |
-| `dao/DietDetailDAOJPA.java` | 1 |
-| `controller/DietController.java` | 1 |
 
-**Total: 144**, de los cuales **86 son getters o setters de las tres vistas**.
+**Total: 62**, todos getters y setters de las dos vistas que faltan.
+
+> [!note] Los `isCellEditable` generados
+> Cada vista tiene un `public boolean isCellEditable(...)` dentro del `DefaultTableModel` anónimo que genera el diseñador, en la zona `GEN-`. **No se documentan**: el próximo guardado del `.form` los reescribe. Son 3 en total y quedan fuera del conteo a propósito.
 
 ### 1.2 Lo ya resuelto
 
 - Los **7 `{@link}` rotos** (bloque 1): `{@link Alimento}` → `Aliment`, `{@link Dieta}` → `Diet`, `{@link Paciente}` → `Patient`, `{@link DetalleDieta}` → `DietDetail`, y los DAO equivalentes. `javadoc` pasó de **exit 1** a **exit 0**.
 - **`Aliment`, `Diet`, `DietDetail` y `Patient` completos**: constructores, todos los getters/setters, `calcularIMC` y los `toString`, con `@param` y `@return`.
 
-### 1.3 Un archivo que sobra
+### 1.3 Un archivo que queda fuera del conteo
 
-`dao/PatientDAOInMemory.java` **no lo usa nadie**: es el remanente de la etapa con DAO en memoria que se descartó cuando se pasó a JPA. Tiene 7 métodos públicos sin Javadoc.
+`dao/PatientDAOInMemory.java` es el remanente de la etapa con DAO en memoria que se descartó al pasar a JPA. **Nadie lo usa**, y tiene 7 métodos públicos sin Javadoc.
 
-Dos caminos:
+**Decisión del 2026-11-12:** no se borra ni se documenta. El Estudiante le va a poner un comentario explicando **por qué y para qué** se hizo la clase, para que el profesor entienda que fue parte del proceso y no código olvidado.
 
-| Opción | Qué implica |
-|---|---|
-| **Borrarlo** | menos código, menos documentación y menos preguntas en la defensa ("¿por qué hay dos `PatientDAO`?") |
-| **Documentarlo** | 7 Javadocs más y una explicación de por qué sigue ahí |
-
-Recomendación: **borrarlo**, pero es decisión del equipo porque no lo escribimos nosotros.
+Por eso esos 7 elementos **no cuentan** en los 86 pendientes.
 
 ---
 
@@ -253,11 +236,11 @@ public class RecordInUseException extends DAOException { ... }
 |---|---|---|---|---|
 | 1 | **Los `{@link}`** | 6 archivos | 7 líneas | ✅ **hecho** |
 | 2 | **Modelos del dominio** | `Aliment`, `Diet`, `DietDetail`, `Patient` | 29 | ✅ **hecho** |
-| 3 | **`PatientDAOInMemory`** | decidir: borrar (recomendado) o documentar | 7 | a decidir |
-| 4 | **DAO** | `DAOJpa` 5, `PatientDAOJPA` 3, `AlimentDAOJPA` 2, `DietDAOJPA` 2, `DietDetailDAOJPA` 1 | 13 | pendiente |
-| 5 | **Controladores y main** | `AlimentController` 2, `PatientController` 2, `DietController` 1, `AppNutritionist` 2 | 7 | pendiente |
-| 6 | **Modelos de tabla** | los 4 | 31 | pendiente |
-| 7 | **Vistas** | `PatientView` 33, `DietView` 29, `AlimentView` 24 | **86** | pendiente, el grueso |
+| 3 | **`PatientDAOInMemory`** | lo comenta el Estudiante (por qué y para qué se hizo) | — | ✅ decidido, fuera del conteo |
+| 4 | **DAO** | `DAOJpa` 5, `PatientDAOJPA` 3, `AlimentDAOJPA` 2, `DietDAOJPA` 2, `DietDetailDAOJPA` 1 | 13 | ✅ **hecho** |
+| 5 | **Controladores y main** | `AlimentController` 2, `PatientController` 2, `DietController` 1, `AppNutritionist` 2 | 7 | ✅ **hecho** |
+| 6 | **Modelos de tabla** | los 4 | 31 | ✅ **hecho** |
+| 7 | **Vistas** | `AlimentView` ✅ · `DietView` 29 · `PatientView` 33 | 62 | en curso |
 
 > [!warning] El bloque 1 no era opcional
 > Los `{@link}` rotos eran **errores**: `javadoc` cortaba y no producía el sitio. Se arreglaron primero, en una sola pasada.
@@ -280,7 +263,7 @@ public class RecordInUseException extends DAOException { ... }
 | Métrica | Al empezar | Hoy | Meta |
 |---|---|---|---|
 | Errores (`{@link}`) | 7 | **0** | 0 |
-| Públicos sin Javadoc | 173 | **144** | **0** |
+| Públicos sin Javadoc | 166 | **62** | **0** |
 | `javadoc` exit code | 1 | **0** | 0 |
 
 **3. El sitio generado**: abrir `index.html` y comprobar que las tres entidades aparecen en el índice, que los `{@link}` son enlaces y que cada método público muestra su resumen.
@@ -306,12 +289,12 @@ public class RecordInUseException extends DAOException { ... }
 | Bloque | Tiempo |
 |---|---|
 | `{@link}` + modelos del dominio (36 elementos) | ✅ **hecho** (~1 h) |
-| DAO + controladores + main (20) | 40 min |
-| Modelos de tabla (31) | 45 min |
-| Vistas (86) | 2 h |
+| DAO (13) | ✅ **hecho** (~20 min) |
+| Controladores, main y modelos de tabla (38) | ✅ **hecho** (~1 h) |
+| Vistas (62 de 86) | `AlimentView` ✅ · `DietView` y `PatientView` 1 h 30 min |
 | Generar, revisar y corregir | 30 min |
 
-**Resta: ~3 h 30 min**, repartibles entre los tres integrantes (uno por entidad, como pide la rúbrica: "documentado en todas las entidades").
+**Resta: ~2 horas**, repartibles entre los tres integrantes (uno por entidad, como pide la rúbrica: "documentado en todas las entidades").
 
 ---
 
