@@ -4,6 +4,22 @@ Registro append-only de cada tanda de trabajo. Entradas nuevas arriba.
 
 ---
 
+## 2026-11-12 — [[diagramas-uml]]: los dos diagramas de la rúbrica
+
+**Contexto:** el bloque E de [[hoja-de-ruta-7-a-9]] era lo único que quedaba de la rúbrica. Romi aportó los dos diagramas y el Estudiante preguntó si eran válidos.
+
+**Evaluación:** los cuatro checklist quedaron cubiertos — E.1.1 (rectángulo del sistema y actor), E.1.2 (casos de las tres entidades con `<<include>>`), E.2.1 (participantes de las capas) y E.2.2 (llamadas, retornos y `alt` de éxito/error).
+
+Lo más defendible: las tres verificaciones incluidas en el diagrama de casos de uso **coinciden con el código** — la guarda de pacientes al borrar una dieta (H1), el `UNIQUE (id_diet, id_aliment)` que atrapa `DuplicateRecordException`, y la FK que lanza `RecordInUseException` al borrar un alimento.
+
+**Observaciones registradas:** actor duplicado en la secuencia, rectángulos punteados por módulo (no es notación UML), `<<extend>>` de *Asignar dieta* discutible, y *"Verificar que…"* como caso de uso (regla interna, no caso). Ninguna bloqueante.
+
+**Qué se escribió:** `tarea/diagramas-uml.md` con la evaluación, las observaciones y una **transcripción a PlantUML** de ambos diagramas (marcada como transcripción, no como el original de Romi). La hoja de ruta quedó con el bloque E en ✅ y los cuatro checkboxes tildados.
+
+**Pendiente:** guardar las imágenes en `tarea/diagramas/` y decidir si se corrigen las dos observaciones cosméticas.
+
+---
+
 ## 2026-11-12 — [[plan-javadoc]]: documentación de la API pública (commit `8ea0961`)
 
 **Contexto:** la rúbrica pide Javadoc para las clases y los métodos públicos, y el nivel máximo de *Documentación y Código Limpio* habla de "todas las entidades". El Estudiante pidió un plan basado en `Javadoc_en_Java.pdf`.

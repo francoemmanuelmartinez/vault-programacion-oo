@@ -38,6 +38,7 @@ Programacion Orientada a Objetos/
 │   ├── plan-busquedas-hibridas.md ← búsqueda por texto o por ID según el campo cargado
 │   ├── cambios-sobre-codigo-de-romi.md ← qué se tocó del código ajeno y el aviso para Romi
 │   ├── plan-javadoc.md            ← documentación de la API pública: reglas, plantillas y 155 comentarios
+│   ├── diagramas-uml.md           ← casos de uso y secuencia, con el fuente PlantUML
 │   ├── estado.md              ← estado general del código y la tarea
 │   ├── vistas-manuales.md     ← contingencia: vistas Swing a mano
 │   ├── convenciones.md        ← convenciones de código del proyecto

@@ -63,6 +63,7 @@ tags: [indice, meta]
 - ✅ [[plan-busquedas-hibridas]] — Búsqueda por texto con fallback a ID (apellido / categoría / nombre) y campo ID editable en las tres vistas
 - ✅ [[cambios-sobre-codigo-de-romi]] — Qué se tocó del código de Romi y de Caro, con la autoría verificada por commit, y el mensaje listo para avisarle
 - ✅ [[plan-javadoc]] — Cómo se documentó la API pública: las reglas del profesor, las plantillas, la medición con `javadoc` y los 155 comentarios agregados
+- ✅ [[diagramas-uml]] — Los dos diagramas de la rúbrica (Casos de Uso General y Secuencia) evaluados contra los PDFs, con la transcripción a PlantUML
 - ✅ [[vistas-manuales]] — Contingencia: vistas Swing a mano (compilan) y
   alternativa de `setVisible(false)` a `dispose()`
 - ✅ [[convenciones]] — Convenciones de código: getters para exponer los

@@ -224,7 +224,9 @@ actualizado: 2026-11-10
 
 ---
 
-## Bloque E: Los 2 Diagramas UML Obligatorios
+## Bloque E: Los 2 Diagramas UML Obligatorios ✅
+
+> Hechos por Romi el 2026-11-12 y evaluados en [[diagramas-uml]]: los cuatro checklist de abajo están cubiertos. Las imágenes van en `tarea/diagramas/` y en el zip.
 
 **PDFs de la cátedra para este bloque:**
 - 📄 **`Diagrama_Casos_de_Uso_UML.pdf`** (`> pág. 1 a 14`: actores, casos de uso, límite del sistema y diferencia exacta entre `<<include>>` y `<<extend>>`) → [[Diagrama_Casos_de_Uso_UML]]
@@ -233,12 +235,12 @@ actualizado: 2026-11-10
 > No se pueden auditar desde el repo: se hacen fuera del código.
 
 ### E.1. Diagrama de Casos de Uso General del Sistema
-- [ ] **E.1.1.** Rectángulo del sistema (`"Sistema NutritionistApp"`) y actor `Nutricionista` (*`Diagrama_Casos_de_Uso_UML.pdf`, pág. 4 a 6*).
-- [ ] **E.1.2.** Casos de uso para gestionar Pacientes, Alimentos y Dietas, con `<<include>>` entre *Crear Dieta* y *Buscar Paciente* / *Buscar Alimento* (*`Diagrama_Casos_de_Uso_UML.pdf`, pág. 8 a 11*).
+- [x] **E.1.1.** Rectángulo del sistema (`"Sistema NutritionistApp"`) y actor `Nutricionista` (*`Diagrama_Casos_de_Uso_UML.pdf`, pág. 4 a 6*).
+- [x] **E.1.2.** Casos de uso para gestionar Pacientes, Alimentos y Dietas, con `<<include>>` entre *Crear Dieta* y *Buscar Paciente* / *Buscar Alimento* (*`Diagrama_Casos_de_Uso_UML.pdf`, pág. 8 a 11*).
 
 ### E.2. Diagrama de Secuencia de un Proceso (ej. "Registrar Paciente")
-- [ ] **E.2.1.** Participantes: `:Nutricionista`, `:PatientView`, `:PatientController`, `:PatientDAOJPA`, `:EntityManager` (*`Diagrama_de_Secuencia_UML.pdf`, pág. 14 y 15*).
-- [ ] **E.2.2.** Flechas de llamada y retorno con un fragmento **`alt`** para el camino de éxito (`commit`) y el de error (`rollback` + `DAOException`) (*`Diagrama_de_Secuencia_UML.pdf`, pág. 11 y 16*).
+- [x] **E.2.1.** Participantes: `:Nutricionista`, `:PatientView`, `:PatientController`, `:PatientDAOJPA`, `:EntityManager` (*`Diagrama_de_Secuencia_UML.pdf`, pág. 14 y 15*).
+- [x] **E.2.2.** Flechas de llamada y retorno con un fragmento **`alt`** para el camino de éxito (`commit`) y el de error (`rollback` + `DAOException`) (*`Diagrama_de_Secuencia_UML.pdf`, pág. 11 y 16*).
 
 ---
 
