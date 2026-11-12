@@ -4,6 +4,31 @@ Registro append-only de cada tanda de trabajo. Entradas nuevas arriba.
 
 ---
 
+## 2026-11-12 — [[plan-categoria-combo]]: la categoría de `Aliment` pasa a `JComboBox` cerrado
+
+**Contexto:** el Estudiante notó que `categoryTextField` deja escribir `Verdur`, `Verduras` y `Verduraaaaaas` como si fueran categorías distintas. Pidió evaluar un combo con valores fijos y después un plan aparte, agregando `Legumbres` y `Otros`.
+
+**Lo que se auditó** (sobre `751bb35`):
+- `AlimentView.java:32` declara `categoryTextField` como `JTextField`; línea 62 le pone `horizontalAlignment = CENTER`.
+- `getCategoryText()` / `setCategoryText()` en las líneas 365 y 371; `clearForm()` en la 387.
+- `AlimentController` usa texto libre en 4 lugares: validaciones (59 y 84), `readForm` (153) y `showAliment` (162).
+- Los valores del script son cinco: `Frutas`, `Verduras`, `Cereales`, `Carnes`, `Lácteos` (con tilde).
+- `AlimentTableModel` y `AlimentDAO.buscarPorCategoria` no necesitan cambios.
+
+**Decisiones que quedaron en la nota:**
+- Lista cerrada de **7**: los 5 del script + `Legumbres` + `Otros`. `Otros` es válvula de escape, no texto libre.
+- `JComboBox` **no editable**, con placeholder `-- Elegí una categoría --` en el índice 0.
+- La lista vive **una sola vez**, en un `static final` del controlador; la vista la recibe con `setCategoryOptions(List<String>)`, igual que `setDietOptions` en `PatientView`.
+- La vista expone **índices** (`getCategoryIndex` / `setCategoryIndex`), no el texto: evita `ClassCastException` y `NullPointerException`, y permite preseleccionar la categoría de una fila existente.
+- Validación en el controlador con `<= 0` (el placeholder también se rechaza), no `< 0`.
+- Los datos viejos se normalizan con `SELECT DISTINCT` + `UPDATE` **antes** de probar; el script SQL no se toca.
+
+**Qué se escribió:** nota nueva `tarea/plan-categoria-combo.md` (369 líneas, 12 secciones) con el diagnóstico, el alcance, la tabla de los 7 valores, los pasos del diseñador, los métodos de la vista, los helpers del controlador, la normalización, 10 pruebas, 10 trampas, tabla de errores, la sección del profesor (pág. 6 a 8, 9 y 11 a 17 de `Listas_y_ComboBox_Swing.pdf`) y la ampliación de la IA. Registrada en `index.md` y `MAP.md`.
+
+**Pendiente:** aplicar el cambio en NetBeans (vista + controlador + `.form` en un solo commit). Además, `tarea/plan-cableado-aliment.md` quedó actualizada en la misma tanda: la "decisión previa" del Paso A0 pasó de `[!question]` a `[!success]` apuntando a esta nota, la fila de `Category` de la tabla de getters y el listado de pendientes del §1 avisan que `getCategoryText()` / `setCategoryText()` quedan obsoletos, y hay callouts nuevos junto al bloque de la vista (§1) y junto a `readForm()` / `showAliment()` (§4) con el reemplazo concreto. También se anotó que la trampa 7 de esa nota se cumplió al revés: el combo llega después del cableado.
+
+---
+
 ## 2026-11-12 — [[plan-cableado-diet]]: §2 bis y §4 bis, el plan de dietas completo
 
 **Contexto:** Caro pusheó la vista en dos commits (`6f6a449` *Creacion de DietView.java*, `751bb35` *Se corrige error en DietView.java en dietAlimentsTable*) y el Estudiante la modeló un poco más. Pidió revisión, después los ajustes de la vista escritos en el plan, y finalmente la sección del controlador para que el plan no quede con pendientes.

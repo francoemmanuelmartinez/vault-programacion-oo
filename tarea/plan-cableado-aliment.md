@@ -2,7 +2,7 @@
 fuente: síntesis basada en Swing_MVC_Interfaces_Java.pdf (pág. 14, 20 a 23 y 26 a 27), JTable_en_Swing.pdf (pág. 4 a 18), Listas_y_ComboBox_Swing.pdf (pág. 1 a 15), POO_Equals.pdf, JPA_Hibernate_DAO.pdf (pág. 9 a 12), enunciado_rubrica.pdf (pág. 1 y 2) y convenciones propias del proyecto
 tags: [tarea, plan, mvc, swing, cableado, aliment]
 estado: implementado
-actualizado: 2026-11-11
+actualizado: 2026-11-12
 aliases: [plan-cableado-aliment, plan-aliment]
 ---
 
@@ -59,12 +59,13 @@ aliases: [plan-cableado-aliment, plan-aliment]
 | Selección de fila | `MouseAdapter` → `mouseClicked` | `ListSelectionListener` (también funciona con las flechas del teclado) |
 | Validación numérica | `Double.parseDouble` + mensaje "usá punto decimal" | `parseNonNegative()` acepta coma **y** punto, y rechaza negativos |
 | Error al borrar | mensaje genérico del DAO | mensaje específico de clave foránea ("puede estar incluido en alguna dieta") |
-| `Category` | quedaba como `JTextField`, a decidir | quedó `JTextField` |
+| `Category` | quedaba como `JTextField`, a decidir | quedó `JTextField`, pero **pasa a `JComboBox`** en [[plan-categoria-combo]] |
 | Nombre del atributo | `Aliment.name`, `getName()`/`setName()` | **`Aliment.aliment`, `getAliment()`/`setAliment()`** — renombre de `1f785b6` |
 
 ### Lo que falta de este plan
 
 - **La búsqueda por categoría** — el equivalente del `Search by Last Name` de `Patient`: el botón sigue buscando por **ID**, así que `AlimentDAOJPA.buscarPorCategoria` continúa sin usarse, y con el JPQL roto.
+- **La categoría como `JComboBox`** — hoy es texto libre (`Verdur`, `Verduras`, `Verduraaaaaas`). El plan aparte está en [[plan-categoria-combo]].
 - **`rowCount="4"`** en `AlimentView.form:236` (trampa 3, sigue pendiente).
 - **`"Informacion"`** sin tilde en `showInfo`.
 - **Las librerías del build**: después de estos commits el proyecto no arranca sin EclipseLink y el driver de MySQL en `lib/`. Ver [[bug-jpql-dao]] y la entrada del 2026-11-11 en [[log]].
@@ -107,7 +108,7 @@ Esto es lo que hay en el `.form` y lo que hay que exponer. La columna "miembro" 
 |---|---|---|
 | Campo ID | `idTextField` | `getIdText()` / `setIdText(String)` |
 | Campo Name | `nameTextField` | `getNameText()` / `setNameText(String)` |
-| Campo Category | `categoryTextField` | `getCategoryText()` / `setCategoryText(String)` |
+| Campo Category | `categoryTextField` | `getCategoryText()` / `setCategoryText(String)` — **quedan obsoletos**: pasa a `categoryComboBox` con `getCategoryIndex()` / `setCategoryIndex(int)` ([[plan-categoria-combo]] §3.2) |
 | Campo Calories | `caloriesTextField` | `getCaloriesText()` / `setCaloriesText(String)` |
 | Botón Insert | `insertButton` | `getButtonInsert()` |
 | Botón Modify | `modifyButton` | `getButtonModify()` |
@@ -119,12 +120,10 @@ Esto es lo que hay en el `.form` y lo que hay que exponer. La columna "miembro" 
 > [!tip] `getTableAliments()` y no `getAlimentsTable()`
 > En `PatientView` quedó `getTablePatients()`. Mantener el mismo orden evita tener que pensar dos veces al escribir el controlador.
 
-> [!question] Decisión previa: ¿`Category` sigue siendo `JTextField` o pasa a `JComboBox`?
-> `Listas_y_ComboBox_Swing.pdf` (pág. 1 a 15) muestra el uso de `JComboBox` para listas cerradas, y una categoría lo es (Frutas, Verduras, Carnes, Lácteos, Cereales).
-> - **Si lo cambiás**, se hace **antes** de escribir el controlador: `getCategoryText()` desaparece y pasa a `getCategorySelected()` (`(String) categoryComboBox.getSelectedItem()`).
-> - **Si lo dejás** como está, el plan sigue tal cual y se cambia después.
+> [!success] Decisión previa, ya tomada: `Category` pasa a `JComboBox`
+> **Resuelto el 2026-11-12.** `Listas_y_ComboBox_Swing.pdf` (pág. 1 a 15) muestra el uso de `JComboBox` para listas cerradas, y una categoría lo es. El combo es **no editable**, con placeholder `-- Elegí una categoría --` y 7 valores: los 5 del script (`Frutas`, `Verduras`, `Cereales`, `Carnes`, `Lácteos`) + `Legumbres` + `Otros`.
 >
-> No es un requisito de la rúbrica; es usabilidad. Elegilo una vez y no a mitad del cableado.
+> **El paso a paso está en [[plan-categoria-combo]]**, nota aparte. Detalle importante: la API no es `getCategorySelected()` como se barajó acá, sino **índices** (`getCategoryIndex()` / `setCategoryIndex(int)`), el mismo patrón que `setDietOptions` / `getDietIndex` de `PatientView`. Los bloques de código de §1 y §4 de esta nota muestran `getCategoryText()` porque así quedó el cableado original; donde dice eso, ahora vale lo de la nota nueva.
 
 ### Paso A1 — Getters, setters, mensajes y `clearForm()` en `AlimentView`
 
@@ -179,6 +178,9 @@ public boolean confirmDelete() {return javax.swing.JOptionPane.showConfirmDialog
 
 > [!tip] Por qué los `JOptionPane` van en la vista
 > Es criterio de equipo, no de la cátedra: el controlador decide **qué** mensaje mostrar y la vista decide **cómo**. Así el controlador se puede testear sin abrir ventanas.
+
+> [!warning] Las dos líneas de `Category` de ese bloque caducaron
+> `getCategoryText()` y `setCategoryText(String)` ya no existen cuando se aplica [[plan-categoria-combo]]: el campo pasa a ser `categoryComboBox` y la vista expone `getCategoryIndex()` / `setCategoryIndex(int)`, y `clearForm()` termina con `setCategoryIndex(0)` en vez de `setCategoryText("")`. El resto del bloque sigue tal cual.
 
 > [!warning] `"Información"` con tilde
 > En `PatientView` quedó `"Informacion"` sin tilde y está anotado como deuda. Acá conviene escribirlo bien desde el principio.
@@ -322,7 +324,18 @@ public class AlimentController {
         view.getTableAliments().clearSelection();
     }
 }
+
 ```
+
+> [!warning] `readForm()` y `showAliment()` cambian con el combo
+> Con [[plan-categoria-combo]] aplicado, esas dos líneas de categoría pasan a los helpers `selectedCategory()` y `categoryIndexOf(...)`:
+>
+> ```java
+> a.setCategory(selectedCategory());                       // en readForm()
+> view.setCategoryIndex(categoryIndexOf(a.getCategory()));  // en showAliment()
+> ```
+>
+> Y las validaciones que comparan `view.getCategoryText().trim().isEmpty()` (las dos del `insert()` y el `modify()`) pasan a `view.getCategoryIndex() <= 0`. El resto del controlador no se toca.
 
 > [!tip] Los helpers van adentro, no en una clase aparte
 > `readForm`, `showAliment`, `refreshTable` y `resetFields` usan `view`, `alimentDao` y `selectedAliment`. Sacarlos obliga a pasar esos tres parámetros en cada llamada y no compra nada. Misma decisión que en `Patient`.
@@ -595,6 +608,8 @@ Casi todo es configuración, y ya está detallada paso a paso en **C.6 de [[hoja
 > - **#4** cubierta con creces: `parseNonNegative()` acepta coma y punto, y rechaza negativos.
 > - **#1** ya no aplica: no hay DAO en memoria.
 > - **#3 sigue pendiente**: `AlimentView.form:236` está en `rowCount="4"`.
+>
+> **#7 se cumplió al revés:** el cableado se hizo con `JTextField` y el combo llega después, así que sí hay que retocar `readForm()`, `showAliment()` y los getters. Es exactamente el retrabajo que la trampa anticipaba; el paso a paso está en [[plan-categoria-combo]].
 
 ---
 
@@ -651,6 +666,7 @@ javac --release 25 -cp "lib/jakarta.persistence-2.2.3.jar;lib/flatlaf-3.5.4.jar"
 ## Relacionado
 
 - [[plan-cableado-patient]] — el mismo recorrido, ya implementado y probado
+- [[plan-categoria-combo]] — la categoría de `Aliment` pasa a `JComboBox` cerrado (resuelve la decisión previa del Paso A0)
 - [[hoja-de-ruta-7-a-9]] — Bloque B.3 y la receta C.6 para pasar a MySQL
 - [[bug-jpql-dao]] — el JPQL roto de `AlimentDAOJPA:19`
 - [[convenciones]] · [[tutorial-dao-desde-cero]] · [[estado]] · [[MAP]]

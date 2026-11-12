@@ -31,6 +31,7 @@ Programacion Orientada a Objetos/
 │   ├── plan-cableado-patient.md   ← plan de cableado Vista ↔ Controlador ↔ Modelo de Patient
 │   ├── plan-cableado-aliment.md   ← el mismo plan aplicado a Aliment
 │   ├── plan-cableado-diet.md      ← el tercer cableado: DietView + DietController + DietTableModel
+│   ├── plan-categoria-combo.md    ← la categoría de Aliment como JComboBox cerrado
 │   ├── plan-crud-bd.md            ← plan para dejar el CRUD andando contra MySQL
 │   ├── estado.md              ← estado general del código y la tarea
 │   ├── vistas-manuales.md     ← contingencia: vistas Swing a mano
