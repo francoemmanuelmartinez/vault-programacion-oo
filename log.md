@@ -4,6 +4,46 @@ Registro append-only de cada tanda de trabajo. Entradas nuevas arriba.
 
 ---
 
+## 2026-11-12 — [[plan-cableado-diet]]: §2 bis y §4 bis, el plan de dietas completo
+
+**Contexto:** Caro pusheó la vista en dos commits (`6f6a449` *Creacion de DietView.java*, `751bb35` *Se corrige error en DietView.java en dietAlimentsTable*) y el Estudiante la modeló un poco más. Pidió revisión, después los ajustes de la vista escritos en el plan, y finalmente la sección del controlador para que el plan no quede con pendientes.
+
+**Lo que se auditó** (sobre `751bb35`, `src` compilando con `ExitCode: 0`):
+- `DietView` **no tiene ni un método público**: cero getters, cero `showError`, cero `clearForm`. Sólo el constructor y tres privados (`initComponents`, `enableAutoZoom`, `collectComponents`).
+- `dietsTable` declara 4 columnas: `ID`, `Name`, **`Aliment 1`**, **`Aliment 2`**. Además de duplicar lo que muestra `dietAlimentsTable`, no puede representar N alimentos (`Vegetariana` ya tiene 3).
+- `description` es un `JTextArea` de 20×5 dentro de `jScrollPane1`, y la columna es `VARCHAR(100)`.
+- `alimentComboBox` viene con `Item 1..4`; el rótulo `"Aliments of the diet :"` está al lado del combo (que lista los *disponibles*) y la tabla de los alimentos de la dieta no tiene título.
+- `DietView` tiene **cero** tooltips; `AlimentView` ya usa tres.
+- `setSelectionMode(SINGLE_SELECTION)` está dos veces en `dietAlimentsTable` (291 y 292).
+- Lo que sí está bien: navegación, TitledBorders, orden de botones (Search/Insert/Modify/Delete), `autoCreateRowSorter`, `SINGLE_SELECTION`, `rowCount` vacío, y las 4 columnas de `dietAlimentsTable` coinciden exactamente con `AlimentTableModel` (se reutiliza tal cual).
+- `idTextField` es editable **en las tres vistas** del proyecto.
+
+**Decisiones de diseño que quedaron argumentadas:**
+- **Remove borra la fila de `DietsDetails`, no el `Aliment`.** La tabla muestra alimentos pero el controlador guarda `List<DietDetail>` en paralelo, porque para borrar hace falta el id del pivot.
+- **El combo se filtra** con los alimentos que todavía no están en la dieta: así `UNIQUE (id_diet, id_aliment)` no llega a fallar y la pantalla comunica el estado.
+- **El panel de alimentos arranca deshabilitado** y se habilita cuando la dieta tiene id (una dieta sin guardar no puede tener `id_diet`).
+- `dietsTable` vuelve a 3 columnas (`ID`, `Name`, `Description`).
+
+**Qué se escribió en la nota:**
+- **§2 bis**, con 13 subsecciones (`2 bis.0` a `2 bis.12`): coordinación con Caro, los pasos del diseñador (borrar columnas por *Table Contents*, cambiar la textarea por `JTextField`, rótulos, tooltips, combo vacío, panel deshabilitado, agrupamiento opcional), los ~30 métodos del bloque de código completo, un checklist visual de 10 puntos y 7 trampas del editor.
+- **§4 bis**, con 12 subsecciones (`4 bis.0` a `4 bis.11`): estado nuevo del controlador, constructor sobrecargado que no toca `PatientController` ni `AlimentController`, `refreshDietAliments()` / `loadAvailableAliments()` con las dos listas en paralelo, `addAliment()` / `removeAliment()`, `selectRow`/`resetFields`/`selectDietEnTabla`, `delete()` con cascada manual, los dos getters del panel, `buscarPorDieta`, **16 pruebas** del panel, tabla de troubleshooting y 8 trampas.
+- Frontmatter a `751bb35` y `estado: en curso`; callout nuevo arriba que cubre las dos secciones.
+- §0: `DietView` pasa de "no existe" a "existe, sin ajustar"; `DietDetailDAOJPA.buscarPorDieta` pasa de "no afecta" a bloqueante.
+- §1: el panel de alimentos **entra**; lo único que queda afuera es `cantidad` (no existe la columna).
+- §2: marcada como superada por §2 bis, salvo §2.4 (límites 50/100).
+- §2 bis.12: pasa de "esto todavía no está escrito" a la tabla que apunta a §4 bis.8.
+- §7: la prueba 14 ahora verifica la guarda de pacientes; §4 bis.9 tiene las 16 del panel.
+- §8: trampas 11 a 20 (pisar `initComponents()`, commitear `.java` sin `.form`, dos personas en el `.form`, las columnas `Aliment 1/2`, la textarea, `dd.dieta.id`, borrar detalles sin mirar pacientes, habilitar el panel sin id, `contains()` y `enabled` en el `JPanel`).
+- §9: cuatro errores nuevos del panel (`Duplicate entry`, `UnsupportedOperationException`, `convertRowIndexToModel`, borrar al revés).
+- §10: `DietDetailDAOJPA.java` entra en el primer commit.
+- §12: de "(opcional)" a "ya no es opcional", con el diseño real (tabla + combo, no dos tablas) y la tabla de dónde está cada pieza; lo único opcional que queda es la cantidad.
+
+**Una decisión nueva, tomada al escribir §4 bis.6:** `delete()` **pregunta antes** si algún paciente usa la dieta (`contarPacientesConDieta`), en vez de intentar borrar y atajar la excepción de la FK. Sin esa guarda, la cascada borraba los `DietDetail` y después MySQL rechazaba la dieta por `fk_paciente_dieta`: la dieta quedaba viva y sin alimentos, sin que nadie lo hubiera pedido. Es el tipo de bug que no da error y se descubre en la defensa.
+
+**Pendiente:** nada de esta nota. Lo que falta del lado del repo lo hace el Estudiante en NetBeans: §2 bis (vista), §3 (modelo), §4 + §4 bis (controlador), §5 (navegación), §6 (JPQL) y cargar los 4 `INSERT` del script para poder correr las pruebas. No se tocó el código del proyecto.
+
+---
+
 ## 2026-11-11 — [[plan-cableado-diet]]: el CRUD de dietas se reasigna a Caro
 
 **Contexto:** Caro avisó que está haciendo la interfaz de dietas. El Estudiante decidió pasarle **todo el CRUD** —no sólo la vista— para que tenga commits reales antes de la entrega, y pidió un plan detallado como los de `Patient` y `Aliment`.

@@ -55,7 +55,7 @@ tags: [indice, meta]
 - ✅ [[ejemplo-de-excepciones]] — Mensajes personalizados por método del DAO (`DaoException`) y su llegada al usuario
 - ✅ [[plan-cableado-patient]] — Plan de cableado Vista ↔ Controlador ↔ Modelo para `Patient` (paso a paso, con código y trampas)
 - ✅ [[plan-cableado-aliment]] — El mismo plan aplicado a `Aliment`: getters, `AlimentDAOInMemory`, `AlimentTableModel`, controlador y trampas
-- ✅ [[plan-cableado-diet]] — El tercer cableado: crear `DietView` y `DietTableModel`, `DietController` completo, navegación desde el botón Diets y el JPQL de `DietDAOJPA`
+- ✅ [[plan-cableado-diet]] — El tercer cableado: ajustar la `DietView` que hizo Caro (§2 bis), `DietTableModel`, `DietController` completo con el panel de alimentos (§4 bis), la navegación desde el botón Diets y el JPQL de `DietDAOJPA`
 - ✅ [[plan-crud-bd]] — Plan para dejar el CRUD de `Patient` y `Aliment` andando contra MySQL: jars, esquema, los 5 JPQL, 25 pruebas y commit
 - ✅ [[vistas-manuales]] — Contingencia: vistas Swing a mano (compilan) y
   alternativa de `setVisible(false)` a `dispose()`

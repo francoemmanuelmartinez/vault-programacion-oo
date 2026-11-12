@@ -1,17 +1,21 @@
 ---
-fuente: auditoría del código real de `NutritionistApp` en `origin/master` (`1f785b6`) + Swing_MVC_Interfaces_Java.pdf (pág. 14, 20 a 23 y 26 a 27), JTable_en_Swing.pdf (pág. 4 a 18), Listas_y_ComboBox_Swing.pdf (pág. 1 a 15), JPA_Hibernate_DAO.pdf (pág. 9 a 16) y enunciado_rubrica.pdf (pág. 1 y 2)
+fuente: auditoría del código real de `NutritionistApp` en `origin/master` (`1f785b6` + `751bb35`) + Swing_MVC_Interfaces_Java.pdf (pág. 14, 20 a 23 y 26 a 27), JTable_en_Swing.pdf (pág. 4 a 18), Listas_y_ComboBox_Swing.pdf (pág. 1 a 15), JPA_Hibernate_DAO.pdf (pág. 9 a 16) y enunciado_rubrica.pdf (pág. 1 y 2)
 tags: [tarea, plan, mvc, swing, cableado, diet, crud]
-estado: propuesto
-actualizado: 2026-11-11
+estado: en curso
+actualizado: 2026-11-12
 aliases: [plan-cableado-diet, plan-diet, plan-crud-diet, plan-dietas]
 ---
 
 # Plan de cableado: `Diet` (Vista → Controlador → Modelo)
 
 > [!info] Qué es esta nota
-> El tercer cableado del proyecto, después de `Patient` y `Aliment`. Es el que falta para cerrar la entrega: **no existe `DietView`** y `DietController` está vacío. Escrito para que se pueda implementar **sin depender del chat**, con el código exacto y las trampas que ya pagaron los otros dos.
+> El tercer cableado del proyecto, después de `Patient` y `Aliment`. Es el que falta para cerrar la entrega: `DietController` está vacío y `DietView` existe pero **todavía no expone nada**. Escrito para que se pueda implementar **sin depender del chat**, con el código exacto y las trampas que ya pagaron los otros dos.
 >
-> **Punto de partida:** `origin/master` = `1f785b6` (RomiM, 2026-11-11 12:16). Antes de empezar hay que hacer el `pull`.
+> **Punto de partida:** `origin/master` = `751bb35` (Caro, 2026-11-11), que es `1f785b6` + `DietView` + su corrección. Antes de empezar hay que hacer el `pull`.
+>
+> **Novedad 2026-11-12:** Caro creó la vista, así que **§2 bis** reemplaza a §2.1 y §2.2: en vez de crear `DietView` desde cero, se ajusta la que ya está. Incluye los 12 pasos del diseñador y los ~30 métodos que tiene que exponer.
+>
+> **Y el panel de alimentos** —la segunda tabla, el combo y Add/Remove— está completo en **§4 bis**: constructor sobrecargado, las dos listas en paralelo, la cascada manual del `delete()` y las 16 pruebas. La nota ya no tiene pendientes.
 
 > [!warning] Procedencia del contenido
 > - **Del profesor:** la separación Vista → Controlador → Modelo y el registro de eventos (pág. 14, 20 a 23 y 26 a 27 — `Swing_MVC_Interfaces_Java.pdf`), la configuración de `JTable` y `AbstractTableModel` (pág. 4 a 18 — `JTable_en_Swing.pdf`), y que JPQL se escribe sobre entidades (pág. 9 a 16 — `JPA_Hibernate_DAO.pdf`).
@@ -27,15 +31,15 @@ aliases: [plan-cableado-diet, plan-diet, plan-crud-diet, plan-dietas]
 | `dao/DietDAO.java` | ✅ **lista** | `extends DAO<Diet, Integer>` + `buscarPorNombre(String)` |
 | `dao/DietDAOJPA.java` | ⚠️ **JPQL roto** | `:19` → `FROM diets` (nombre de tabla, no de entidad) |
 | `controller/DietController.java` | ❌ **vacío** | sólo el header de licencia y la clase sin cuerpo |
-| `view/DietView.java` + `.form` | ❌ **no existe** | hay que crearla en el diseñador |
+| `view/DietView.java` + `.form` | ⚠️ **existe, sin ajustar** | la creó Caro (`6f6a449`, corregida en `751bb35`); le falta todo lo de §2 bis: 3 columnas, getters, rótulos y estado del panel |
 | `view/DietTableModel.java` | ❌ **no existe** | |
 | Botón **Diets** en las vistas | ❌ **sin listener** | `getButtonDiets()` existe (`PatientView:469`, `AlimentView:364`) pero nadie lo escucha |
 | `AppNutritionist` | ✅ **ya cableado** | crea `new DietDAOJPA()` y ya se lo pasa a `PatientController` y `AlimentController` |
 | Combo de dietas en `PatientView` | ✅ **funciona** | `PatientController.loadDiets()` usa `dietDao.findAll()` |
-| `dao/DietDetailDAOJPA.buscarPorDieta` | ❌ `throw` | no afecta este CRUD (ver sección 12) |
+| `dao/DietDetailDAOJPA.buscarPorDieta` | ❌ `throw` | ya **no** es opcional: sin esto no se puede llenar la tabla de alimentos de la dieta (§4 bis.8) |
 
 > [!important] La buena noticia
-> **El modelo, el DAO y la conexión ya existen.** No hay que tocar `Diet.java`, ni `DietDAO.java`, ni `AppNutritionist`, ni `persistence.xml`. Lo que falta es la vista, el modelo de tabla, el controlador y una línea de JPQL. Todo eso es trabajo de una sesión.
+> **El modelo, el DAO y la conexión ya existen.** No hay que tocar `Diet.java`, ni `DietDAO.java`, ni `AppNutritionist`, ni `persistence.xml`. Lo que falta es **ajustar** la vista (§2 bis), el modelo de tabla, el controlador —con el panel de alimentos— y una línea de JPQL. Todo eso es trabajo de una sesión.
 
 > [!tip] Lo que ya funciona y conviene probar antes de empezar
 > Abrí la app, andá a **Patients** y mirá el combo de dietas: tiene que mostrar `-- Sin dieta --`, `Hipocalórica` y `Vegetariana`. Si eso anda, `DietDAO.findAll()` y la conexión están bien, y lo que sigue es sólo interfaz.
@@ -46,24 +50,30 @@ aliases: [plan-cableado-diet, plan-diet, plan-crud-diet, plan-dietas]
 
 ### Entra
 
-- Una pantalla nueva `DietView` con tabla, formulario y los cuatro botones del CRUD.
+- **Ajustar** `DietView` (ya existe) para que sea intuitiva: 3 columnas en la tabla de dietas, descripción de una línea, rótulos, tooltips y los getters que hoy no tiene (§2 bis).
 - `DietController` completo: insert, modify, delete, search por nombre y selección de fila.
 - `DietTableModel` de tres columnas.
-- **Los listeners del botón Diets** en `PatientView` y `AlimentView`, para que se pueda llegar a la pantalla nueva desde las otras dos.
+- **Los listeners del botón Diets** en `PatientView` y `AlimentView` para llegar a la pantalla nueva desde las otras dos.
 - El JPQL de `DietDAOJPA`.
 - El manejo del error de clave foránea al borrar una dieta en uso.
+- **El panel de alimentos de la dieta**: agregar y quitar filas de `DietDetail` desde la misma pantalla (segunda tabla + combo + Add/Remove). Requiere implementar `DietDetailDAOJPA.buscarPorDieta`.
 
 ### No entra (y conviene decirlo en voz alta)
 
-- **Los alimentos de cada dieta** (`DietDetail`). Eso es una segunda pantalla: la tabla pivot existe, pero no hay forma de decir *"200 g de arroz"* porque `DietDetail` sólo tiene `(Diet, Aliment)` y una restricción de unicidad que impide repetir el alimento. Lo dejo como fase opcional al final (sección 12).
+- **La cantidad de cada alimento** (*"200 g de arroz"*). `DietDetail` sólo tiene `(Diet, Aliment)` y un `UNIQUE (id_diet, id_aliment)`. La tabla dice **qué** alimentos incluye la dieta, no **cuánto**. Agregar `cantidad` implica cambiar la entidad, el script y recrear la base: es una decisión de equipo, no de esta pantalla.
 - **Excepciones propias para las claves foráneas** (`DietConPacientesException` o similar). Se puede hacer después; acá alcanza con un mensaje claro. RomiM quedó en ver ese tema.
 
 > [!warning] Hablar con RomiM antes de arrancar
-> En el reparto original del equipo, **la vista de dietas era de RomiM** — lo dijo ella por WhatsApp: *"Quedaría por hacer la vista de las dietas"*. Si se reasigna, avisarle **antes** de empezar, no después de pushear. Dos personas creando `DietView.java` al mismo tiempo es el peor merge posible: el archivo no existe en `master`, así que git lo va a tratar como "agregado por los dos" y no hay forma automática de resolverlo.
+> En el reparto original del equipo, **la vista de dietas era de RomiM** — lo dijo ella por WhatsApp: *"Quedaría por hacer la vista de las dietas"*. Caro la terminó, así que ese riesgo ya pasó; lo que queda es que **RomiM no vuelva a escribirla** y que las excepciones de FK sigan siendo suyas.
 
 ---
 
 ## 2. Fase 1 — Crear `DietView` en el diseñador
+
+> [!warning] Esta fase ya está hecha
+> Caro creó la vista en `6f6a449` y la corrigió en `751bb35`. Lo que sigue queda como **referencia del diseño original** (qué componentes lleva, qué propiedades, qué getters), pero el resultado real difiere en tres puntos: la tabla de dietas tiene 4 columnas, la descripción es un `JTextArea`, y no hay un solo método público.
+>
+> **Para trabajar, usá §2 bis.** Ahí está el paso a paso sobre la vista que ya existe. De esta sección sólo sigue válido §2.4 (los límites de 50/100 caracteres).
 
 ### 2.1 Los componentes
 
@@ -169,6 +179,265 @@ description VARCHAR(100)
 ```
 
 O sea: el nombre **no puede ser vacío** (es `NOT NULL`) y **ninguno de los dos puede pasar** de 50 / 100 caracteres. Si no se valida en el controlador, MySQL responde con *"Data too long for column 'description'"* y el usuario ve un mensaje técnico en inglés. Se valida en el paso 4.3.
+
+---
+
+## 2 bis. Ajustes a la `DietView` que ya existe
+
+> [!important] Por qué esta sección existe
+> `DietView` **ya no hay que crearla**: Caro la pusheó en `6f6a449` (*"Creacion de DietView.java"*) y la corrigió en `751bb35` (*"Se corrige error en DietView.java en dietAlimentsTable"*). Lo que sigue son los ajustes para que la pantalla haga lo que tiene que hacer —administrar dietas **y** los alimentos de cada dieta— sin que haya que explicarla. **Reemplaza a §2.1 y §2.2** como fuente de verdad.
+
+### 2 bis.0 Antes de tocar nada
+
+1. `git pull` y confirmá que estás parado en `751bb35`.
+2. **Avisale a Caro:** *"estoy retocando `DietView`, no la toques hasta que pushee"*. El `.form` es XML generado por el diseñador y un merge entre dos versiones del mismo form **no se resuelve solo**: git ve dos archivos de texto y elige mal.
+3. Commiteá lo que ya esté andando **antes** de empezar, aunque la vista todavía no haga nada. Un commit chico hoy es un conflicto chico mañana.
+4. **Todos los cambios se hacen en el diseñador**, nunca a mano dentro de `initComponents()`: NetBeans regenera ese método al guardar y te borra la edición.
+5. Al terminar cada paso, `Ctrl+S` y compilar. Si un paso rompe el layout, `Ctrl+Z` y volver.
+
+### 2 bis.1 `dietsTable`: de 4 columnas a 3
+
+**Qué:** hoy declara `ID`, `Name`, `Aliment 1`, `Aliment 2`. Una dieta tiene **N** alimentos, no dos —`Vegetariana` del script ya tiene tres (Banana, Arroz integral, Palta)— y esos alimentos ya se muestran abajo, en `dietAlimentsTable`. Con las dos cosas a la vez, la pantalla dice dos veces lo mismo y puede desincronizarse.
+
+**Cómo:**
+
+1. Clic derecho sobre `dietsTable` → **Table Contents…**
+2. Pestaña **Columns**: seleccionar `Aliment 2` → **Delete**; seleccionar `Aliment 1` → **Delete**.
+3. Verificar que quedan `ID`, `Name`, `Description` (doble clic para renombrar).
+4. Pestaña **Rows**: tiene que decir **0**. Si hay filas, borralas — si no, el diseñador hornea filas de `null` en cada guardado (trampa 1 de §8).
+5. `Ctrl+S` y compilar.
+
+**Resultado:** 3 columnas, que es exactamente lo que espera `DietTableModel` en §3. No hay que cambiarle nada al modelo.
+
+### 2 bis.2 `descriptionTextArea` → `descriptionTextField`
+
+**Qué:** hoy es un `JTextArea` de 20 columnas por 5 filas, adentro de un `JScrollPane` llamado `jScrollPane1`. La columna es `description VARCHAR(100)` (`Sql/nutricion.sql:10`): un texto corto, de una línea. Una textarea de cinco renglones promete un párrafo y acepta `Enter`, que mete un salto de línea adentro de un `VARCHAR`.
+
+**Cómo:**
+
+1. En el **Navigator** (ventana *Inspector*), seleccionar `jScrollPane1` → `Delete`. Se va el scroll pane **y** la textarea de adentro.
+2. Arrastrar un **Text Field** desde la paleta al `dietFormPanel`, debajo de `nameTextField`.
+3. Clic derecho → **Change Variable Name…** → `descriptionTextField`.
+4. Reacomodar el `GroupLayout` para que quede alineado con `nameTextField` (el diseñador lo inserta suelto; hay que arrastrarlo en el orden visual).
+5. `Ctrl+S` y compilar.
+
+> [!warning] Después de esto, `jScrollPane1` no existe más
+> Si quedó alguna referencia a `jScrollPane1` en el código que escribiste a mano, no compila. Buscá con `Ctrl+F` antes de cerrar el paso.
+
+### 2 bis.3 El campo ID no se edita
+
+**Qué:** `idTextField` es editable en las tres vistas del proyecto. El id lo asigna MySQL (`AUTO_INCREMENT`): si alguien lo toca, el `INSERT`/`UPDATE` va a otro lado o falla.
+
+**Cómo:** seleccionar `idTextField` → ventana **Properties** → pestaña **Properties** → desmarcar **editable**. Y en `toolTipText` escribir `Se asigna automáticamente`.
+
+> [!tip] Aprovechá y arreglá las otras dos
+> `AlimentView` y `PatientView` tienen el mismo problema. Son dos clics cada una y suman al "intuitiva" del enunciado.
+
+### 2 bis.4 Los rótulos: el cambio que más rinde
+
+**Qué:** hoy `alimentsLabel` dice `"Aliments of the diet :"` y está al lado del **combo**, que lista los alimentos *disponibles*, no los de la dieta. Y la tabla que sí muestra "los de la dieta" no tiene ningún título. La pantalla miente en el único punto donde el profe va a mirar.
+
+**Cómo:**
+
+1. Seleccionar `alimentsLabel` → **Change Variable Name…** → `alimentLabel`. Cambiar el texto a `Aliment :`.
+2. Arrastrar un **Label** desde la paleta y soltarlo **arriba de `dietAlimentsScrollPane`**.
+3. **Change Variable Name…** → `dietAlimentsLabel`. Texto: `Aliments of the diet`.
+4. Opcional: otro label arriba de `dietsTable`, variable `dietsLabel`, texto `Registered diets`.
+
+`dietAlimentsLabel` va a mostrar el texto dinámico que le mande el controlador:
+
+```
+Aliments of the diet : Hipocalórica (3)
+```
+
+Eso es lo que convierte "una tabla abajo con datos" en *"los alimentos de la dieta que tengo seleccionada"*. Es la diferencia entre que haya que explicarlo y que se entienda solo.
+
+### 2 bis.5 Tooltips
+
+`DietView` hoy tiene **cero** tooltips; `AlimentView` ya usa tres. Son gratis y contestan las dudas antes de que aparezcan. Seleccionar cada componente → **Properties** → `toolTipText`:
+
+| Componente | toolTipText |
+|---|---|
+| `alimentComboBox` | `Alimentos que todavía no están en esta dieta` |
+| `addAlimentButton` | `Agrega el alimento elegido a la dieta` |
+| `removeAlimentButton` | `Quita el alimento de la dieta (no lo borra del sistema)` |
+| `searchButton` | `Escribí parte del nombre y presioná para buscar` |
+| `idTextField` | `Se asigna automáticamente` |
+
+El de **Remove** es el más importante: contesta *"¿se borra la manzana?"* con pasar el mouse, y es justo la duda conceptual de la tabla pivot.
+
+### 2 bis.6 El combo arranca vacío
+
+**Qué:** `alimentComboBox` viene con `"Item 1"`, `"Item 2"`, `"Item 3"`, `"Item 4"`. Es relleno del diseñador; el controlador lo pisa. Pero un combo con basura se ve mal en la defensa y confunde mientras no hay controlador.
+
+**Cómo:** clic derecho sobre el combo → **Edit** (o la pestaña del modelo en Properties) → seleccionar los cuatro ítems → **Delete**. Tiene que quedar con 0 ítems.
+
+Es el mismo relleno que tiene `dietComboBox` en `PatientView`; ahí no hace falta tocarlo porque el controlador ya lo llena en cada arranque.
+
+### 2 bis.7 El panel de alimentos arranca deshabilitado
+
+**Qué:** si no hay dieta elegida, **Add** no tiene a qué agregar y **Remove** no tiene qué quitar. Abrir la pantalla con todo habilitado es la primera confusión del recorrido.
+
+**Cómo:** en el diseñador, dejar `alimentComboBox`, `addAlimentButton`, `removeAlimentButton` y `dietAlimentsTable` con **enabled** desmarcado. El controlador los habilita cuando hay una dieta con id (método `setAlimentsPanelEnabled` de 2 bis.9).
+
+> [!warning] Deshabilitar el panel **no** deshabilita a los hijos
+> Si le sacás `enabled` al `JPanel` con borde "Aliments", el combo y los botones siguen activos. Hay que hacerlo componente por componente, y por eso el método recibe los cuatro.
+
+### 2 bis.8 (opcional) Agrupar el panel de alimentos
+
+Hoy el combo y los botones están en un panel con borde *Aliments* y la tabla que muestran está **afuera**, abajo. Mover la tabla adentro del panel hace que el bloque entero se lea como una unidad: **selector → Add/Remove → lo que tiene la dieta**.
+
+**Cómo:** en el **Navigator**, arrastrar `dietAlimentsScrollPane` y soltarlo dentro de `alimentsPanel`. Después reacomodar el `GroupLayout` del panel para que la tabla ocupe una fila propia, debajo del combo.
+
+Si el layout queda feo y no hay tiempo, `Ctrl+Z` y listo: **el 80% del beneficio está en el rótulo de 2 bis.4**, no en el agrupamiento.
+
+### 2 bis.9 Los métodos que expone la vista
+
+Todo va **después** de `// End of variables declaration//GEN-END:variables`. Son métodos escritos a mano: regenerar `initComponents()` no los borra.
+
+```java
+// --- Navegación ---
+public javax.swing.JButton getButtonPatients() {return patientsButton;}
+public javax.swing.JButton getButtonAliments() {return alimentsButton;}
+
+// --- Botones del CRUD ---
+public javax.swing.JButton getButtonInsert() {return insertButton;}
+public javax.swing.JButton getButtonModify() {return modifyButton;}
+public javax.swing.JButton getButtonDelete() {return deleteButton;}
+public javax.swing.JButton getButtonSearch() {return searchButton;}
+
+// --- Panel de alimentos de la dieta ---
+public javax.swing.JButton getButtonAddAliment()    {return addAlimentButton;}
+public javax.swing.JButton getButtonRemoveAliment() {return removeAlimentButton;}
+
+// --- Tablas ---
+public javax.swing.JTable getTableDiets()        {return dietsTable;}
+public javax.swing.JTable getTableDietAliments() {return dietAlimentsTable;}
+
+// --- Campos del formulario ---
+public String getIdText()          {return idTextField.getText();}
+public String getNameText()        {return nameTextField.getText();}
+public String getDescriptionText() {return descriptionTextField.getText();}
+
+public void setIdText(String value)          {idTextField.setText(value);}
+public void setNameText(String value)        {nameTextField.setText(value);}
+public void setDescriptionText(String value) {descriptionTextField.setText(value);}
+
+public void clearForm() {
+    setIdText("");
+    setNameText("");
+    setDescriptionText("");
+}
+
+// --- Panel de alimentos de la dieta ---
+
+// Llena el combo con los alimentos que TODAVIA no estan en la dieta.
+public void setAlimentOptions(java.util.List<String> nombres) {
+    javax.swing.DefaultComboBoxModel<String> model = new javax.swing.DefaultComboBoxModel<>();
+    for (String nombre : nombres) {
+        model.addElement(nombre);
+    }
+    alimentComboBox.setModel(model);
+}
+
+// Devuelve la posicion elegida en el combo, o -1 si no hay ninguna.
+public int getAlimentIndex() {return alimentComboBox.getSelectedIndex();}
+
+// Habilita o deshabilita el panel completo, componente por componente.
+public void setAlimentsPanelEnabled(boolean activo) {
+    alimentComboBox.setEnabled(activo);
+    addAlimentButton.setEnabled(activo);
+    removeAlimentButton.setEnabled(activo);
+    dietAlimentsTable.setEnabled(activo);
+}
+
+// "Aliments of the diet : Hipocalorica (3)"
+public void setDietAlimentsTitle(String titulo) {dietAlimentsLabel.setText(titulo);}
+
+public void clearDietAlimentsSelection() {dietAlimentsTable.clearSelection();}
+
+// --- Mensajes ---
+public void showError(String message) {javax.swing.JOptionPane.showMessageDialog(
+        this, message, "Error", javax.swing.JOptionPane.ERROR_MESSAGE);}
+
+public void showInfo(String message) {javax.swing.JOptionPane.showMessageDialog(
+        this, message, "Información", javax.swing.JOptionPane.INFORMATION_MESSAGE);}
+
+public boolean confirmInsert() {return javax.swing.JOptionPane.showConfirmDialog(
+        this, "¿Desea dar de alta esta dieta?", "Confirmar",
+        javax.swing.JOptionPane.OK_CANCEL_OPTION) == javax.swing.JOptionPane.OK_OPTION;}
+
+public boolean confirmModify() {return javax.swing.JOptionPane.showConfirmDialog(
+        this, "¿Desea modificar esta dieta?", "Confirmar",
+        javax.swing.JOptionPane.OK_CANCEL_OPTION) == javax.swing.JOptionPane.OK_OPTION;}
+
+public boolean confirmDelete() {return javax.swing.JOptionPane.showConfirmDialog(
+        this, "¿Desea dar de baja esta dieta?", "Confirmar",
+        javax.swing.JOptionPane.OK_CANCEL_OPTION) == javax.swing.JOptionPane.OK_OPTION;}
+
+// Confirmacion propia del panel: dice el nombre del alimento y aclara el alcance.
+public boolean confirmRemoveAliment(appNutritionist.model.Aliment aliment) {
+    return javax.swing.JOptionPane.showConfirmDialog(this,
+            "¿Quitar " + aliment.getAliment() + " de esta dieta?\n"
+            + "El alimento sigue existiendo en el sistema.",
+            "Confirmar", javax.swing.JOptionPane.OK_CANCEL_OPTION)
+            == javax.swing.JOptionPane.OK_OPTION;
+}
+```
+
+> [!note] Por qué `getAlimentIndex()` y no un `getAliment()`
+> La vista no puede devolver el `Aliment` porque no lo tiene: sólo conoce los textos que le pasaron. El controlador guarda la lista real en paralelo y traduce el índice — el mismo patrón que `PatientController` usa con `List<Diet> diets`.
+
+### 2 bis.10 Verificación visual (sin controlador todavía)
+
+Todavía no hay `DietController`, así que la pantalla va a estar vacía. Lo que se verifica es la **forma**:
+
+| # | Qué mirar | Esperado |
+|---|---|---|
+| 1 | La tabla de dietas | 3 columnas: `ID`, `Name`, `Description`. Sin `Aliment 1/2` |
+| 2 | Descripción | un campo de **una línea**, no un recuadro de cinco |
+| 3 | El campo ID | gris, no se puede escribir |
+| 4 | El combo de alimentos | vacío, sin `Item 1..4` |
+| 5 | Add / Remove / combo | grises al abrir |
+| 6 | Rótulo sobre la tabla de abajo | `Aliments of the diet` |
+| 7 | Rótulo junto al combo | `Aliment :` |
+| 8 | Tooltips | al pasar el mouse por Remove: *"Quita el alimento de la dieta (no lo borra del sistema)"* |
+| 9 | `Ctrl+F` en `DietView.java` | no aparece `descriptionTextArea` ni `jScrollPane1` |
+| 10 | Compilar | `ExitCode: 0` |
+
+> [!tip] La prueba que vale
+> Cerrá el diseñador, reabrí `DietView.form` y mirá que todo siga igual. Si el form se "rearma" solo cada vez que lo abrís, quedó algo mal guardado.
+
+### 2 bis.11 Trampas del diseñador
+
+| # | Trampa | Qué pasa |
+|---|---|---|
+| 1 | Editar `initComponents()` a mano | el próximo guardado del form te borra los cambios, sin aviso |
+| 2 | Borrar una columna de la tabla y dejar `rowCount > 0` | el diseñador regenera filas de `null` en cada guardado |
+| 3 | Renombrar una variable después de escribir métodos a mano | NetBeans actualiza `initComponents()` y los campos, **no** tus métodos: quedan apuntando a un nombre que ya no existe y no compila |
+| 4 | Commitear `DietView.java` sin `DietView.form` (o al revés) | el par queda desincronizado y el diseñador reescribe el `.java` en la próxima apertura, pisando tu código |
+| 5 | Sacarle `enabled` al `JPanel` | no deshabilita a los hijos |
+| 6 | Reacomodar el `GroupLayout` "a mano" en el código | NetBeans lo regenera; usá el diseñador o `Set Layout` de la paleta |
+| 7 | Trabajar sin avisarle a Caro | merge de dos `.form`: conflicto XML sin resolución automática |
+
+> [!danger] La trampa 4 es la que más se paga
+> `DietView.java` y `DietView.form` son **una sola unidad**. En el commit van siempre los dos, en el mismo `git add`.
+
+### 2 bis.12 Lo que sigue después de esto
+
+Con la vista así, el controlador puede hacer las cuatro operaciones del CRUD **más** agregar y quitar alimentos de la dieta. Las dos cosas están escritas:
+
+- **§4 (Fase 3)** — el CRUD de dietas.
+- **§4 bis** — el panel de alimentos: constructor sobrecargado, las dos listas en paralelo, `addAliment`/`removeAliment`, `delete()` con cascada manual, `buscarPorDieta` y las 16 pruebas.
+
+Las cuatro cosas que había que resolver quedaron así:
+
+| Qué | Dónde |
+|---|---|
+| Implementar `DietDetailDAOJPA.buscarPorDieta` (hoy es un `throw`) | §4 bis.8 |
+| `List<DietDetail>` en paralelo con la tabla de abajo | §4 bis.1 |
+| Combo filtrado para no chocar con `UNIQUE (id_diet, id_aliment)` | §4 bis.3 |
+| Delete de una dieta con alimentos (`fk_detail_diet` sin `ON DELETE CASCADE`) | §4 bis.6 |
 
 ---
 
@@ -462,6 +731,457 @@ public class DietController {
 
 ---
 
+## 4 bis. Fase 3 bis — el panel de alimentos en `DietController`
+
+> [!important] Qué agrega esta sección
+> §4 escribió el controlador del **CRUD de dietas**. Esto es lo que falta para que la pantalla también administre **qué alimentos tiene cada dieta**: cargar la segunda tabla, agregar, quitar y manejar el borrado de una dieta que tiene alimentos.
+>
+> Se puede hacer **después** de §4 y sin reescribirlo: son bloques nuevos que se suman al mismo archivo. Lo único que cambia del código anterior está marcado como **[reemplaza]**.
+
+### 4 bis.0 Lo que hay antes de empezar
+
+| Requisito | Dónde |
+|---|---|
+| `DietView` con los métodos de §2 bis.9 (incluye los getters de Add/Remove) | §2 bis |
+| `DietTableModel` | §3 |
+| `AlimentTableModel` — se **reutiliza**, no se escribe uno nuevo | `view/AlimentTableModel.java` |
+| `DietDetailDAOJPA.buscarPorDieta` implementado | §4 bis.8 |
+| La base con datos de ejemplo cargados | §7 |
+
+> [!tip] La tabla de abajo no necesita modelo propio
+> `AlimentTableModel` ya tiene las 4 columnas exactas (`ID`, `Name`, `Category`, `Calories`) y un `setAliments(List<Aliment>)`. Es literalmente el mismo modelo que usa `AlimentView`. Escribir un `DietAlimentTableModel` sería duplicar código para nada.
+
+### 4 bis.1 Estado nuevo del controlador
+
+Se suman **cuatro** campos a la clase — **[reemplaza]** el bloque de campos de §4.1:
+
+```java
+    private final DietDetailDAO dietDetailDao;                 // la tabla pivot
+    private final AlimentTableModel dietAlimentsModel = new AlimentTableModel();
+    private final List<DietDetail> dietDetails = new ArrayList<>();   // mismo indice que la tabla de abajo
+    private final List<Aliment> availableAliments = new ArrayList<>(); // los que faltan agregar
+```
+
+> [!important] Por qué dos listas
+> `dietAlimentsTable` muestra **alimentos**, pero para borrar hay que pasarle al DAO el **id del `DietDetail`**. Las dos listas van en el mismo orden que las filas de la tabla: el índice es el puente. Es la misma idea que `List<Diet> diets` en `PatientController`, pero con dos niveles.
+
+### 4 bis.2 El constructor — **[reemplaza]** el de §4.1
+
+Para no tocar `PatientController` ni `AlimentController`, va un constructor sobrecargado: el de 4 argumentos que ya usan las otras pantallas sigue funcionando y delega en el nuevo creando el DAO que falta.
+
+```java
+    // Compatibilidad: PatientController y AlimentController siguen llamando a este.
+    public DietController(DietDAO dietDao, PatientDAO patientDao,
+                          AlimentDAO alimentDao, DietView view) {
+        this(dietDao, new DietDetailDAOJPA(), patientDao, alimentDao, view);
+    }
+
+    public DietController(DietDAO dietDao, DietDetailDAO dietDetailDao,
+                          PatientDAO patientDao, AlimentDAO alimentDao, DietView view) {
+        this.dietDao = dietDao;
+        this.dietDetailDao = dietDetailDao;
+        this.patientDao = patientDao;
+        this.alimentDao = alimentDao;
+        this.view = view;
+
+        view.getTableDiets().setModel(tableModel);
+        view.getTableDietAliments().setModel(dietAlimentsModel);   // reusa AlimentTableModel
+        refreshTable();
+        refreshDietAliments();      // deja el panel de alimentos vacio y deshabilitado
+
+        view.getButtonInsert().addActionListener(e -> insert());
+        view.getButtonModify().addActionListener(e -> modify());
+        view.getButtonDelete().addActionListener(e -> delete());
+        view.getButtonSearch().addActionListener(e -> search());
+        view.getButtonAddAliment().addActionListener(e -> addAliment());
+        view.getButtonRemoveAliment().addActionListener(e -> removeAliment());
+
+        // Dieta seleccionada -> se cargan sus datos y sus alimentos
+        view.getTableDiets().getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                selectRow();
+            }
+        });
+
+        // Las dos navegaciones de §4.1 quedan igual, pero creando el controlador con el DAO de detalle
+        view.getButtonPatients().addActionListener(e -> {
+            view.dispose();
+            javax.swing.SwingUtilities.invokeLater(() -> {
+                PatientView vistaPatient = new PatientView();
+                new PatientController(patientDao, dietDao, alimentDao, vistaPatient);
+                vistaPatient.setVisible(true);
+            });
+        });
+
+        view.getButtonAliments().addActionListener(e -> {
+            view.dispose();
+            javax.swing.SwingUtilities.invokeLater(() -> {
+                AlimentView vistaAliment = new AlimentView();
+                new AlimentController(alimentDao, patientDao, dietDao, vistaAliment);
+                vistaAliment.setVisible(true);
+            });
+        });
+    }
+```
+
+Imports que agrega — **[reemplaza]** el bloque de §4.1:
+
+```java
+import appNutritionist.dao.DietDetailDAO;          // <-- nuevo (interfaz)
+import appNutritionist.dao.DietDetailDAOJPA;       // <-- nuevo (implementacion)
+import appNutritionist.model.Aliment;              // <-- nuevo
+import appNutritionist.model.DietDetail;           // <-- nuevo
+import appNutritionist.model.Patient;              // <-- nuevo (contarPacientesConDieta)
+import java.util.ArrayList;                        // <-- nuevo
+```
+
+> [!tip] Por qué el constructor sobrecargado y no cambiar los otros dos controladores
+> La alternativa "pura" es agregar `DietDetailDAO` a los constructores de `PatientController` y `AlimentController`, que lo único que harían es guardarlo para pasarlo al de dietas. Eso son **7 puntos a tocar** en los mismos dos archivos que ya son el punto de conflicto con las búsquedas de la Fase 5. Con el constructor sobrecargado, esos dos archivos no se tocan: sólo se les agrega el listener del botón Diets (§5.2).
+>
+> Costo: `DietController` crea su propio `DietDetailDAOJPA()` en ese camino. Es la única excepción a "los DAO se crean una vez en `AppNutritionist`", y está aislada en una línea con comentario.
+
+### 4 bis.3 Cargar los alimentos de la dieta
+
+```java
+    // Recarga la tabla de abajo, el combo y el estado del panel.
+    private void refreshDietAliments() {
+        List<Aliment> delDieta = new ArrayList<>();
+        dietDetails.clear();
+
+        boolean hayDietaGuardada = selectedDiet.getId() != 0;
+        if (hayDietaGuardada) {
+            try {
+                dietDetails.addAll(dietDetailDao.buscarPorDieta(selectedDiet.getId()));
+                for (DietDetail dd : dietDetails) {
+                    delDieta.add(dd.getAlimento());     // ojo: el getter es getAlimento()
+                }
+            } catch (DAOException ex) {
+                view.showError(ex.getMessage());
+            }
+        }
+
+        dietAlimentsModel.setAliments(delDieta);
+        view.setAlimentsPanelEnabled(hayDietaGuardada);
+        view.setDietAlimentsTitle(hayDietaGuardada
+                ? "Aliments of the diet : " + selectedDiet.getName() + " (" + dietDetails.size() + ")"
+                : "Aliments of the diet");
+        loadAvailableAliments();
+    }
+
+    // El combo solo ofrece los alimentos que TODAVIA no estan en esta dieta.
+    private void loadAvailableAliments() {
+        availableAliments.clear();
+        List<String> nombres = new ArrayList<>();
+
+        if (selectedDiet.getId() != 0) {
+            try {
+                for (Aliment a : alimentDao.findAll()) {
+                    if (!contieneAlimento(a)) {
+                        availableAliments.add(a);
+                        nombres.add(String.valueOf(a));     // "Manzana (Frutas)"
+                    }
+                }
+            } catch (DAOException ex) {
+                view.showError(ex.getMessage());
+            }
+        }
+        view.setAlimentOptions(nombres);
+    }
+
+    private boolean contieneAlimento(Aliment a) {
+        for (DietDetail dd : dietDetails) {
+            if (dd.getAlimento().getId() == a.getId()) {
+                return true;
+            }
+        }
+        return false;
+    }
+```
+
+> [!warning] Se compara por `id`, no por nombre
+> Dos alimentos distintos pueden llamarse parecido, y `Aliment` no tiene `equals`/`hashCode`, así que `contains()` compara por identidad de objeto (y falla siempre, porque vienen de otro `EntityManager`). Comparar `getId()` es lo único que funciona.
+
+### 4 bis.4 Agregar y quitar
+
+```java
+    private void addAliment() {
+        if (selectedDiet.getId() == 0) {
+            view.showError("Selecciona una dieta guardada antes de agregarle alimentos.");
+            return;
+        }
+        int index = view.getAlimentIndex();
+        if (index < 0 || index >= availableAliments.size()) {
+            view.showError("No quedan alimentos para agregar a esta dieta.");
+            return;
+        }
+
+        Aliment a = availableAliments.get(index);
+        try {
+            // El pivot nuevo: (dieta, alimento)
+            dietDetailDao.insert(new DietDetail(selectedDiet, a));
+            refreshDietAliments();
+            view.showInfo(a.getAliment() + " agregado a " + selectedDiet.getName() + ".");
+        } catch (DAOException ex) {
+            view.showError("No se pudo agregar el alimento.\n" + ex.getMessage());
+            refreshDietAliments();      // deja la pantalla coherente aunque haya fallado
+        }
+    }
+
+    private void removeAliment() {
+        if (selectedDiet.getId() == 0) {
+            view.showError("Selecciona una dieta primero.");
+            return;
+        }
+        int viewRow = view.getTableDietAliments().getSelectedRow();
+        if (viewRow < 0) {
+            view.showError("Selecciona un alimento de la tabla para quitarlo de la dieta.");
+            return;
+        }
+
+        // La tabla muestra alimentos, pero el DAO borra DietDetail: convertimos el indice.
+        int modelRow = view.getTableDietAliments().convertRowIndexToModel(viewRow);
+        if (modelRow < 0 || modelRow >= dietDetails.size()) {
+            return;
+        }
+        DietDetail dd = dietDetails.get(modelRow);
+
+        if (!view.confirmRemoveAliment(dd.getAlimento())) return;
+
+        try {
+            dietDetailDao.delete(dd.getId());       // borra la RELACION, no el alimento
+            refreshDietAliments();
+            view.showInfo(dd.getAlimento().getAliment() + " ya no forma parte de la dieta.");
+        } catch (DAOException ex) {
+            view.showError("No se pudo quitar el alimento.\n" + ex.getMessage());
+            refreshDietAliments();
+        }
+    }
+```
+
+> [!note] `new DietDetail(selectedDiet, a)` con entidades "detachadas"
+> `selectedDiet` salió de un `EntityManager` que ya se cerró, y `a` también. No es problema: `DietDetail` no tiene `cascade` y EclipseLink sólo necesita los `id` para escribir `id_diet` e `id_aliment`. Si algún día ves *"Object is not a valid entity"*, la salida es `dietDao.findById(selectedDiet.getId())` antes de armar el pivot.
+
+### 4 bis.5 `selectRow`, `insert`, `modify` y `resetFields` — **[reemplaza]** los de §4.2 y §4.3
+
+```java
+    private void selectRow() {
+        int viewRow = view.getTableDiets().getSelectedRow();
+        if (viewRow < 0) return;
+        int modelRow = view.getTableDiets().convertRowIndexToModel(viewRow);
+        selectedDiet = tableModel.getDiet(modelRow);
+        showDiet(selectedDiet);
+        refreshDietAliments();          // <-- lo unico que se agrega al de §4.3
+    }
+
+    private void resetFields() {
+        selectedDiet = new Diet();
+        view.clearForm();
+        view.getTableDiets().clearSelection();
+        refreshDietAliments();          // deja la tabla de abajo vacia y el panel gris
+    }
+
+    // Deja seleccionada la dieta con ese id (despues de un alta o de una modificacion).
+    private void selectDietEnTabla(int id) {
+        for (int i = 0; i < tableModel.getRowCount(); i++) {
+            if (tableModel.getDiet(i).getId() == id) {
+                int viewRow = view.getTableDiets().convertRowIndexToView(i);
+                view.getTableDiets().setRowSelectionInterval(viewRow, viewRow);
+                return;
+            }
+        }
+    }
+```
+
+Y las dos altas/bajas cambian sólo el final:
+
+```java
+    // insert(): despues de dietDao.insert(d)
+    dietDao.insert(d);
+    refreshTable();
+    selectDietEnTabla(d.getId());       // la deja lista para agregarle alimentos
+    view.showInfo("Dieta guardada con id " + d.getId() + ". Ya podes agregarle alimentos.");
+
+    // modify(): despues de dietDao.update(d)
+    selectedDiet = dietDao.update(d);
+    refreshTable();
+    selectDietEnTabla(selectedDiet.getId());
+    view.showInfo("Dieta actualizada.");
+```
+
+> [!tip] Seleccionar la dieta nueva es lo que hace que el flujo cierre
+> Sin esto, después de guardar la dieta el panel queda gris y el usuario tiene que adivinar que primero hay que hacer clic en la tabla. Con esto: **Insert → la dieta queda seleccionada → el panel se habilita → agregás alimentos**. Un camino, sin instrucciones.
+
+### 4 bis.6 `delete()` con los alimentos asociados — **[reemplaza]** el de §4.3
+
+`fk_detail_diet` **no** tiene `ON DELETE CASCADE`: si la dieta tiene filas en `DietsDetails`, MySQL rechaza el `DELETE` de la dieta. Hay dos salidas; la buena es borrar primero las relaciones, con una confirmación que lo diga.
+
+```java
+    private void delete() {
+        if (selectedDiet.getId() == 0) {
+            view.showError("Selecciona una dieta de la tabla primero.");
+            return;
+        }
+
+        int id = selectedDiet.getId();
+
+        // 1) Guarda previa: si hay pacientes asignados no se intenta nada.
+        //    Sin esto, la cascada borraria los DietDetail y despues fallaria la dieta:
+        //    la dieta quedaria viva pero sin alimentos.
+        int pacientes = contarPacientesConDieta(id);
+        if (pacientes > 0) {
+            view.showError("No se puede eliminar \"" + selectedDiet.getName() + "\":\n"
+                    + pacientes + " paciente(s) la tienen asignada.\n"
+                    + "Cambiales la dieta primero.");
+            return;
+        }
+
+        int cantidad = dietDetails.size();          // los que se cargaron al seleccionarla
+        if (!view.confirmDeleteWithAliments(selectedDiet.getName(), cantidad)) return;
+
+        try {
+            // 2) primero las relaciones (hijos), si no la FK bloquea el borrado de la dieta
+            for (DietDetail dd : new ArrayList<>(dietDetails)) {
+                dietDetailDao.delete(dd.getId());
+            }
+            // 3) despues la dieta
+            dietDao.delete(id);
+            refreshTable();
+            resetFields();
+            view.showInfo(cantidad == 0
+                    ? "Dieta eliminada."
+                    : "Dieta eliminada junto con sus " + cantidad + " alimentos asociados.");
+        } catch (DAOException ex) {
+            view.showError("No se pudo eliminar la dieta.\n" + ex.getMessage());
+            refreshTable();
+            refreshDietAliments();
+        }
+    }
+
+    // Cuenta los pacientes que tienen asignada esa dieta (pueden ser 0).
+    private int contarPacientesConDieta(int idDieta) {
+        int total = 0;
+        try {
+            for (Patient p : patientDao.findAll()) {
+                if (p.getDieta() != null && p.getDieta().getId() == idDieta) {
+                    total++;
+                }
+            }
+        } catch (DAOException ex) {
+            view.showError(ex.getMessage());
+        }
+        return total;
+    }
+```
+
+> [!important] Por qué se pregunta por los pacientes **antes** de borrar
+> `fk_paciente_dieta` tampoco tiene `ON DELETE CASCADE`. Si se borraran primero los detalles y después se intentara la dieta, MySQL rechazaría el `DELETE` por los pacientes y la dieta quedaría **viva pero sin alimentos**, sin que nadie lo haya pedido. La guarda convierte ese desastre silencioso en un mensaje claro, y de paso ahorra el viaje a la base.
+
+Y el método que va en la **vista** (`DietView`, después de `confirmDelete()`):
+
+```java
+public boolean confirmDeleteWithAliments(String nombreDieta, int cantidad) {
+    String mensaje = cantidad == 0
+            ? "¿Desea dar de baja la dieta " + nombreDieta + "?"
+            : "La dieta " + nombreDieta + " tiene " + cantidad + " alimento(s) asociado(s).\n"
+              + "Se van a quitar de la dieta. Los alimentos siguen existiendo en el sistema.\n\n"
+              + "¿Desea continuar?";
+    return javax.swing.JOptionPane.showConfirmDialog(this, mensaje, "Confirmar",
+            javax.swing.JOptionPane.OK_CANCEL_OPTION,
+            javax.swing.JOptionPane.WARNING_MESSAGE) == javax.swing.JOptionPane.OK_OPTION;
+}
+```
+
+> [!warning] La cascada no es una transacción
+> Cada `delete()` abre y cierra su propio `EntityManager` (§DAOJpa). La guarda de pacientes cubre el caso real (dieta en uso), pero si la base se cae **en el medio** de la cascada —borró dos detalles de cinco y falla el tercero— la dieta queda con dos alimentos menos y **no** hay rollback. El `catch` refresca la pantalla para que se vea el estado real. Una transacción de verdad requiere un método en el DAO que reciba la dieta y borre todo con un solo `EntityManager`.
+
+### 4 bis.7 Los dos getters del panel
+
+Ya están en el bloque de §2 bis.9. Si en tu copia de `DietView` faltan, son estos:
+
+```java
+public javax.swing.JButton getButtonAddAliment()    {return addAlimentButton;}
+public javax.swing.JButton getButtonRemoveAliment() {return removeAlimentButton;}
+```
+
+### 4 bis.8 `buscarPorDieta` en el DAO
+
+`src/appNutritionist/dao/DietDetailDAOJPA.java:17` — hoy tira `UnsupportedOperationException`. Es la única consulta que falta en todo el proyecto:
+
+```java
+    @Override
+    public List<DietDetail> buscarPorDieta(Integer idDiet) throws DAOException {
+        return consultar("SELECT dd FROM DietDetail dd WHERE dd.diet.id = :idDiet",
+                         "idDiet", idDiet);
+    }
+```
+
+> [!warning] `dd.diet.id`, no `dd.dieta.id`
+> JPQL usa **nombres de campo**. El campo es `private Diet diet;` aunque el getter se llame `getDieta()`. Si escribís `dd.dieta.id`, EclipseLink responde *"The state field path 'dd.dieta.id' cannot be resolved to a valid type."*
+
+Verificación rápida (con la base cargada):
+
+```powershell
+Select-String -Path "src\appNutritionist\dao\DietDetailDAOJPA.java" -Pattern 'UnsupportedOperationException'
+```
+
+No tiene que devolver nada.
+
+### 4 bis.9 Pruebas del panel
+
+Se corren después de las 21 de §7, con la base y los datos de ejemplo cargados.
+
+| # | Acción | Resultado esperado |
+|---|---|---|
+| 1 | Abrir **Diets** sin seleccionar nada | la tabla de abajo vacía, el combo vacío, Add/Remove grises |
+| 2 | Clic en `Hipocalórica` | título `Aliments of the diet : Hipocalórica (3)` y **Manzana, Pechuga de pollo, Lechuga** |
+| 3 | Clic en `Vegetariana` | título con `(3)` y **Banana, Arroz integral, Palta** |
+| 4 | Mirar el combo con `Hipocalórica` | **4** alimentos: los que no están (Banana, Arroz integral, Yogur, Palta) |
+| 5 | Agregar `Banana` → Add | aparece en la tabla, el título pasa a `(4)` y Banana **desaparece del combo** |
+| 6 | Volver a `Vegetariana` y a `Hipocalórica` | la tabla sigue con 4: se guardó |
+| 7 | **Cerrar y reabrir la app** | sigue con 4 (está en MySQL) |
+| 8 | Seleccionar `Lechuga` → Remove → Cancelar | no borra nada |
+| 9 | Seleccionar `Lechuga` → Remove → Aceptar | el mensaje dice *"ya no forma parte de la dieta"*, la fila desaparece y Lechuga **vuelve al combo** |
+| 10 | Remove sin fila seleccionada | mensaje, sin excepción |
+| 11 | Ordenar la tabla de abajo por *Name* y quitar la primera fila | se quita **esa**, no otra (`convertRowIndexToModel`) |
+| 12 | Insert de una dieta nueva | queda **seleccionada**, el panel se habilita y el título dice `(0)` |
+| 13 | Agregar 2 alimentos a la dieta nueva | funciona sin haber tocado nada más |
+| 14 | Delete de la dieta nueva | el diálogo avisa *"tiene 2 alimento(s) asociado(s)… los alimentos siguen existiendo"*; borra la dieta y sus dos relaciones |
+| 15 | Delete de `Hipocalórica` (la tiene Martín) | mensaje *"No se puede eliminar… 1 paciente(s) la tienen asignada… Cambiales la dieta primero"*, **sin crash**, la dieta sigue con sus **3** alimentos |
+| 16 | Workbench: `SELECT * FROM DietsDetails;` | coincide exactamente con lo que muestra la pantalla |
+
+> [!important] Las pruebas 7 y 16 son las que valen
+> La 7 demuestra que el pivot se persistió, no que se pintó en una tabla. La 16 demuestra que la app y MySQL cuentan la misma historia — que es exactamente lo que va a mirar el profesor.
+
+### 4 bis.10 Si algo falla
+
+| Mensaje | Causa | Solución |
+|---|---|---|
+| `UnsupportedOperationException` al seleccionar una dieta | `buscarPorDieta` sin implementar | §4 bis.8 |
+| `Duplicate entry ... for key 'UNQ_DietsDetails_0'` | el alimento ya está en esa dieta | el combo filtrado lo evita; si pasa, es que no se recargó (`refreshDietAliments`) |
+| `Cannot add or update a child row: a foreign key constraint fails` | `id_diet` o `id_aliment` inexistente (dieta sin guardar) | §4 bis.4, el guard de `getId() == 0` |
+| `The state field path 'dd.dieta.id' cannot be resolved` | JPQL con el nombre del getter | `dd.diet.id` |
+| `Cannot delete or update a parent row` al borrar la dieta | quedaron detalles o hay pacientes asignados | §4 bis.6: primero los detalles; pacientes es un mensaje |
+| La tabla de abajo no se llena | `getTableDietAliments().setModel(...)` olvidado | §4 bis.2 |
+| El alimento agregado sigue en el combo | falta `loadAvailableAliments()` después del insert | está dentro de `refreshDietAliments()` |
+| Se quita el alimento equivocado, sólo con la tabla ordenada | falta `convertRowIndexToModel` | §4 bis.4 |
+| El panel queda habilitado después de limpiar | `resetFields()` no llama a `refreshDietAliments()` | §4 bis.5 |
+| `Stack trace` al borrar con la base caída | `DAOJpa.delete()` crea el `EntityManager` fuera del `try` | deuda compartida, ver §12 |
+
+### 4 bis.11 Trampas del panel
+
+| # | Trampa | Qué pasa |
+|---|---|---|
+| 1 | Usar el índice de la **vista** para indexar `dietDetails` | con la tabla ordenada se borra otro alimento |
+| 2 | Comparar alimentos con `equals`/`contains` | `Aliment` no define `equals`: compara identidad de objeto y nunca coincide |
+| 3 | No volver a llenar el combo después de agregar | el alimento se puede agregar dos veces y choca con el `UNIQUE` |
+| 4 | Borrar la dieta antes que sus `DietDetail` | `fk_detail_diet` lo rechaza |
+| 5 | Creer que la cascada es atómica | no hay transacción entre DAOs: puede quedar a medias |
+| 6 | Habilitar el panel con una dieta sin guardar | `id_diet` no existe: falla el `INSERT` del pivot |
+| 7 | Poner el `List<DietDetail>` como `static` | se comparte entre ventanas y explota al navegar |
+| 8 | Cargar los alimentos con `dietDao.findAll()` | las dietas no traen sus detalles: hay que preguntar por dieta |
+
+---
+
 ## 5. Fase 4 — Conectar la navegación
 
 ### 5.1 `AppNutritionist` — no se toca
@@ -571,7 +1291,7 @@ No tiene que devolver nada.
 | 11 | Modify del nombre a `Hipocalorica estricta` | mensaje de actualizado; al reabrir, el nombre nuevo |
 | 12 | Modify de la descripción | persiste |
 | 13 | Delete → Cancelar | no borra |
-| 14 | Delete de `Vegetariana` (id 2, **tiene pacientes y alimentos**) | mensaje "No se pudo eliminar la dieta…", **sin crash**, la fila sigue |
+| 14 | Delete de `Vegetariana` (id 2, **la tiene Lucía y tiene 3 alimentos**) | mensaje *"No se puede eliminar… 1 paciente(s) la tienen asignada"*, **sin crash**, la fila sigue **con sus 3 alimentos** |
 | 15 | Insert de una dieta nueva sin asignar → Delete | borra sin problema |
 | 16 | Diets → Patients | el combo de dietas muestra la dieta nueva y ya no la borrada |
 | 17 | Asignarle la dieta nueva a un paciente con **Modify** | persiste al reabrir |
@@ -581,7 +1301,7 @@ No tiene que devolver nada.
 | 21 | Search con el campo vacío | vuelve a mostrar todas |
 
 > [!note] La prueba 14 es la importante
-> Es la única que ejercita la clave foránea. `Hipocalórica` (id 1) y `Vegetariana` (id 2) están referenciadas desde `Patients.id_diet` y desde `DietsDetails.id_diet`, así que MySQL **rechaza** el `DELETE`. Lo que tiene que pasar es que la app muestre un mensaje y siga viva, no que se cierre con un stack trace.
+> Es la única que ejercita las dos claves foráneas a la vez. `Vegetariana` (id 2) está referenciada desde `Patients.id_diet` (Lucía) y desde `DietsDetails.id_diet` (3 filas). La app tiene que **detectarlo antes de borrar** y avisar; lo que no puede pasar es que borre los detalles, que MySQL rechace la dieta y quede una dieta sin alimentos y sin mensaje. Si el mensaje no aparece y en su lugar sale un stack trace, la guarda `contarPacientesConDieta` (§4 bis.6) no está puesta.
 
 ---
 
@@ -599,10 +1319,21 @@ No tiene que devolver nada.
 | 8 | Escribir `diet.getNombre()` / `setNombre()` | no existen. `Diet` usa `getName()` / `setName()` desde `1f785b6` |
 | 9 | Copiar `{@link Dieta}` o `{@link DietaDAO}` en el Javadoc | NetBeans lo pinta en rojo; no rompe la compilación pero sí `Generate Javadoc` |
 | 10 | Poner lógica en los `...ActionPerformed` de la vista | se ejecuta dos veces (vista + controlador) |
-| 11 | Crear `DietView` sin avisarle a RomiM | dos ramas con el mismo archivo nuevo: conflicto sin resolución automática |
+| 11 | Editar `initComponents()` a mano | el próximo guardado del form en el diseñador te borra el cambio, sin aviso |
+| 12 | Commitear `DietView.java` sin `DietView.form` (o al revés) | el par queda desincronizado y el diseñador reescribe el `.java` al abrirlo |
+| 13 | Dos personas tocando `DietView.form` a la vez | conflicto de XML generado: no se resuelve solo |
+| 14 | Dejar `dietsTable` con las columnas `Aliment 1` / `Aliment 2` | no puede representar N alimentos y duplica lo que ya muestra `dietAlimentsTable` |
+| 15 | Dejar `description` como `JTextArea` | acepta `Enter` en una columna `VARCHAR(100)`: entra un salto de línea donde va un texto corto |
+| 16 | Escribir `dd.dieta.id` en el JPQL del detalle | JPQL usa **campos**, no getters: es `dd.diet.id`. Si no, *"The state field path cannot be resolved"* |
+| 17 | Borrar los `DietDetail` sin mirar si hay pacientes | la cascada funciona, la dieta no se puede borrar, y queda **sin alimentos**: pérdida silenciosa. La guarda de §4 bis.6 lo evita |
+| 18 | Habilitar Add/Remove con una dieta sin `id` | el `INSERT` del pivot manda `id_diet` nulo: *"foreign key constraint fails"* |
+| 19 | Comparar alimentos con `contains()` o `equals()` | `Aliment` no define `equals`: compara identidad y nunca coincide, el combo ofrece alimentos que ya están |
+| 20 | Poner el panel de alimentos con `enabled` en el `JPanel` | el `JPanel` deshabilitado no deshabilita a sus hijos (§2 bis.7) |
 
-> [!tip] La trampa 11 es la única que puede costar horas
-> Las otras diez se arreglan leyendo el error. Que dos personas creen el mismo `DietView.java` desde cero, no.
+> [!tip] Las trampas 11 a 13 son las únicas que pueden costar horas
+> Las otras se arreglan leyendo el error. Un `initComponents()` pisado o un `.form` mergeado a mano, no: se pierde trabajo sin que nadie se entere.
+>
+> La **17** es la más peligrosa de las nuevas porque no muestra error: la app dice *"No se pudo eliminar la dieta"* y parece que no pasó nada, pero los alimentos ya no están en la dieta.
 
 ---
 
@@ -611,9 +1342,15 @@ No tiene que devolver nada.
 | Mensaje | Causa | Solución |
 |---|---|---|
 | `The abstract schema type 'diets' is unknown` | JPQL sin arreglar | Fase 5 |
-| `Cannot delete or update a parent row: a foreign key constraint fails` | la dieta tiene pacientes o alimentos | es **esperado**: el controlador lo informa (prueba 14) |
+| `Cannot delete or update a parent row: a foreign key constraint fails` | la dieta tiene pacientes o alimentos | con la guarda de §4 bis.6 no debería llegar acá; si llega, hay un detalle sin recargar |
 | `Data too long for column 'name'` | falta la validación de 50 | Fase 4.2, `validar()` |
 | `Field 'name' doesn't have a default value` | se intentó insertar con el nombre vacío | ídem |
+| `Duplicate entry ... for key 'UNQ_DietsDetails_0'` | el alimento ya está en la dieta | el combo filtrado lo evita; si pasa, falta `refreshDietAliments()` |
+| `UnsupportedOperationException` al seleccionar una dieta | `buscarPorDieta` sin implementar | §4 bis.8 |
+| La tabla de abajo no se llena | falta `setModel` en el constructor | §4 bis.2 |
+| Se quita un alimento distinto, sólo con la tabla ordenada | falta `convertRowIndexToModel` | §4 bis.4 |
+| Se borró la dieta y quedaron sus alimentos | se borró al revés | §4 bis.6: primero los detalles |
+| El panel sigue habilitado después de limpiar | `resetFields()` no llama a `refreshDietAliments()` | §4 bis.5 |
 | `Unknown column 't1.nombre' in 'field list'` | la base se creó **antes** de `1f785b6` | recrear con el script actual (ver [[bug-jpql-dao]]) |
 | `No Persistence provider for EntityManager named nutricionPU` | faltan EclipseLink y el driver en `lib/` | Fase 1 de [[plan-crud-bd]] |
 | `Access denied for user 'root'@'localhost'` | contraseña distinta de `2711` | no commitear la propia |
@@ -628,19 +1365,22 @@ No tiene que devolver nada.
 
 | Archivo | Por qué |
 |---|---|
-| `view/DietView.java` + `view/DietView.form` | la pantalla nueva |
+| `view/DietView.java` + `view/DietView.form` | la vista ajustada (§2 bis) |
 | `view/DietTableModel.java` | el modelo de tabla |
-| `controller/DietController.java` | el CRUD |
+| `controller/DietController.java` | el CRUD **y** el panel de alimentos (§4 y §4 bis) |
 | `controller/PatientController.java`, `controller/AlimentController.java` | los listeners del botón Diets |
-| `dao/DietDAOJPA.java` | el JPQL (si lo hace quien hace la vista) |
+| `dao/DietDAOJPA.java` | el JPQL de `Diet` |
+| `dao/DietDetailDAOJPA.java` | `buscarPorDieta` (§4 bis.8) |
 
 ### 10.2 Dos commits, no uno
 
 ```powershell
-# 1) la pantalla y el CRUD
+# 1) la pantalla y el CRUD, con el panel de alimentos
 git add src/appNutritionist/view/DietView.java src/appNutritionist/view/DietView.form `
-        src/appNutritionist/view/DietTableModel.java src/appNutritionist/controller/DietController.java
-git commit -m "Agregue la vista de dietas con su tabla, su controlador y el CRUD completo"
+        src/appNutritionist/view/DietTableModel.java `
+        src/appNutritionist/controller/DietController.java `
+        src/appNutritionist/dao/DietDetailDAOJPA.java
+git commit -m "Agregue la vista de dietas con su tabla, su controlador, el CRUD y los alimentos de cada dieta"
 
 # 2) la navegacion y el JPQL
 git add src/appNutritionist/controller/PatientController.java `
@@ -687,9 +1427,14 @@ Todo el plan está construido sobre esas cuatro ideas: la vista expone, el contr
 
 ---
 
-## 12. Fase 7 (opcional) — los alimentos de la dieta
+## 12. Fase 7 — los alimentos de la dieta
 
-**No es parte del CRUD de dietas.** Si sobra tiempo, es el "extra" que puede levantar nota, pero tiene un problema de diseño que hay que resolver primero.
+> [!important] Ya no es opcional (2026-11-12)
+> Cuando se escribió esta sección, el detalle de la dieta era "el extra que levanta nota". **Cambió el alcance:** Caro diseñó `DietView` con una segunda tabla, un combo y los botones Add/Remove, así que el panel de alimentos entra en el trabajo. Lo que sigue sirve como referencia del modelo, del problema de diseño y de lo que hay que implementar del lado del DAO. **La vista está resuelta en §2 bis y el controlador en §4 bis**, incluida la implementación de `buscarPorDieta` (§4 bis.8).
+>
+> Sigue siendo opcional lo único que de verdad no se puede hacer: **la cantidad** (*"200 g de arroz"*), porque no existe la columna.
+
+**Qué es:** la tabla pivot que relaciona dietas con alimentos. No es un CRUD aparte: se administra desde la misma pantalla de dietas.
 
 ### Lo que hay
 
@@ -720,23 +1465,32 @@ Para una dieta eso es una limitación real. Las salidas son dos, y hay que elegi
 > [!warning] Hablarlo con el equipo antes, no después
 > Si se agrega `cantidad` **después** de que los otros dos cablearon sus pantallas, hay que recrear la base y volver a probar todo. Decidirlo antes de la primera línea de código del detalle.
 
-### Lo que haría falta para cablearlo
+### Cómo quedó cableado
 
-1. `DietDetailDAOJPA.buscarPorDieta` — hoy es un `throw` (ver [[bug-jpql-dao]]):
+El diseño cambió respecto de lo que se pensaba acá: **no** son dos tablas lado a lado, es **una tabla + un combo filtrado** en la misma pantalla de dietas.
 
-   ```java
-   @Override
-   public List<DietDetail> buscarPorDieta(Integer idDiet) throws DAOException {
-       return consultar("SELECT dd FROM DietDetail dd WHERE dd.diet.id = :idDiet",
-                        "idDiet", idDiet);
-   }
-   ```
+| Pieza | Dónde está |
+|---|---|
+| Segunda tabla con los alimentos de la dieta (reutiliza `AlimentTableModel`) | §2 bis.1 y §4 bis.2 |
+| Combo con los alimentos que todavía no están + Add/Remove | §2 bis.9 y §4 bis.3, §4 bis.4 |
+| Título dinámico `Aliments of the diet : Hipocalórica (3)` | §2 bis.4 |
+| `List<DietDetail>` en paralelo para poder borrar el pivot | §4 bis.1 |
+| Manejo del `UNIQUE`: el combo filtrado lo evita por diseño | §4 bis.3 |
+| Cascada manual al borrar la dieta | §4 bis.6 |
+| `buscarPorDieta` implementado | §4 bis.8 |
+| Las 16 pruebas | §4 bis.9 |
 
-2. Una pantalla con **dos tablas**: la de la izquierda con los alimentos de la dieta, la de la derecha con todos los alimentos disponibles, y dos botones para pasar de una a otra.
-3. Modelos de tabla para las dos (el de la derecha puede reutilizar `AlimentTableModel`).
-4. Manejo del `UNIQUE`: agregar dos veces el mismo alimento tira excepción, hay que informarlo.
+La consulta que faltaba era esta:
 
-Es media sesión más, con suerte. **El CRUD de dietas se entrega sin esto.**
+```java
+@Override
+public List<DietDetail> buscarPorDieta(Integer idDiet) throws DAOException {
+    return consultar("SELECT dd FROM DietDetail dd WHERE dd.diet.id = :idDiet",
+                     "idDiet", idDiet);
+}
+```
+
+Lo único que sigue afuera es **la cantidad**: mientras no exista la columna, el detalle dice *qué* alimentos, no *cuánto*.
 
 > [!note] Un bug latente que va a aparecer en el DELETE
 > `DAOJpa.delete()` (`dao/DAOJpa.java:99`) crea el `EntityManager` **fuera** del `try`:
