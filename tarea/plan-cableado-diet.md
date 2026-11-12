@@ -31,7 +31,7 @@ aliases: [plan-cableado-diet, plan-diet, plan-crud-diet, plan-dietas]
 | `dao/DietDAO.java` | ✅ **lista** | `extends DAO<Diet, Integer>` + `buscarPorNombre(String)` |
 | `dao/DietDAOJPA.java` | ⚠️ **JPQL roto** | `:19` → `FROM diets` (nombre de tabla, no de entidad) |
 | `controller/DietController.java` | ❌ **vacío** | sólo el header de licencia y la clase sin cuerpo |
-| `view/DietView.java` + `.form` | ⚠️ **existe, sin ajustar** | la creó Caro (`6f6a449`, corregida en `751bb35`); le falta todo lo de §2 bis: 3 columnas, getters, rótulos y estado del panel |
+| `view/DietView.java` + `.form` | ⚠️ **existe, sin ajustar** | la creó Caro (`6f6a449`, corregida en `751bb35`); le falta todo lo de §2 bis: 2 columnas, getters, rótulos y estado del panel |
 | `view/DietTableModel.java` | ❌ **no existe** | |
 | Botón **Diets** en las vistas | ❌ **sin listener** | `getButtonDiets()` existe (`PatientView:469`, `AlimentView:364`) pero nadie lo escucha |
 | `AppNutritionist` | ✅ **ya cableado** | crea `new DietDAOJPA()` y ya se lo pasa a `PatientController` y `AlimentController` |
@@ -50,9 +50,9 @@ aliases: [plan-cableado-diet, plan-diet, plan-crud-diet, plan-dietas]
 
 ### Entra
 
-- **Ajustar** `DietView` (ya existe) para que sea intuitiva: 3 columnas en la tabla de dietas, descripción de una línea, rótulos, tooltips y los getters que hoy no tiene (§2 bis).
+- **Ajustar** `DietView` (ya existe) para que sea intuitiva: 2 columnas en la tabla de dietas, descripción de una línea, rótulos, tooltips y los getters que hoy no tiene (§2 bis).
 - `DietController` completo: insert, modify, delete, search por nombre y selección de fila.
-- `DietTableModel` de tres columnas.
+- `DietTableModel` de dos columnas.
 - **Los listeners del botón Diets** en `PatientView` y `AlimentView` para llegar a la pantalla nueva desde las otras dos.
 - El JPQL de `DietDAOJPA`.
 - El manejo del error de clave foránea al borrar una dieta en uso.
@@ -195,19 +195,26 @@ O sea: el nombre **no puede ser vacío** (es `NOT NULL`) y **ninguno de los dos 
 4. **Todos los cambios se hacen en el diseñador**, nunca a mano dentro de `initComponents()`: NetBeans regenera ese método al guardar y te borra la edición.
 5. Al terminar cada paso, `Ctrl+S` y compilar. Si un paso rompe el layout, `Ctrl+Z` y volver.
 
-### 2 bis.1 `dietsTable`: de 4 columnas a 3
+### 2 bis.1 `dietsTable`: de 4 columnas a 2
 
-**Qué:** hoy declara `ID`, `Name`, `Aliment 1`, `Aliment 2`. Una dieta tiene **N** alimentos, no dos —`Vegetariana` del script ya tiene tres (Banana, Arroz integral, Palta)— y esos alimentos ya se muestran abajo, en `dietAlimentsTable`. Con las dos cosas a la vez, la pantalla dice dos veces lo mismo y puede desincronizarse.
+**Qué:** hoy declara `ID`, `Name`, `Aliment 1`, `Aliment 2`. Hay dos cosas mal. La primera: una dieta tiene **N** alimentos, no dos —`Vegetariana` del script ya tiene tres (Banana, Arroz integral, Palta)— y esos alimentos ya se muestran abajo, en `dietAlimentsTable`; con las dos cosas a la vez la pantalla dice lo mismo dos veces y se puede desincronizar. La segunda: el `Description` no va en la grilla, porque es el único texto largo de la tabla y la celda lo recorta.
 
 **Cómo:**
 
 1. Clic derecho sobre `dietsTable` → **Table Contents…**
-2. Pestaña **Columns**: seleccionar `Aliment 2` → **Delete**; seleccionar `Aliment 1` → **Delete**.
-3. Verificar que quedan `ID`, `Name`, `Description` (doble clic para renombrar).
+2. Pestaña **Columns**: seleccionar `Aliment 2` → **Delete**; `Aliment 1` → **Delete**; `Description` → **Delete**.
+3. Verificar que quedan **`ID`, `Name`** (doble clic para renombrar).
 4. Pestaña **Rows**: tiene que decir **0**. Si hay filas, borralas — si no, el diseñador hornea filas de `null` en cada guardado (trampa 1 de §8).
 5. `Ctrl+S` y compilar.
 
-**Resultado:** 3 columnas, que es exactamente lo que espera `DietTableModel` en §3. No hay que cambiarle nada al modelo.
+> [!important] Por qué la descripción no va en la tabla
+> Es el mismo criterio que ya usa `PatientTableModel`: **`observations`, que es `VARCHAR(500)`, no está en la grilla**. La tabla muestra lo que sirve para **identificar y comparar** registros (`ID`, `Name`); el texto largo se lee completo en el formulario, que se llena al seleccionar la fila.
+>
+> Consecuencia práctica: no hay que pelear con celdas recortadas, ni con `\n` adentro de una celda (que el renderer por defecto dibuja como un cuadradito), ni con alto de fila variable. Y la descripción **no se pierde**: sigue en la base y aparece completa en `descriptionTextField` al hacer clic.
+>
+> Para la defensa: *"la descripción no va en la tabla porque es texto largo y la celda lo recorta; se muestra completa en el formulario, igual que las observaciones en pacientes"*.
+
+**Resultado:** 2 columnas, que es exactamente lo que espera `DietTableModel` en §3.
 
 ### 2 bis.2 `descriptionTextArea` → `descriptionTextField`
 
@@ -394,7 +401,7 @@ Todavía no hay `DietController`, así que la pantalla va a estar vacía. Lo que
 
 | # | Qué mirar | Esperado |
 |---|---|---|
-| 1 | La tabla de dietas | 3 columnas: `ID`, `Name`, `Description`. Sin `Aliment 1/2` |
+| 1 | La tabla de dietas | 2 columnas: `ID`, `Name`. Sin `Aliment 1/2` ni `Description` |
 | 2 | Descripción | un campo de **una línea**, no un recuadro de cinco |
 | 3 | El campo ID | gris, no se puede escribir |
 | 4 | El combo de alimentos | vacío, sin `Item 1..4` |
@@ -461,7 +468,7 @@ import javax.swing.table.AbstractTableModel;
  */
 public class DietTableModel extends AbstractTableModel {
 
-    private final String[] columns = {"ID", "Name", "Description"};
+    private final String[] columns = {"ID", "Name"};
     private List<Diet> diets = new ArrayList<>();
 
     public void setDiets(List<Diet> diets) {
@@ -486,7 +493,6 @@ public class DietTableModel extends AbstractTableModel {
         return switch (column) {
             case 0 -> d.getId();
             case 1 -> d.getName();
-            case 2 -> d.getDescription() == null ? "" : d.getDescription();
             default -> null;
         };
     }
@@ -494,7 +500,7 @@ public class DietTableModel extends AbstractTableModel {
 ```
 
 > [!important] El `null` de `description`
-> La columna es `VARCHAR(100)` **sin** `NOT NULL`. Una dieta cargada por SQL puede tener `description = NULL`, y una celda con `null` sale vacía (está bien) pero `showDiet` sí se rompe si llamás `.setText(null)` sin cuidado. Por eso el `== null ? "" :` está en los dos lados.
+> La columna es `VARCHAR(100)` **sin** `NOT NULL`. Una dieta cargada por SQL puede tener `description = NULL`, y `showDiet` se rompe si llamás `.setText(null)` sin cuidado. Por eso `view.setDescriptionText(...)` va con `== null ? "" :` (§4.3). Ya no hay celda que proteger: la descripción no se muestra en la tabla.
 
 ---
 
@@ -1279,13 +1285,13 @@ No tiene que devolver nada.
 | # | Prueba | Resultado esperado |
 |---|---|---|
 | 1 | Abrir la app → botón **Diets** | abre `DietView` con las 2 dietas del script: `Hipocalórica` y `Vegetariana` |
-| 2 | La columna Description muestra los textos del script | textos completos, sin cortar |
+| 2 | Clic en una fila | el campo Description se llena con el texto completo del script (aunque no esté en la tabla) |
 | 3 | Insert con nombre y descripción | mensaje con el id asignado, fila nueva, formulario limpio |
 | 4 | **Cerrar y reabrir la app** | la dieta nueva **sigue** ahí |
 | 5 | Insert sin nombre | "El nombre de la dieta es obligatorio", no guarda |
 | 6 | Insert con nombre de 51 caracteres | "El nombre no puede superar los 50 caracteres", no guarda |
 | 7 | Insert con descripción de 101 caracteres | "La descripcion no puede superar los 100 caracteres", no guarda |
-| 8 | Insert sin descripción (vacía) | guarda igual, la columna Description queda vacía |
+| 8 | Insert sin descripción (vacía) | guarda igual, el campo Description queda vacío |
 | 9 | Clic en una fila | se cargan los 3 campos |
 | 10 | Ordenar por *Name* y hacer clic | carga la dieta correcta (prueba `convertRowIndexToModel`) |
 | 11 | Modify del nombre a `Hipocalorica estricta` | mensaje de actualizado; al reabrir, el nombre nuevo |
@@ -1329,6 +1335,7 @@ No tiene que devolver nada.
 | 18 | Habilitar Add/Remove con una dieta sin `id` | el `INSERT` del pivot manda `id_diet` nulo: *"foreign key constraint fails"* |
 | 19 | Comparar alimentos con `contains()` o `equals()` | `Aliment` no define `equals`: compara identidad y nunca coincide, el combo ofrece alimentos que ya están |
 | 20 | Poner el panel de alimentos con `enabled` en el `JPanel` | el `JPanel` deshabilitado no deshabilita a sus hijos (§2 bis.7) |
+| 21 | Dejar `Description` como columna de `dietsTable` | la celda es de una línea: el texto se recorta, y si tiene `\n` sale un cuadradito. El texto largo va en el formulario (§2 bis.1) |
 
 > [!tip] Las trampas 11 a 13 son las únicas que pueden costar horas
 > Las otras se arreglan leyendo el error. Un `initComponents()` pisado o un `.form` mergeado a mano, no: se pierde trabajo sin que nadie se entere.

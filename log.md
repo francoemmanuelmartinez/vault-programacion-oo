@@ -22,7 +22,7 @@ Registro append-only de cada tanda de trabajo. Entradas nuevas arriba.
 - **Remove borra la fila de `DietsDetails`, no el `Aliment`.** La tabla muestra alimentos pero el controlador guarda `List<DietDetail>` en paralelo, porque para borrar hace falta el id del pivot.
 - **El combo se filtra** con los alimentos que todavía no están en la dieta: así `UNIQUE (id_diet, id_aliment)` no llega a fallar y la pantalla comunica el estado.
 - **El panel de alimentos arranca deshabilitado** y se habilita cuando la dieta tiene id (una dieta sin guardar no puede tener `id_diet`).
-- `dietsTable` vuelve a 3 columnas (`ID`, `Name`, `Description`).
+- `dietsTable` queda con **2 columnas** (`ID`, `Name`). La `Description` no va en la grilla: es texto largo, la celda lo recorta y un `\n` sale como cuadradito. Se lee completa en el formulario al seleccionar la fila, igual que `observations` en `PatientTableModel`.
 
 **Qué se escribió en la nota:**
 - **§2 bis**, con 13 subsecciones (`2 bis.0` a `2 bis.12`): coordinación con Caro, los pasos del diseñador (borrar columnas por *Table Contents*, cambiar la textarea por `JTextField`, rótulos, tooltips, combo vacío, panel deshabilitado, agrupamiento opcional), los ~30 métodos del bloque de código completo, un checklist visual de 10 puntos y 7 trampas del editor.
@@ -33,7 +33,7 @@ Registro append-only de cada tanda de trabajo. Entradas nuevas arriba.
 - §2: marcada como superada por §2 bis, salvo §2.4 (límites 50/100).
 - §2 bis.12: pasa de "esto todavía no está escrito" a la tabla que apunta a §4 bis.8.
 - §7: la prueba 14 ahora verifica la guarda de pacientes; §4 bis.9 tiene las 16 del panel.
-- §8: trampas 11 a 20 (pisar `initComponents()`, commitear `.java` sin `.form`, dos personas en el `.form`, las columnas `Aliment 1/2`, la textarea, `dd.dieta.id`, borrar detalles sin mirar pacientes, habilitar el panel sin id, `contains()` y `enabled` en el `JPanel`).
+- §8: trampas 11 a 21 (pisar `initComponents()`, commitear `.java` sin `.form`, dos personas en el `.form`, las columnas `Aliment 1/2`, la textarea, `dd.dieta.id`, borrar detalles sin mirar pacientes, habilitar el panel sin id, `contains()`, `enabled` en el `JPanel` y la `Description` en la celda).
 - §9: cuatro errores nuevos del panel (`Duplicate entry`, `UnsupportedOperationException`, `convertRowIndexToModel`, borrar al revés).
 - §10: `DietDetailDAOJPA.java` entra en el primer commit.
 - §12: de "(opcional)" a "ya no es opcional", con el diseño real (tabla + combo, no dos tablas) y la tabla de dónde está cada pieza; lo único opcional que queda es la cantidad.
