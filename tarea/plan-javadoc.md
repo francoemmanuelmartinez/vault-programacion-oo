@@ -11,7 +11,7 @@ aliases: [plan-javadoc, javadoc, documentacion-api]
 > [!info] Qué es esta nota
 > La rúbrica pide **Javadoc para las clases y los métodos públicos**, y el nivel máximo de *Documentación y Código Limpio* dice "documentado en **todas las entidades**".
 >
-> **Estado:** los 7 `{@link}` rotos ya están arreglados, y están documentados los modelos, los DAO, los controladores, los modelos de tabla, el main y `AlimentView`. Faltan **62**: `DietView` (29) y `PatientView` (33).
+> **Estado: completo (2026-11-12).** No queda ningún elemento público sin Javadoc. Las 11 marcas que aún aparecen están fuera del conteo a propósito: 7 de `PatientDAOInMemory` (lo comenta el Estudiante) y 4 `isCellEditable` que genera el diseñador en la zona `GEN-`.
 
 > [!warning] Procedencia
 > - **Del profesor:** qué es Javadoc, la diferencia con los comentarios comunes, el formato, el orden de las etiquetas y cómo se genera (pág. 2, 3, 6, 7, 8 y 12 — `Javadoc_en_Java.pdf`), y el requisito de la rúbrica (`enunciado_rubrica.pdf`, pág. 1 y 2).
@@ -71,13 +71,12 @@ foreach ($f in $files) {
 
 | Archivo | Faltan |
 |---|---|
-| `view/PatientView.java` | **33** |
-| `view/DietView.java` | **29** |
+| — | **0** |
 
-**Total: 62**, todos getters y setters de las dos vistas que faltan.
+**Total: 0.** Las 11 marcas restantes del script son las que quedan fuera por decisión (ver la nota).
 
 > [!note] Los `isCellEditable` generados
-> Cada vista tiene un `public boolean isCellEditable(...)` dentro del `DefaultTableModel` anónimo que genera el diseñador, en la zona `GEN-`. **No se documentan**: el próximo guardado del `.form` los reescribe. Son 3 en total y quedan fuera del conteo a propósito.
+> Cada vista tiene un `public boolean isCellEditable(...)` dentro del `DefaultTableModel` anónimo que genera el diseñador, en la zona `GEN-`. **No se documentan**: el próximo guardado del `.form` los reescribe. `DietView` tiene dos (sus dos tablas), y `AlimentView` y `PatientView` uno cada una: son 4 en total.
 
 ### 1.2 Lo ya resuelto
 
@@ -240,7 +239,7 @@ public class RecordInUseException extends DAOException { ... }
 | 4 | **DAO** | `DAOJpa` 5, `PatientDAOJPA` 3, `AlimentDAOJPA` 2, `DietDAOJPA` 2, `DietDetailDAOJPA` 1 | 13 | ✅ **hecho** |
 | 5 | **Controladores y main** | `AlimentController` 2, `PatientController` 2, `DietController` 1, `AppNutritionist` 2 | 7 | ✅ **hecho** |
 | 6 | **Modelos de tabla** | los 4 | 31 | ✅ **hecho** |
-| 7 | **Vistas** | `AlimentView` ✅ · `DietView` 29 · `PatientView` 33 | 62 | en curso |
+| 7 | **Vistas** | `AlimentView` ✅ · `DietView` ✅ · `PatientView` ✅ | 0 | ✅ **hecho** |
 
 > [!warning] El bloque 1 no era opcional
 > Los `{@link}` rotos eran **errores**: `javadoc` cortaba y no producía el sitio. Se arreglaron primero, en una sola pasada.
@@ -263,7 +262,7 @@ public class RecordInUseException extends DAOException { ... }
 | Métrica | Al empezar | Hoy | Meta |
 |---|---|---|---|
 | Errores (`{@link}`) | 7 | **0** | 0 |
-| Públicos sin Javadoc | 166 | **62** | **0** |
+| Públicos sin Javadoc | 166 | **0** | **0** |
 | `javadoc` exit code | 1 | **0** | 0 |
 
 **3. El sitio generado**: abrir `index.html` y comprobar que las tres entidades aparecen en el índice, que los `{@link}` son enlaces y que cada método público muestra su resumen.
@@ -291,10 +290,10 @@ public class RecordInUseException extends DAOException { ... }
 | `{@link}` + modelos del dominio (36 elementos) | ✅ **hecho** (~1 h) |
 | DAO (13) | ✅ **hecho** (~20 min) |
 | Controladores, main y modelos de tabla (38) | ✅ **hecho** (~1 h) |
-| Vistas (62 de 86) | `AlimentView` ✅ · `DietView` y `PatientView` 1 h 30 min |
-| Generar, revisar y corregir | 30 min |
+| Vistas (86) | ✅ **hecho** |
+| Generar, revisar y corregir | ✅ **hecho**: `javadoc` exit 0, 0 errores, 0 warnings |
 
-**Resta: ~2 horas**, repartibles entre los tres integrantes (uno por entidad, como pide la rúbrica: "documentado en todas las entidades").
+**Total: hecho.** Las 11 marcas que quedan en el script son las excluidas a propósito.
 
 ---
 
