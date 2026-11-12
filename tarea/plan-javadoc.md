@@ -1,7 +1,7 @@
 ---
 fuente: Javadoc_en_Java.pdf (pág. 1 a 13) + enunciado_rubrica.pdf (pág. 1 y 2) + auditoría del código en el working copy sobre `9a1b06a` (2026-11-12)
 tags: [tarea, plan, javadoc, documentacion, rubrica]
-estado: en curso
+estado: completado
 actualizado: 2026-11-12
 aliases: [plan-javadoc, javadoc, documentacion-api]
 ---

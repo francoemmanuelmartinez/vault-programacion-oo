@@ -4,6 +4,34 @@ Registro append-only de cada tanda de trabajo. Entradas nuevas arriba.
 
 ---
 
+## 2026-11-12 — [[plan-javadoc]]: documentación de la API pública (commit `8ea0961`)
+
+**Contexto:** la rúbrica pide Javadoc para las clases y los métodos públicos, y el nivel máximo de *Documentación y Código Limpio* habla de "todas las entidades". El Estudiante pidió un plan basado en `Javadoc_en_Java.pdf`.
+
+**Los dos errores de medición** (valen como aprendizaje):
+- `javadoc -Xdoclint:all` también cuenta los **campos privados** → daba 204, inflado frente a lo que pide la rúbrica.
+- `javadoc` corta a **100 warnings** por defecto (`-Xmaxwarns`): todas las corridas daban 100 y parecía que el arreglo no bajaba nada. Al documentar `Patient` "aparecieron" `PatientView` y otros.
+
+Métrica que se adoptó: un script que cuenta **elementos públicos sin un bloque `/**` antes**. Al empezar: **166** marcas.
+
+**Qué se hizo, por bloques:**
+- **Los 7 `{@link}` rotos** (`Alimento`, `AlimentoDAO`, `Dieta`, `DietaDAO`, `DetalleDieta`, `Paciente`, y el de `Diet`): `javadoc` pasó de **exit 1** a **exit 0** y empezó a generar el sitio.
+- **Modelos**: `Aliment`, `Diet`, `DietDetail` y `Patient` (constructores, accesos, `calcularIMC` y los `toString`).
+- **DAO**: `DAOJpa` (los 5 métodos base, con `@throws`), los 4 `DAOJPA` y sus búsquedas.
+- **Controladores y main**: los 3 controladores y `AppNutritionist`.
+- **Modelos de tabla**: los 4, con la aclaración del IMC calculado y la dieta por nombre.
+- **Vistas**: `AlimentView`, `DietView` y `PatientView`, incluidos los combos, las confirmaciones y el autozoom.
+
+**155 comentarios agregados.** Quedan 11 marcas fuera a propósito: 7 de `PatientDAOInMemory` (decisión del Estudiante: no borrarlo ni documentarlo, él le pone un comentario explicando por qué y para qué se hizo) y 4 `isCellEditable` que el diseñador genera en la zona `GEN-`.
+
+**Verificación:** `javadoc -Xdoclint:all,-missing -Xmaxwarns 10000` → **exit 0, 0 errores, 0 warnings**; 48 clases en el sitio generado. El sitio **no se versiona** (opción A): el commit lleva sólo los `.java`.
+
+**Commits:** `9a1b06a` (código) y `8ea0961` (Javadoc), ambos pusheados.
+
+**Pendiente:** el empaquetado en zip para la entrega.
+
+---
+
 ## 2026-11-12 — Implementación de H1 a H10 y búsquedas híbridas (commit `9a1b06a`)
 
 **Contexto:** cerrada la auditoría de [[plan-de-pruebas-crud]], el Estudiante pidió implementar los diez huecos y después las búsquedas. Todo se commiteó junto al final, por decisión suya, con el mensaje `Corrijo los JPQL y completo validaciones y busquedas del CRUD`.
